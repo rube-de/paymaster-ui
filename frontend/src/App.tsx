@@ -8,7 +8,7 @@ function WalletButton() {
   return (
     <button
       onClick={() => setIsOpen(!isOpen)}
-      className="absolute bg-[rgba(255,255,255,0.1)] content-stretch flex gap-[8px] h-[48px] items-center p-[12px] right-[40px] rounded-[12px] top-[24px] hover:bg-[rgba(255,255,255,0.15)] transition-colors"
+      className="bg-[rgba(255,255,255,0.1)] content-stretch flex gap-[8px] h-[48px] items-center p-[12px] rounded-[12px] hover:bg-[rgba(255,255,255,0.15)] transition-colors"
     >
       <div className="relative shrink-0 size-[24px]">
         <img alt="" className="block max-w-none size-full rounded-full" height="24" src={imgEllipse12} width="24" />
@@ -34,7 +34,7 @@ function WalletButton() {
 function TicketDecoration({ color, rotation, position }: { color: string; rotation: string; position: string }) {
   return (
     <div className={`absolute ${position}`} style={{ transform: `rotate(${rotation})` }}>
-      <svg className="block" width="160" height="80" fill="none" preserveAspectRatio="none" viewBox="0 0 160 80">
+      <svg className="block w-[120px] h-[60px] md:w-[160px] md:h-[80px]" fill="none" preserveAspectRatio="none" viewBox="0 0 160 80">
         <g filter={`url(#noise-${color})`}>
           <path d={svgPaths.p3416cc80} fill={color} />
         </g>
@@ -57,7 +57,7 @@ function TicketDecoration({ color, rotation, position }: { color: string; rotati
           </filter>
         </defs>
       </svg>
-      <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[46px] text-neutral-800 font-['IBM_Plex_Mono',monospace]">250</p>
+      <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[32px] md:text-[46px] text-neutral-800 font-['IBM_Plex_Mono',monospace]">250</p>
     </div>
   );
 }
@@ -77,7 +77,7 @@ function TicketsHeader() {
   ];
 
   return (
-    <div className="absolute h-[240px] left-1/2 overflow-hidden top-0 -translate-x-1/2 w-[910px] pointer-events-none">
+    <div className="absolute h-[180px] md:h-[240px] left-1/2 overflow-hidden top-0 -translate-x-1/2 w-full max-w-[910px] pointer-events-none">
       {tickets.map((ticket, i) => (
         <TicketDecoration key={i} {...ticket} />
       ))}
@@ -113,186 +113,192 @@ export function App() {
 
   return (
     <div
-      className="relative size-full min-h-screen font-['Geist',Helvetica]"
+      className="relative w-full min-h-screen flex flex-col font-['Geist',Helvetica]"
       style={{
         backgroundImage: "url('data:image/svg+xml;utf8,<svg viewBox=\\'0 0 1440 1024\\' xmlns=\\'http://www.w3.org/2000/svg\\' preserveAspectRatio=\\'none\\'><rect x=\\'0\\' y=\\'0\\' height=\\'100%\\' width=\\'100%\\' fill=\\'url(%23grad)\\' opacity=\\'1\\'/><defs><radialGradient id=\\'grad\\' gradientUnits=\\'userSpaceOnUse\\' cx=\\'0\\' cy=\\'0\\' r=\\'10\\' gradientTransform=\\'matrix(4.4087e-15 51.2 -72 3.1351e-15 720 512)\\'><stop stop-color=\\'rgba(25,50,60,1)\\' offset=\\'0\\'/><stop stop-color=\\'rgba(10,29,36,1)\\' offset=\\'1\\'/></radialGradient></defs></svg>')"
       }}
     >
-      {/* Footer Links */}
-      <div className="absolute bottom-[24px] content-stretch flex font-normal gap-[16px] items-start leading-[20px] left-1/2 text-[14px] text-center text-nowrap text-white -translate-x-1/2 whitespace-pre">
-        <a href="#bridge" className="[text-underline-position:from-font] decoration-solid relative shrink-0 underline hover:opacity-80 transition-opacity">How to Bridge ROSE to Sapphire</a>
-        <p className="relative shrink-0">&middot;</p>
-        <a href="#rules" className="[text-underline-position:from-font] decoration-solid relative shrink-0 underline hover:opacity-80 transition-opacity">Rules</a>
-      </div>
-
-      {/* Logo */}
-      <div className="absolute h-[48px] left-[40px] top-[24px] w-[131px]">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
-          <g id="Union">
-            <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
-            <path clipRule="evenodd" d={svgPaths.p2b736500} fill="white" fillRule="evenodd" />
-            <path d={svgPaths.p1bd1ab00} fill="white" />
-            <path d={svgPaths.p2a757eb0} fill="white" />
-            <path clipRule="evenodd" d={svgPaths.p3d36a900} fill="white" fillRule="evenodd" />
-            <path d={svgPaths.p19eb9c00} fill="white" />
-          </g>
-        </svg>
-      </div>
-
-      {/* Wallet */}
-      <WalletButton />
-
-      {/* Success Modal */}
-      {showSuccess && (
-        <div className="absolute content-stretch flex flex-col items-center right-[40px] top-1/2 -translate-y-1/2 w-[520px] animate-in fade-in slide-in-from-right-4 duration-300">
-          <div className="content-stretch flex flex-col gap-[40px] items-center w-full bg-[rgba(0,0,0,0.3)] backdrop-blur-md p-8 rounded-2xl border border-white/10">
-            <div className="content-stretch flex flex-col gap-[32px] items-center w-full">
-              <div className="content-stretch flex flex-col gap-[16px] items-center text-center w-full">
-                <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[48px] text-white">Participation Successful!</p>
-                <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Thank you for participating in the Oasis Raffle! Good luck!</p>
-              </div>
-              <button
-                onClick={handleBuyMore}
-                className="bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] transition-colors content-stretch flex h-[64px] items-center justify-center px-[16px] py-[8px] rounded-[12px] w-[400px]"
-              >
-                <p className="font-medium leading-[20px] text-[16px] text-nowrap text-white whitespace-pre">Buy more tickets</p>
-              </button>
-            </div>
-
-            <div className="content-stretch flex flex-col gap-[24px] items-center w-full">
-              <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)] text-center">Share on social media</p>
-              <div className="content-stretch flex flex-col gap-[24px] items-start">
-                <button
-                  onClick={shareOnLinkedIn}
-                  className="bg-white hover:bg-gray-100 transition-colors content-stretch flex h-[48px] items-center justify-between pl-[16px] pr-[8px] py-[8px] rounded-[12px] w-[400px]"
-                >
-                  <div className="relative shrink-0 size-[24px]">
-                    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-                      <g>
-                        <path d={svgPaths.p2ccee40} fill="#18181B" />
-                      </g>
-                    </svg>
-                  </div>
-                  <p className="font-medium leading-[20px] text-[16px] text-black text-center text-nowrap whitespace-pre">LinkedIn</p>
-                  <div className="shrink-0 size-[24px]" />
-                </button>
-                <button
-                  onClick={shareOnX}
-                  className="bg-white hover:bg-gray-100 transition-colors content-stretch flex h-[48px] items-center justify-between pl-[16px] pr-[8px] py-[8px] rounded-[12px] w-[400px]"
-                >
-                  <div className="relative shrink-0 size-[24px]">
-                    <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-                      <g>
-                        <path d={svgPaths.p38a22b70} fill="#18181B" />
-                      </g>
-                    </svg>
-                  </div>
-                  <p className="font-medium leading-[20px] text-[16px] text-black text-center text-nowrap whitespace-pre">X</p>
-                  <div className="shrink-0 size-[24px]" />
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* Header */}
+      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 py-6">
+        {/* Logo */}
+        <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px]">
+          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
+            <g id="Union">
+              <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
+              <path clipRule="evenodd" d={svgPaths.p2b736500} fill="white" fillRule="evenodd" />
+              <path d={svgPaths.p1bd1ab00} fill="white" />
+              <path d={svgPaths.p2a757eb0} fill="white" />
+              <path clipRule="evenodd" d={svgPaths.p3d36a900} fill="white" fillRule="evenodd" />
+              <path d={svgPaths.p19eb9c00} fill="white" />
+            </g>
+          </svg>
         </div>
-      )}
+
+        {/* Wallet */}
+        <WalletButton />
+      </header>
 
       {/* Ticket Decorations */}
       <TicketsHeader />
 
-      {/* Main Content */}
-      <div className="absolute content-stretch flex flex-col gap-[16px] items-center left-[520px] top-1/2 -translate-y-1/2 w-[400px]">
-        <div className="content-stretch flex flex-col gap-[32px] items-center w-full">
-          <div className="content-stretch flex flex-col gap-[16px] items-center text-center w-full">
-            <p className="font-['Mountains_of_Christmas',cursive] leading-[64px] text-[56px] text-white w-full">X-mas Roffle</p>
-            <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)] w-full">Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket purchased which costs 250 ROSE.</p>
-          </div>
-
-          <div className="content-stretch flex flex-col gap-[24px] items-start w-[400px]">
-            <div className="content-stretch flex flex-col gap-[16px] items-start w-full">
-              {/* Amount Selector */}
-              <div className="content-stretch flex flex-col gap-[4px] items-start w-full">
-                <div className="content-stretch flex gap-[4px] items-start leading-[20px] text-[14px] text-nowrap text-white whitespace-pre">
-                  <p className="font-medium relative shrink-0">Amount</p>
-                  <p className="font-normal opacity-60 relative shrink-0">(max 10 tickets per account)</p>
-                </div>
-                <div className="relative w-full">
-                  <select
-                    value={ticketAmount}
-                    onChange={(e) => setTicketAmount(Number(e.target.value))}
-                    className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full px-[16px] py-[12px] text-white appearance-none cursor-pointer hover:bg-[rgba(0,0,0,0.3)] transition-colors"
-                  >
-                    {ticketOptions.map((option) => (
-                      <option key={option.value} value={option.value} className="bg-[#1a3c47] text-white">
-                        {option.label} ({option.price})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                      <path d="M8 10L12 14L16 10" stroke="white" strokeWidth="1.5" />
-                    </svg>
-                  </div>
-                </div>
+      {/* Main Content Area */}
+      <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">
+        <div className="w-full max-w-[410px] mx-auto">
+          {!showSuccess ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 items-center text-center">
+                <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">X-mas Roffle</p>
+                <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket purchased which costs 250 ROSE.</p>
               </div>
 
-              {/* Payment Method */}
-              <div className="content-stretch flex flex-col gap-[4px] items-start w-full">
-                <p className="font-medium leading-[20px] text-[14px] text-nowrap text-white whitespace-pre">Pay in</p>
-                <div className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full">
-                  <div className="flex flex-row items-center size-full px-[12px]">
-                    <div className="content-stretch flex gap-[8px] items-center">
-                      <div className="relative shrink-0 size-[24px]">
-                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-                          <g opacity="0.5">
-                            <path d={svgPaths.p35bbc080} fill="white" />
-                          </g>
+              <div className="flex flex-col gap-6 mt-4">
+                <div className="flex flex-col gap-4">
+                  {/* Amount Selector */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex gap-1 items-start leading-[20px] text-[14px] text-white flex-wrap">
+                      <p className="font-medium">Amount</p>
+                      <p className="font-normal opacity-60">(max 10 tickets per account)</p>
+                    </div>
+                    <div className="relative w-full">
+                      <select
+                        value={ticketAmount}
+                        onChange={(e) => setTicketAmount(Number(e.target.value))}
+                        className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full px-[16px] py-[12px] text-white appearance-none cursor-pointer hover:bg-[rgba(0,0,0,0.3)] transition-colors"
+                      >
+                        {ticketOptions.map((option) => (
+                          <option key={option.value} value={option.value} className="bg-[#1a3c47] text-white">
+                            {option.label} ({option.price})
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                          <path d="M8 10L12 14L16 10" stroke="white" strokeWidth="1.5" />
                         </svg>
                       </div>
-                      <p className="font-medium leading-[20px] text-[16px] text-nowrap text-white whitespace-pre">ROSE</p>
+                    </div>
+                  </div>
+
+                  {/* Payment Method */}
+                  <div className="flex flex-col gap-1">
+                    <p className="font-medium leading-[20px] text-[14px] text-white">Pay in</p>
+                    <div className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full">
+                      <div className="flex flex-row items-center size-full px-[12px]">
+                        <div className="flex gap-[8px] items-center">
+                          <div className="relative shrink-0 size-[24px]">
+                            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
+                              <g opacity="0.5">
+                                <path d={svgPaths.p35bbc080} fill="white" />
+                              </g>
+                            </svg>
+                          </div>
+                          <p className="font-medium leading-[20px] text-[16px] text-white">ROSE</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                <button
+                  onClick={handleBuyTickets}
+                  className="bg-white hover:bg-gray-100 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                >
+                  <p className="font-medium leading-[20px] text-[16px] text-black text-center">
+                    Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {ticketAmount * 250} ROSE
+                  </p>
+                </button>
+              </div>
+
+              <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white mt-2">
+                <span>{`By participating you agree to our `}</span>
+                <a href="#terms" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Terms and Conditions</a>.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-10 bg-[rgba(0,0,0,0.3)] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-300">
+              <div className="flex flex-col gap-8 items-center">
+                <div className="flex flex-col gap-4 items-center text-center">
+                  <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Participation Successful!</p>
+                  <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Thank you for participating in the Oasis Raffle! Good luck!</p>
+                </div>
+                <button
+                  onClick={handleBuyMore}
+                  className="bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                >
+                  <p className="font-medium leading-[20px] text-[16px] text-white">Buy more tickets</p>
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-6 items-center">
+                <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)] text-center">Share on social media</p>
+                <div className="flex flex-col gap-6 w-full">
+                  <button
+                    onClick={shareOnLinkedIn}
+                    className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
+                  >
+                    <div className="relative shrink-0 size-[24px]">
+                      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
+                        <g>
+                          <path d={svgPaths.p2ccee40} fill="#18181B" />
+                        </g>
+                      </svg>
+                    </div>
+                    <p className="font-medium leading-[20px] text-[16px] text-black text-center">LinkedIn</p>
+                    <div className="shrink-0 size-[24px]" />
+                  </button>
+                  <button
+                    onClick={shareOnX}
+                    className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
+                  >
+                    <div className="relative shrink-0 size-[24px]">
+                      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
+                        <g>
+                          <path d={svgPaths.p38a22b70} fill="#18181B" />
+                        </g>
+                      </svg>
+                    </div>
+                    <p className="font-medium leading-[20px] text-[16px] text-black text-center">X</p>
+                    <div className="shrink-0 size-[24px]" />
+                  </button>
+                </div>
               </div>
             </div>
-
-            <button
-              onClick={handleBuyTickets}
-              className="bg-white hover:bg-gray-100 transition-colors content-stretch flex h-[64px] items-center justify-center pl-[16px] pr-[8px] py-[8px] rounded-[12px] w-[400px]"
-            >
-              <p className="font-medium leading-[20px] text-[16px] text-black text-nowrap whitespace-pre">
-                Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {ticketAmount * 250} ROSE
-              </p>
-            </button>
-          </div>
+          )}
         </div>
-
-        <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white w-full">
-          <span>{`By participating you agree to our `}</span>
-          <a href="#terms" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Terms and Conditions</a>.
-        </p>
-      </div>
+      </main>
 
       {/* Stats */}
-      <div className="absolute content-stretch flex gap-[16px] items-center left-[40px] top-[844px] w-[1360px]">
-        <div className="basis-0 bg-[rgba(0,0,0,0.15)] grow min-h-px min-w-px rounded-[12px]">
-          <div className="content-stretch flex flex-col items-start px-[40px] py-[20px] text-center w-full">
-            <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)] w-full">Days to go</p>
-            <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white w-full">6</p>
+      <div className="relative z-10 px-4 md:px-10 pb-32 md:pb-24">
+        <div className="flex flex-col md:flex-row gap-4 max-w-[1360px] mx-auto">
+          <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+            <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Days to go</p>
+              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">6</p>
+            </div>
           </div>
-        </div>
-        <div className="basis-0 bg-[rgba(0,0,0,0.15)] grow min-h-px min-w-px rounded-[12px]">
-          <div className="content-stretch flex flex-col items-start px-[40px] py-[20px] text-center w-full">
-            <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)] w-full">Tickets left</p>
-            <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white w-full">{2354 - purchasedTickets}</p>
+          <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+            <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Tickets left</p>
+              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">{2354 - purchasedTickets}</p>
+            </div>
           </div>
-        </div>
-        <div className="basis-0 bg-[rgba(0,0,0,0.15)] grow min-h-px min-w-px rounded-[12px]">
-          <div className="content-stretch flex flex-col items-start px-[40px] py-[20px] text-center w-full">
-            <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)] w-full">Pot size</p>
-            <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white w-full">{(1024020 + (purchasedTickets * 250)).toLocaleString()}</p>
+          <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+            <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Pot size</p>
+              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">{(1024020 + (purchasedTickets * 250)).toLocaleString()}</p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Footer Links */}
+      <footer className="relative z-10 pb-6">
+        <div className="flex flex-col sm:flex-row font-normal gap-4 sm:gap-4 items-center justify-center leading-[20px] text-[14px] text-center text-white px-4">
+          <a href="#bridge" className="[text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">How to Bridge ROSE to Sapphire</a>
+          <p className="hidden sm:block">&middot;</p>
+          <a href="#rules" className="[text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Rules</a>
+        </div>
+      </footer>
     </div>
   );
 }
