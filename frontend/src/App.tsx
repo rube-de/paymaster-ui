@@ -90,7 +90,7 @@ export function App() {
     <div
       className="relative w-full min-h-screen flex flex-col font-['Geist',Helvetica]"
       style={{
-        backgroundImage: "url('data:image/svg+xml;utf8,<svg viewBox=\\'0 0 1440 1024\\' xmlns=\\'http://www.w3.org/2000/svg\\' preserveAspectRatio=\\'none\\'><rect x=\\'0\\' y=\\'0\\' height=\\'100%\\' width=\\'100%\\' fill=\\'url(%23grad)\\' opacity=\\'1\\'/><defs><radialGradient id=\\'grad\\' gradientUnits=\\'userSpaceOnUse\\' cx=\\'0\\' cy=\\'0\\' r=\\'10\\' gradientTransform=\\'matrix(4.4087e-15 51.2 -72 3.1351e-15 720 512)\\'><stop stop-color=\\'rgba(25,50,60,1)\\' offset=\\'0\\'/><stop stop-color=\\'rgba(10,29,36,1)\\' offset=\\'1\\'/></radialGradient></defs></svg>')"
+        background: 'radial-gradient(50% 50% at 50% 50%, #19323C 0%, #0A1D24 100%)'
       }}
     >
       {/* Header */}
