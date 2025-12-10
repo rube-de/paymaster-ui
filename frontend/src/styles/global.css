@@ -170,6 +170,12 @@
     background-color: rgb(255, 255, 255);
     height: 48px;
     padding: 12px 20px;
+    font-weight: normal;
+    text-align: center;
+  }
+  &.bigButton button {
+    height: 64px;
+    padding: 8px 8px 8px 16px;
   }
 }
 .styledConnect:has([data-testid="rk-account-button"]) {

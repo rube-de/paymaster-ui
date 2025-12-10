@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import svgPaths from "./imports/svg-tho7mppomn";
+import { useAccount } from 'wagmi';
 
 const EXPECTED_END = new Date('2025-12-24T01:00:00.000Z').getTime()
 
@@ -59,12 +60,13 @@ function TicketsHeader() {
 }
 
 export function App() {
+  const { isConnected } = useAccount()
   const [ticketAmount, setTicketAmount] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [purchasedTickets, setPurchasedTickets] = useState(0);
 
-  const ticketOptions = [1,2,3,4,5,6,7,8,9,10].map(v => (
-    { value: v, label: v + ' ticket', price: v*250 +' ROSE' }
+  const ticketOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
+    { value: v, label: v + ' ticket', price: v * 250 + ' ROSE' }
   ));
 
   const handleBuyTickets = () => {
@@ -126,68 +128,77 @@ export function App() {
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket purchased which costs 250 ROSE.</p>
               </div>
 
-              <div className="flex flex-col gap-6 mt-4">
-                <div className="flex flex-col gap-4">
-                  {/* Amount Selector */}
-                  <div className="flex flex-col gap-1">
-                    <div className="flex gap-1 items-start leading-[20px] text-[14px] text-white flex-wrap">
-                      <p className="font-medium">Amount</p>
-                      <p className="font-normal opacity-60">(max 10 tickets per account)</p>
-                    </div>
-                    <div className="relative w-full">
-                      <select
-                        value={ticketAmount}
-                        onChange={(e) => setTicketAmount(Number(e.target.value))}
-                        className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full px-[16px] py-[12px] text-white appearance-none cursor-pointer hover:bg-[rgba(0,0,0,0.3)] transition-colors"
-                      >
-                        {ticketOptions.map((option) => (
-                          <option key={option.value} value={option.value} className="bg-[#1a3c47] text-white">
-                            {option.label} ({option.price})
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none">
-                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                          <path d="M8 10L12 14L16 10" stroke="white" strokeWidth="1.5" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payment Method */}
-                  <div className="flex flex-col gap-1">
-                    <p className="font-medium leading-[20px] text-[14px] text-white">Pay in</p>
-                    <div className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full">
-                      <div className="flex flex-row items-center size-full px-[12px]">
-                        <div className="flex gap-[8px] items-center">
-                          <div className="relative shrink-0 size-[24px]">
-                            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-                              <g opacity="0.5">
-                                <path d={svgPaths.p35bbc080} fill="white" />
-                              </g>
+              {!isConnected ?
+                <div className='styledConnect bigButton [&_button]:w-full'>
+                  <ConnectButton />
+                </div>
+                :
+                <>
+                  <div className="flex flex-col gap-6 mt-4">
+                    <div className="flex flex-col gap-4">
+                      {/* Amount Selector */}
+                      <div className="flex flex-col gap-1">
+                        <div className="flex gap-1 items-start leading-[20px] text-[14px] text-white flex-wrap">
+                          <p className="font-medium">Amount</p>
+                          <p className="font-normal opacity-60">(max 10 tickets per account)</p>
+                        </div>
+                        <div className="relative w-full">
+                          <select
+                            value={ticketAmount}
+                            onChange={(e) => setTicketAmount(Number(e.target.value))}
+                            className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full px-[16px] py-[12px] text-white appearance-none cursor-pointer hover:bg-[rgba(0,0,0,0.3)] transition-colors"
+                          >
+                            {ticketOptions.map((option) => (
+                              <option key={option.value} value={option.value} className="bg-[#1a3c47] text-white">
+                                {option.label} ({option.price})
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute right-[12px] top-1/2 -translate-y-1/2 pointer-events-none">
+                            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                              <path d="M8 10L12 14L16 10" stroke="white" strokeWidth="1.5" />
                             </svg>
                           </div>
-                          <p className="font-medium leading-[20px] text-[16px] text-white">ROSE</p>
+                        </div>
+                      </div>
+
+                      {/* Payment Method */}
+                      <div className="flex flex-col gap-1">
+                        <p className="font-medium leading-[20px] text-[14px] text-white">Pay in</p>
+                        <div className="bg-[rgba(0,0,0,0.2)] border border-black h-[48px] rounded-[12px] w-full">
+                          <div className="flex flex-row items-center size-full px-[12px]">
+                            <div className="flex gap-[8px] items-center">
+                              <div className="relative shrink-0 size-[24px]">
+                                <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
+                                  <g opacity="0.5">
+                                    <path d={svgPaths.p35bbc080} fill="white" />
+                                  </g>
+                                </svg>
+                              </div>
+                              <p className="font-medium leading-[20px] text-[16px] text-white">ROSE</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    <button
+                      onClick={handleBuyTickets}
+                      className="bg-white hover:bg-gray-100 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                    >
+                      <p className="font-medium leading-[20px] text-[16px] text-black text-center">
+                        Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {ticketAmount * 250} ROSE
+                      </p>
+                    </button>
                   </div>
-                </div>
 
-                <button
-                  onClick={handleBuyTickets}
-                  className="bg-white hover:bg-gray-100 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
-                >
-                  <p className="font-medium leading-[20px] text-[16px] text-black text-center">
-                    Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {ticketAmount * 250} ROSE
+                  <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white">
+                    <span>{`I acknowledge and agree to the Xmas `}</span>
+                    <a href="#faq" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Roffle rules included in the FAQ section of this app.</a>.
                   </p>
-                </button>
-              </div>
+                </>
+              }
 
-              <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white">
-                <span>{`I acknowledge and agree to the Xmas `}</span>
-                <a href="#faq" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Roffle rules included in the FAQ section of this app.</a>.
-              </p>
             </div>
           ) : (
             <div className="flex flex-col gap-10 bg-[rgba(0,0,0,0.3)] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-300">
@@ -252,7 +263,7 @@ export function App() {
                 EXPECTED_END < Date.now()
                   ? '0'
                   : (EXPECTED_END - Date.now()) / 1000 / 60 / 60 / 24 < 1
-                  ? '<1'
+                    ? '<1'
                     : Math.floor((EXPECTED_END - Date.now()) / 1000 / 60 / 60 / 24)
               }</p>
             </div>
