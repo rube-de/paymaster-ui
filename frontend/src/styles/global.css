@@ -161,3 +161,44 @@
     cursor: pointer;
   }
 }
+
+
+/* RainbowKit ConnectButton styling */
+.styledConnect:has([data-testid="rk-connect-button"]) {
+  button {
+    color: rgb(24, 24, 27);
+    background-color: rgb(255, 255, 255);
+    height: 48px;
+    padding: 12px 20px;
+  }
+}
+.styledConnect:has([data-testid="rk-account-button"]) {
+  button {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    line-height: 20px !important;
+    height: 48px !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    transition: background-color 0.2s !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  button:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  button > div {
+    all: unset;
+    color: white !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+}
+

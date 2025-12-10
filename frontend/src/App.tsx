@@ -106,7 +106,9 @@ export function App() {
         </div>
 
         {/* Wallet */}
-        <ConnectButton />
+        <div className='styledConnect'>
+          <ConnectButton />
+        </div>
       </header>
 
       {/* Ticket Decorations */}
