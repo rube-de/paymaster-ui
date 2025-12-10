@@ -1,9 +1,17 @@
 import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import svgPaths from "./imports/svg-tho7mppomn";
-import { useAccount } from 'wagmi';
+import { useAccount, useConfig, useWriteContract } from 'wagmi';
+import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json';
+import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts';
+import { parseEther } from 'viem';
+import { waitForTransactionReceipt } from 'viem/actions';
+
+const typedRoffleJson = RoffleJson as Roffle$Type
 
 const EXPECTED_END = new Date('2025-12-24T01:00:00.000Z').getTime()
+// TODO: mainnet
+const RAFFLE_CONTRACT_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F' as `0x${string}`;
 
 function TicketDecoration({ color, rotation, position }: { color: string; rotation: string; position: string }) {
   return (
@@ -61,17 +69,36 @@ function TicketsHeader() {
 
 export function App() {
   const { isConnected } = useAccount()
+  const config = useConfig()
   const [ticketAmount, setTicketAmount] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [purchasedTickets, setPurchasedTickets] = useState(0);
+  const enterTx = useWriteContract();
 
   const ticketOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
     { value: v, label: v + ' ticket', price: v * 250 + ' ROSE' }
   ));
 
-  const handleBuyTickets = () => {
-    setPurchasedTickets(prev => prev + ticketAmount);
-    setShowSuccess(true);
+  const handleBuyTickets = async () => {
+    try {
+      const hash = await enterTx.writeContractAsync({
+        address: RAFFLE_CONTRACT_ADDRESS,
+        abi: typedRoffleJson.abi,
+        functionName: 'buyTickets',
+        args: [BigInt(ticketAmount)],
+        // TODO: 250
+        value: parseEther('0.2') * BigInt(ticketAmount),
+      });
+      const transactionReceipt = await waitForTransactionReceipt(config.getClient(), { hash })
+      if (transactionReceipt.status === 'success') {
+        setPurchasedTickets(prev => prev + ticketAmount);
+        setShowSuccess(true);
+      } else {
+        // reverted. would need grpc or nexus to get the reason.
+      }
+    } catch (error) {
+      console.error('error', error)
+    }
   };
 
   const handleBuyMore = () => {
