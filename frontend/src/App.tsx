@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import svgPaths from "./imports/svg-tho7mppomn";
 
+const EXPECTED_END = new Date('2025-12-24T01:00:00.000Z').getTime()
+
 function TicketDecoration({ color, rotation, position }: { color: string; rotation: string; position: string }) {
   return (
     <div className={`absolute ${position}`} style={{ transform: `rotate(${rotation})` }}>
@@ -90,7 +92,7 @@ export function App() {
       }}
     >
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 py-6">
+      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 pt-6 pb-[70px]">
         {/* Logo */}
         <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px]">
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
@@ -182,9 +184,9 @@ export function App() {
                 </button>
               </div>
 
-              <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white mt-2">
-                <span>{`By participating you agree to our `}</span>
-                <a href="#terms" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Terms and Conditions</a>.
+              <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white">
+                <span>{`I acknowledge and agree to the Xmas `}</span>
+                <a href="#faq" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Roffle rules included in the FAQ section of this app.</a>.
               </p>
             </div>
           ) : (
@@ -241,24 +243,38 @@ export function App() {
       </main>
 
       {/* Stats */}
-      <div className="relative z-10 px-4 md:px-10 pb-32 md:pb-24">
+      <div className="relative z-10 px-4 md:px-10 pb-5 pt-12">
         <div className="flex flex-col md:flex-row gap-4 max-w-[1360px] mx-auto">
           <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
             <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
               <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Days to go</p>
-              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">6</p>
+              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">{
+                EXPECTED_END < Date.now()
+                  ? '0'
+                  : (EXPECTED_END - Date.now()) / 1000 / 60 / 60 / 24 < 1
+                  ? '<1'
+                    : Math.floor((EXPECTED_END - Date.now()) / 1000 / 60 / 60 / 24)
+              }</p>
             </div>
           </div>
           <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
             <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
               <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Tickets left</p>
-              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">{2354 - purchasedTickets}</p>
+              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                {2354} TODO
+                <span style={{
+                  color: 'rgba(255, 255, 255, 0.30)',
+                  fontSize: '32px',
+                }}>
+                  / 3600
+                </span>
+              </p>
             </div>
           </div>
           <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
             <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
               <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Pot size</p>
-              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">{(1024020 + (purchasedTickets * 250)).toLocaleString()}</p>
+              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">{(150000).toLocaleString()} ROSE TODO</p>
             </div>
           </div>
         </div>
@@ -267,9 +283,7 @@ export function App() {
       {/* Footer Links */}
       <footer className="relative z-10 pb-6">
         <div className="flex flex-col sm:flex-row font-normal gap-4 sm:gap-4 items-center justify-center leading-[20px] text-[14px] text-center text-white px-4">
-          <a href="#bridge" className="[text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">How to Bridge ROSE to Sapphire</a>
-          <p className="hidden sm:block">&middot;</p>
-          <a href="#rules" className="[text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Rules</a>
+          <a href="#faq" className="[text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Frequently Asked Questions</a>
         </div>
       </footer>
     </div>
