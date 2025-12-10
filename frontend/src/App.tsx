@@ -1,35 +1,6 @@
 import { useState } from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import svgPaths from "./imports/svg-tho7mppomn";
-import imgEllipse12 from "./assets/06bb8a24578769ad41de3ffc60fcb9900be91c8d.png";
-
-function WalletButton() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <button
-      onClick={() => setIsOpen(!isOpen)}
-      className="bg-[rgba(255,255,255,0.1)] content-stretch flex gap-[8px] h-[48px] items-center p-[12px] rounded-[12px] hover:bg-[rgba(255,255,255,0.15)] transition-colors"
-    >
-      <div className="relative shrink-0 size-[24px]">
-        <img alt="" className="block max-w-none size-full rounded-full" height="24" src={imgEllipse12} width="24" />
-      </div>
-      <p className="font-medium leading-[20px] relative shrink-0 text-nowrap text-white whitespace-pre">oasis1...kf9pd</p>
-      <div className="relative shrink-0 size-[24px]">
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-          <g id="Frame 2">
-            <path
-              d="M8 10L12 14L16 10"
-              id="Rectangle 5"
-              stroke="white"
-              strokeWidth="1.5"
-              style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transformOrigin: 'center', transition: 'transform 0.2s' }}
-            />
-          </g>
-        </svg>
-      </div>
-    </button>
-  );
-}
 
 function TicketDecoration({ color, rotation, position }: { color: string; rotation: string; position: string }) {
   return (
@@ -135,7 +106,7 @@ export function App() {
         </div>
 
         {/* Wallet */}
-        <WalletButton />
+        <ConnectButton />
       </header>
 
       {/* Ticket Decorations */}
