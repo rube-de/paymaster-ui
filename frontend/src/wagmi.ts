@@ -1,47 +1,6 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { defineChain } from 'viem'
-
-export const sapphire = defineChain({
-  id: 0x5afe,
-  name: 'Sapphire',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Sapphire',
-    symbol: 'ROSE',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://sapphire.oasis.io'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Oasis Explorer',
-      url: 'https://explorer.oasis.io/mainnet/sapphire',
-    },
-  },
-});
-
-export const sapphireTestnet = defineChain({
-  id: 0x5aff,
-  name: 'Sapphire Testnet',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Sapphire Testnet',
-    symbol: 'TEST',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://testnet.sapphire.oasis.io'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Oasis Explorer',
-      url: 'https://explorer.oasis.io/testnet/sapphire',
-    },
-  },
-});
+import { sapphire, sapphireTestnet } from 'wagmi/chains';
 
 export const sapphireLocalnet = defineChain({
 	id: 0x5afd,
@@ -66,5 +25,9 @@ export const config = getDefaultConfig({
   projectId: '5c76ff8764ea097205fffc221f056c98',
   // TODO: mainnet
   chains: [sapphireLocalnet],
+  ssr: false,
+  batch: {
+    multicall: false,
+  },
 });
 
