@@ -7,6 +7,7 @@ import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts';
 import { formatEther, parseEther } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import tickets250svg from "./assets/tickets250.svg";
+import { LucideLoader } from 'lucide-react';
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -49,7 +50,7 @@ export function App() {
       refetchInterval: 60_000,
     },
   });
-  const enterTx = useWriteContract();
+  const buyTx = useWriteContract();
 
   if (!ticketPrice.data) return
   if (!raffleEndTime.data) return
@@ -64,14 +65,20 @@ export function App() {
 
   const handleBuyTickets = async () => {
     ticketsRemaining.refetch()
+    let hash
     try {
-      const hash = await enterTx.writeContractAsync({
+      hash = await buyTx.writeContractAsync({
         address: RAFFLE_CONTRACT_ADDRESS,
         abi: typedRoffleJson.abi,
         functionName: 'buyTickets',
         args: [BigInt(ticketAmount)],
         value: BigInt(ticketAmount) * ticketPrice.data,
       });
+    } catch (error) {
+      // Error printed next to button using buyTx.error
+      return
+    }
+    try {
       const transactionReceipt = await waitForTransactionReceipt(config.getClient(), { hash })
       if (transactionReceipt.status === 'success') {
         setPurchasedTickets(prev => prev + ticketAmount);
@@ -83,7 +90,6 @@ export function App() {
         // Would need grpc or nexus to get the reason.
       }
     } catch (error) {
-      // TODO: handle user rejection
       console.error('error', error)
       alert((error as BaseError).shortMessage || (error as Error).message)
     }
@@ -211,12 +217,18 @@ export function App() {
 
                       <button
                         onClick={handleBuyTickets}
-                        className="bg-white hover:bg-gray-100 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                        disabled={buyTx.isPending}
+                        className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                       >
-                        <p className="font-medium leading-[20px] text-[16px] text-black text-center">
-                          Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
-                        </p>
+                        {buyTx.isPending ?
+                          <LucideLoader />
+                        :
+                          <p className="font-medium leading-[20px] text-[16px] text-black text-center">
+                            Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
+                          </p>
+                        }
                       </button>
+                      {buyTx.error && <p className="text-warning">{(buyTx.error as BaseError).shortMessage || buyTx.error.message}</p>}
                     </div>
 
                     <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white">
