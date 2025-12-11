@@ -188,25 +188,32 @@ export function App() {
 
       {/* Main Content Area */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">
-        <div className="w-full max-w-[410px] mx-auto">
-          {!showSuccess ? (
-            <div className="flex flex-col gap-4">
+        <div className="w-full max-w-[670px] mx-auto">
+          {hasEnded ?
+            <div className="flex flex-col gap-4 items-center text-center">
+              <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">X-mas Roffle has ended</p>
+            </div>
+          : hasSoldOut ?
+            <div className="flex flex-col gap-4 items-center text-center">
+              <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">Sold out!</p>
+              <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">All tickets have been purchased for the Oasis Raffle. Better luck next time!</p>
+              <p className="font-['Mountains_of_Christmas',cursive] text-[32px] leading-[40px] text-white">Winners will be announced on Dec 24th 2025!</p>
+            </div>
+          : !showSuccess ? (
+            <div className="flex flex-col gap-4 items-center">
               <div className="flex flex-col gap-4 items-center text-center">
                 <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">X-mas Roffle</p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket purchased which costs {formatEther(ticketPrice.data)} ROSE.</p>
               </div>
 
-              {hasEnded
-                ? <div className="text-[rgba(255,255,255,0.6)]">Ended</div>
-                : hasSoldOut ? <div className="text-[rgba(255,255,255,0.6)]">Sold out</div>
-                : !isConnected
+              {!isConnected
                 ?
                   <div className='styledConnect bigButton [&_button]:w-full'>
                     <ConnectButton />
                   </div>
                 :
                   <>
-                    <div className="flex flex-col gap-6 mt-4">
+                    <div className="flex flex-col gap-6 mt-4 w-full max-w-[400px]">
                       <div className="flex flex-col gap-4">
                         {/* Amount Selector */}
                         <div className="flex flex-col gap-1">
