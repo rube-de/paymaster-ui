@@ -8,27 +8,6 @@ import pkg from './package.json' assert { type: 'json' }
 export default defineConfig({
   base: './',
   plugins: [tailwindcss(), react(), dts()],
-  build: {
-    sourcemap: true,
-    lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
-      name: '@oasisprotocol/ui-library',
-      formats: ['es'],
-      fileName: format => `index.${format}.js`,
-    },
-    rollupOptions: {
-      external: [
-        ...Object.keys(pkg.dependencies), // don't bundle dependencies
-        /^node:.*/,
-      ],
-      output: {
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-        },
-      },
-    },
-  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
