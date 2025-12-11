@@ -58,6 +58,7 @@ export function App() {
     },
   });
   const buyTx = useWriteContract();
+  const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false);
 
   if (!ticketPrice.data) return
   if (!raffleEndTime.data) return
@@ -85,6 +86,7 @@ export function App() {
       // Error printed next to button using buyTx.error
       return
     }
+    setIsWaitingForBuyReceipt(true);
     try {
       const transactionReceipt = await waitForTransactionReceipt(config.getClient(), { hash })
       if (transactionReceipt.status === 'success') {
@@ -99,6 +101,8 @@ export function App() {
     } catch (error) {
       console.error('error', error)
       alert((error as BaseError).shortMessage || (error as Error).message)
+    } finally {
+      setIsWaitingForBuyReceipt(false);
     }
   };
 
@@ -232,10 +236,10 @@ export function App() {
 
                       <button
                         onClick={handleBuyTickets}
-                        disabled={buyTx.isPending}
+                        disabled={buyTx.isPending || isWaitingForBuyReceipt}
                         className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                       >
-                        {buyTx.isPending
+                        {buyTx.isPending || isWaitingForBuyReceipt
                           ? <LucideLoader className="animate-spin" />
                           : <p className="font-medium leading-[20px] text-[16px] text-black text-center">
                               Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
