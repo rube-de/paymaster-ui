@@ -61,7 +61,7 @@ export function App() {
   if (ticketsRemaining.data === undefined) return
 
   const hasEnded = Number(raffleEndTime.data * 1000n) < Date.now()
-  const hasSoldOut = ticketsRemaining.data <= 0n
+  const hasSoldOut = ticketsRemaining.data <= 0n && !showSuccess
 
   const ticketOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
     { value: v, label: v + ' ticket', price: formatEther(BigInt(v) * ticketPrice.data) + ' ROSE' }
@@ -140,7 +140,9 @@ export function App() {
               ? purchasedTickets === 10
                 ? <img src={ticketsWow_svg} />
                 : <img src={ticketsYay_svg} />
-            : <img src={tickets250_svg} />
+            : hasSoldOut
+              ? <img src={ticketsOmg_svg} />
+              : <img src={tickets250_svg} />
           }
         </div>
 
