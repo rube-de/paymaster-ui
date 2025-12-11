@@ -5,7 +5,7 @@ const ONE_WEEK_IN_SECONDS = 7 * 24 * 60 * 60;
 const OPF_CONTRIBUTION = parseEther("100000");
 
 const RoffleModule = buildModule("RoffleModule", (m) => {
-  const endTime = m.getParameter("endTime", 0n);
+  const endTime = m.getParameter("endTime", ONE_WEEK_IN_SECONDS);
   const opfContribution = m.getParameter("opfContribution", OPF_CONTRIBUTION);
 
   const roffle = m.contract("Roffle", [endTime]);

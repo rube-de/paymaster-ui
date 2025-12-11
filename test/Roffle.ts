@@ -329,16 +329,25 @@ describe("Roffle", function () {
       expect(await roffle.read.opfContribution()).to.equal(TEST_OPF_CONTRIBUTION);
     });
 
-    it("Should accept contribution via receive function", async function () {
-      const { roffle, owner, publicClient } = await loadFixture(deployRoffleFixture);
+    it("Should revert direct transfers (no receive function)", async function () {
+      const { roffle, owner } = await loadFixture(deployRoffleFixture);
 
-      const hash = await owner.sendTransaction({
-        to: roffle.address,
-        value: TEST_OPF_CONTRIBUTION,
-      });
-      await publicClient.waitForTransactionReceipt({ hash });
+      await expect(
+        owner.sendTransaction({
+          to: roffle.address,
+          value: TEST_OPF_CONTRIBUTION,
+        })
+      ).to.be.rejected;
+    });
 
-      expect(await roffle.read.opfContribution()).to.equal(TEST_OPF_CONTRIBUTION);
+    it("Should revert OPF contribution after raffle ends", async function () {
+      const { roffle, publicClient } = await loadFixture(deployRoffleFixture);
+
+      await roffle.write.closeSalesEarly();
+
+      await expect(
+        roffle.write.addOPFContribution({ value: TEST_OPF_CONTRIBUTION })
+      ).to.be.rejectedWith("RaffleAlreadyCompleted");
     });
 
     it("Should revert when adding zero contribution", async function () {

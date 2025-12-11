@@ -107,8 +107,9 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
     // ============================================================
 
     /// @notice Add OPF contribution to the prize pool
-    /// @dev Can only be called by the owner, can be called multiple times
+    /// @dev Can only be called by the owner while raffle is active
     function addOPFContribution() external payable onlyOwner {
+        if (state != RaffleState.Active) revert RaffleAlreadyCompleted();
         if (msg.value == 0) revert ZeroContribution();
         opfContribution += msg.value;
         emit OPFContributionAdded(msg.value);
@@ -216,16 +217,6 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
     function getPrizeForRank(uint256 rank) external view returns (uint256) {
         if (rank >= WINNER_COUNT) return 0;
         return (address(this).balance * PRIZE_PERCENTAGES[rank]) / RoffleConstants.BASIS_POINTS;
-    }
-
-    // ============================================================
-    //                      RECEIVE FUNCTION
-    // ============================================================
-
-    /// @notice Receive function to accept direct ROSE transfers (for OPF contribution)
-    receive() external payable {
-        opfContribution += msg.value;
-        emit OPFContributionAdded(msg.value);
     }
 
     // ============================================================
