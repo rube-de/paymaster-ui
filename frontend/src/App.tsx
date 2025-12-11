@@ -240,7 +240,7 @@ export function App() {
 
             </div>
           ) : (
-            <div className="flex flex-col gap-10 bg-[rgba(0,0,0,0.3)] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-300">
+            <div className="flex flex-col gap-10 p-6 md:p-8 animate-in fade-in zoom-in-95 duration-300">
               <div className="flex flex-col gap-8 items-center">
                 <div className="flex flex-col gap-4 items-center text-center">
                   <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Participation Successful!</p>
