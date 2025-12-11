@@ -9,8 +9,16 @@ import { waitForTransactionReceipt } from 'viem/actions';
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
+const CONTRACTS = {
+  normal: '0x45779C35Bbbd97D457BEe37E2057d9DD9F7Ee136',
+  noTickets: '0x7D9A90986092c48BFA0101772a872dFA249BDd6B',
+  alreadyEnded: '0x0656F4F298Ed781008a4Af4B65639432B455B088',
+  only2hours: '0xf786f37EF135f690803F9aD0247DEF654fDBA361',
+  only4hours: '0x7CC7ca43b9bdA25b5682b69b8f028eD64BF3157a',
+  only4hours15tickets: '0x136b8c13927f60439aF8fAde24B04b7DD27D81E9',
+} as const
 // TODO: mainnet
-const RAFFLE_CONTRACT_ADDRESS = '0x45779C35Bbbd97D457BEe37E2057d9DD9F7Ee136' as `0x${string}`;
+const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.normal;
 
 function TicketDecoration({ color, rotation, position }: { color: string; rotation: string; position: string }) {
   return (
