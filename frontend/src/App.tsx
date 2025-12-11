@@ -6,7 +6,11 @@ import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json';
 import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts';
 import { formatEther, parseEther } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
-import tickets250svg from "./assets/tickets250.svg";
+import tickets250_svg from "./assets/tickets250.svg";
+import ticketsYay_svg from "./assets/ticketsYay.svg";
+import ticketsWow_svg from "./assets/ticketsWow.svg";
+import ticketsOmg_svg from "./assets/ticketsOmg.svg";
+import ticketsNoo_svg from "./assets/ticketsNoo.svg";
 import { LucideLoader } from 'lucide-react';
 
 const typedRoffleJson = RoffleJson as Roffle$Type
@@ -131,7 +135,13 @@ export function App() {
         </div>
 
         <div className="overflow-hidden grow max-w-[910px] -mt-6 max-md:-order-1">
-          <img src={tickets250svg} />
+          {
+            showSuccess
+              ? purchasedTickets === 10
+                ? <img src={ticketsWow_svg} />
+                : <img src={ticketsYay_svg} />
+            : <img src={tickets250_svg} />
+          }
         </div>
 
         {/* Wallet */}
@@ -220,12 +230,11 @@ export function App() {
                         disabled={buyTx.isPending}
                         className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                       >
-                        {buyTx.isPending ?
-                          <LucideLoader />
-                        :
-                          <p className="font-medium leading-[20px] text-[16px] text-black text-center">
-                            Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
-                          </p>
+                        {buyTx.isPending
+                          ? <LucideLoader />
+                          : <p className="font-medium leading-[20px] text-[16px] text-black text-center">
+                              Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
+                            </p>
                         }
                       </button>
                       {buyTx.error && <p className="text-warning">{(buyTx.error as BaseError).shortMessage || buyTx.error.message}</p>}
@@ -241,18 +250,28 @@ export function App() {
             </div>
           ) : (
             <div className="flex flex-col gap-10 p-6 md:p-8 animate-in fade-in zoom-in-95 duration-300">
-              <div className="flex flex-col gap-8 items-center">
-                <div className="flex flex-col gap-4 items-center text-center">
-                  <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Participation Successful!</p>
-                  <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Thank you for participating in the Oasis Raffle! Good luck!</p>
-                </div>
-                <button
-                  onClick={handleBuyMore}
-                  className="bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
-                >
-                  <p className="font-medium leading-[20px] text-[16px] text-white">Buy more tickets</p>
-                </button>
-              </div>
+              {purchasedTickets === 10
+                ?
+                  <div className="flex flex-col gap-8 items-center">
+                    <div className="flex flex-col gap-4 items-center text-center">
+                      <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Max tickets bought</p>
+                      <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Wow, you bought the max amount of tickets for the Oasis Raffle! Good luck!</p>
+                    </div>
+                  </div>
+                :
+                  <div className="flex flex-col gap-8 items-center">
+                    <div className="flex flex-col gap-4 items-center text-center">
+                      <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Participation Successful!</p>
+                      <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Thank you for participating in the Oasis Raffle! Good luck!</p>
+                    </div>
+                    <button
+                      onClick={handleBuyMore}
+                      className="bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                    >
+                      <p className="font-medium leading-[20px] text-[16px] text-white">Buy more tickets</p>
+                    </button>
+                  </div>
+              }
 
               <div className="flex flex-col gap-6 items-center">
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)] text-center">Share on social media</p>
