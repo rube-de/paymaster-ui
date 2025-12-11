@@ -6,6 +6,7 @@ import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json';
 import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts';
 import { formatEther, parseEther } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
+import tickets250svg from "./assets/tickets250.svg";
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -19,60 +20,6 @@ const CONTRACTS = {
 } as const
 // TODO: mainnet
 const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.normal;
-
-function TicketDecoration({ color, rotation, position }: { color: string; rotation: string; position: string }) {
-  return (
-    <div className={`absolute ${position}`} style={{ transform: `rotate(${rotation})` }}>
-      <svg className="block w-[120px] h-[60px] md:w-[160px] md:h-[80px]" fill="none" preserveAspectRatio="none" viewBox="0 0 160 80">
-        <g filter={`url(#noise-${color})`}>
-          <path d={svgPaths.p3416cc80} fill={color} />
-        </g>
-        <defs>
-          <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="80" id={`noise-${color}`} width="160" x="0" y="0">
-            <feFlood floodOpacity="0" result="BackgroundImageFix" />
-            <feBlend in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape" />
-            <feTurbulence baseFrequency="4 4" numOctaves="3" result="noise" seed="4641" stitchTiles="stitch" type="fractalNoise" />
-            <feColorMatrix in="noise" result="alphaNoise" type="luminanceToAlpha" />
-            <feComponentTransfer in="alphaNoise" result="coloredNoise1">
-              <feFuncA type="discrete" />
-            </feComponentTransfer>
-            <feComposite in="coloredNoise1" in2="shape" operator="in" result="noise1Clipped" />
-            <feFlood floodColor="rgba(0, 0, 0, 0.25)" result="color1Flood" />
-            <feComposite in="color1Flood" in2="noise1Clipped" operator="in" result="color1" />
-            <feMerge result="effect1_noise">
-              <feMergeNode in="shape" />
-              <feMergeNode in="color1" />
-            </feMerge>
-          </filter>
-        </defs>
-      </svg>
-      <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[32px] md:text-[46px] text-neutral-800 font-['IBM_Plex_Mono',monospace]">250</p>
-    </div>
-  );
-}
-
-function TicketsHeader() {
-  const tickets = [
-    { color: '#FFF47E', rotation: '0deg', position: 'left-[5%] top-[10%]' },
-    { color: '#71E1E2', rotation: '346deg', position: 'left-[15%] top-[15%]' },
-    { color: '#FF8EE6', rotation: '14deg', position: 'left-[25%] top-[5%]' },
-    { color: '#FFF47E', rotation: '330deg', position: 'left-[35%] top-[18%]' },
-    { color: '#71E1E2', rotation: '10deg', position: 'left-[45%] top-[8%]' },
-    { color: '#FF8EE6', rotation: '343deg', position: 'left-[55%] top-[12%]' },
-    { color: 'white', rotation: '15deg', position: 'left-[65%] top-[6%]' },
-    { color: '#FFF47E', rotation: '338deg', position: 'left-[75%] top-[16%]' },
-    { color: '#71E1E2', rotation: '13deg', position: 'left-[85%] top-[9%]' },
-    { color: 'white', rotation: '347deg', position: 'left-[95%] top-[14%]' },
-  ];
-
-  return (
-    <div className="absolute h-[180px] md:h-[240px] left-1/2 overflow-hidden top-0 -translate-x-1/2 w-full max-w-[910px] pointer-events-none">
-      {tickets.map((ticket, i) => (
-        <TicketDecoration key={i} {...ticket} />
-      ))}
-    </div>
-  );
-}
 
 export function App() {
   const { isConnected } = useAccount()
@@ -162,7 +109,7 @@ export function App() {
       }}
     >
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 pt-6 pb-[70px]">
+      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 py-6">
         {/* Logo */}
         <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px]">
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
@@ -184,7 +131,10 @@ export function App() {
       </header>
 
       {/* Ticket Decorations */}
-      <TicketsHeader />
+      <div className="absolute h-[180px] md:h-[240px] left-1/2 overflow-hidden top-0 -translate-x-1/2 w-full max-w-[910px] pointer-events-none">
+        <img src={tickets250svg} />
+      </div>
+      <div className="pb-[160px]"></div>
 
       {/* Main Content Area */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">
