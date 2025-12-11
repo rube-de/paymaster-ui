@@ -27,7 +27,10 @@ const CONTRACTS = {
 const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.normal;
 
 export function App() {
-  const { isConnected } = useAccount()
+  const acc = useAccount()
+  const { chains: wagmiChains } = useConfig();
+  // Treat wrong chain as unconnected otherwise user might send tokens to malicious contract on another chain
+  const isConnected = acc.isConnected && acc.chainId !== undefined && wagmiChains.some((chain) => chain.id === acc.chainId)
   const config = useConfig()
   const [ticketAmount, setTicketAmount] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
