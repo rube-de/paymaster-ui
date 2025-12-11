@@ -102,10 +102,8 @@ interface IRoffle {
     /// @notice Thrown when OPF withdrawal fails
     error WithdrawalFailed();
 
-    /// @notice Thrown when raffle end time is in the past
-    /// @param provided Provided end time
-    /// @param current Current block timestamp
-    error EndTimeInPast(uint256 provided, uint256 current);
+    /// @notice Thrown when duration is zero or invalid
+    error InvalidDuration();
 
     /// @notice Thrown when new end time is after current end time (can only close early)
     error CanOnlyCloseEarly();
