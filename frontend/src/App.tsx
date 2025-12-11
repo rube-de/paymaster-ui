@@ -109,9 +109,9 @@ export function App() {
       }}
     >
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 py-6">
+      <header className="relative z-20 flex items-start justify-between px-4 md:px-10 py-6 max-md:flex-wrap">
         {/* Logo */}
-        <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px]">
+        <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px] shrink-0">
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
             <g id="Union">
               <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
@@ -124,17 +124,15 @@ export function App() {
           </svg>
         </div>
 
+        <div className="overflow-hidden grow max-w-[910px] -mt-6 max-md:-order-1">
+          <img src={tickets250svg} />
+        </div>
+
         {/* Wallet */}
-        <div className='styledConnect'>
+        <div className="styledConnect shrink-0">
           <ConnectButton />
         </div>
       </header>
-
-      {/* Ticket Decorations */}
-      <div className="absolute h-[180px] md:h-[240px] left-1/2 overflow-hidden top-0 -translate-x-1/2 w-full max-w-[910px] pointer-events-none">
-        <img src={tickets250svg} />
-      </div>
-      <div className="pb-[160px]"></div>
 
       {/* Main Content Area */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">
