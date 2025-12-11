@@ -236,7 +236,7 @@ export function App() {
                         className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                       >
                         {buyTx.isPending
-                          ? <LucideLoader />
+                          ? <LucideLoader className="animate-spin" />
                           : <p className="font-medium leading-[20px] text-[16px] text-black text-center">
                               Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
                             </p>
