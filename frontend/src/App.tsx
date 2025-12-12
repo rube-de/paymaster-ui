@@ -4,16 +4,18 @@ import svgPaths from './imports/svg-tho7mppomn'
 import { BaseError, useAccount, useBalance, useConfig, useReadContract, useWriteContract } from 'wagmi'
 import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json'
 import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
-import { formatEther, parseEther } from 'viem'
+import { formatEther } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import tickets250_svg from './assets/tickets250.svg'
 import ticketsYay_svg from './assets/ticketsYay.svg'
 import ticketsWow_svg from './assets/ticketsWow.svg'
 import ticketsOmg_svg from './assets/ticketsOmg.svg'
-import ticketsNoo_svg from './assets/ticketsNoo.svg'
 import { LucideLoader } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
+import { TopUpButton } from './components/TopUpButton'
+import { ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN } from './constants/rofl-paymaster-config.ts'
+import { sapphire } from 'wagmi/chains'
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -40,6 +42,10 @@ export function App() {
   const [showError, setShowError] = useState<{txHash: `0x${string}`, message?: string} | undefined>(undefined)
   const [purchasedTickets, setPurchasedTickets] = useState(0)
   const [isFaqOpen, setIsFaqOpen] = useState(false)
+  const { data: accountBalance } = useBalance({
+    address: acc.address,
+    chainId: sapphire.id
+  })
 
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
