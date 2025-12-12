@@ -67,6 +67,9 @@ export function App() {
 
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
+    query: {
+      refetchInterval: 60_000,
+    },
     chainId: CONTRACT_NETWORK.id
   })
   const initialPot = useReadContract({
