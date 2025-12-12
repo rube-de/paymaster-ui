@@ -154,6 +154,7 @@ export function App() {
               ? <img src={ticketsOmg_svg} />
               : <img src={tickets250_svg} />
           }
+          {/* TODO: error <img src={ticketsNoo_svg} /> */}
         </div>
 
         {/* Wallet */}
