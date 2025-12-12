@@ -284,6 +284,7 @@ export function App() {
                         </p>
                       )}
                     </button>
+                    {buyTx.isPending && <div className="text-center text-teal-300">Please, confirm the action(s) in your wallet.</div>}
                     {buyTx.error && (
                       <p className="text-warning text-center">
                         {(buyTx.error as BaseError).shortMessage || buyTx.error.message}
@@ -417,7 +418,7 @@ export function App() {
                     fontSize: '32px',
                   }}
                 >
-                  / 3600
+                  /3600
                 </span>
               </p>
             </div>
