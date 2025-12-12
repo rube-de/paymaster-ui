@@ -24,8 +24,8 @@ import {
 } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
 import { TopUpButton } from './components/TopUpButton'
-import { base, sapphire } from 'wagmi/chains'
-import { ROFL_PAYMASTER_TOKEN_CONFIG, RoflPaymasterTokenConfig } from './constants/rofl-paymaster-config.ts'
+import { base, sapphireTestnet } from 'wagmi/chains'
+import { ROFL_PAYMASTER_TOKEN_CONFIG } from './constants/rofl-paymaster-config.ts'
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -40,6 +40,7 @@ const CONTRACTS = {
   only4hours15tickets: '0x136b8c13927f60439aF8fAde24B04b7DD27D81E9',
 } as const
 // TODO: mainnet
+const CONTRACT_NETWORK = sapphireTestnet
 const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.normal
 
 export function App() {
@@ -66,16 +67,19 @@ export function App() {
 
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
+    chainId: CONTRACT_NETWORK.id
   })
   const ticketPrice = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'TICKET_PRICE',
+    chainId: CONTRACT_NETWORK.id
   })
   const raffleEndTime = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'raffleEndTime',
+    chainId: CONTRACT_NETWORK.id
   })
   const ticketsRemaining = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
@@ -84,6 +88,7 @@ export function App() {
     query: {
       refetchInterval: 60_000,
     },
+    chainId: CONTRACT_NETWORK.id
   })
   const buyTx = useWriteContract()
   const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false)
@@ -111,6 +116,7 @@ export function App() {
         functionName: 'buyTickets',
         args: [BigInt(ticketAmount)],
         value: BigInt(ticketAmount) * ticketPrice.data,
+        chainId: CONTRACT_NETWORK.id
       })
     } catch (error) {
       // Error printed next to button using buyTx.error
