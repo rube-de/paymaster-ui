@@ -6,6 +6,14 @@ import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json';
 import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts';
 import { formatEther, parseEther } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
+import tickets250_svg from "./assets/tickets250.svg";
+import ticketsYay_svg from "./assets/ticketsYay.svg";
+import ticketsWow_svg from "./assets/ticketsWow.svg";
+import ticketsOmg_svg from "./assets/ticketsOmg.svg";
+import ticketsNoo_svg from "./assets/ticketsNoo.svg";
+import { LucideLoader } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts';
+import { FAQ } from './FAQ.tsx';
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -20,66 +28,16 @@ const CONTRACTS = {
 // TODO: mainnet
 const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.normal;
 
-function TicketDecoration({ color, rotation, position }: { color: string; rotation: string; position: string }) {
-  return (
-    <div className={`absolute ${position}`} style={{ transform: `rotate(${rotation})` }}>
-      <svg className="block w-[120px] h-[60px] md:w-[160px] md:h-[80px]" fill="none" preserveAspectRatio="none" viewBox="0 0 160 80">
-        <g filter={`url(#noise-${color})`}>
-          <path d={svgPaths.p3416cc80} fill={color} />
-        </g>
-        <defs>
-          <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="80" id={`noise-${color}`} width="160" x="0" y="0">
-            <feFlood floodOpacity="0" result="BackgroundImageFix" />
-            <feBlend in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape" />
-            <feTurbulence baseFrequency="4 4" numOctaves="3" result="noise" seed="4641" stitchTiles="stitch" type="fractalNoise" />
-            <feColorMatrix in="noise" result="alphaNoise" type="luminanceToAlpha" />
-            <feComponentTransfer in="alphaNoise" result="coloredNoise1">
-              <feFuncA type="discrete" />
-            </feComponentTransfer>
-            <feComposite in="coloredNoise1" in2="shape" operator="in" result="noise1Clipped" />
-            <feFlood floodColor="rgba(0, 0, 0, 0.25)" result="color1Flood" />
-            <feComposite in="color1Flood" in2="noise1Clipped" operator="in" result="color1" />
-            <feMerge result="effect1_noise">
-              <feMergeNode in="shape" />
-              <feMergeNode in="color1" />
-            </feMerge>
-          </filter>
-        </defs>
-      </svg>
-      <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[32px] md:text-[46px] text-neutral-800 font-['IBM_Plex_Mono',monospace]">250</p>
-    </div>
-  );
-}
-
-function TicketsHeader() {
-  const tickets = [
-    { color: '#FFF47E', rotation: '0deg', position: 'left-[5%] top-[10%]' },
-    { color: '#71E1E2', rotation: '346deg', position: 'left-[15%] top-[15%]' },
-    { color: '#FF8EE6', rotation: '14deg', position: 'left-[25%] top-[5%]' },
-    { color: '#FFF47E', rotation: '330deg', position: 'left-[35%] top-[18%]' },
-    { color: '#71E1E2', rotation: '10deg', position: 'left-[45%] top-[8%]' },
-    { color: '#FF8EE6', rotation: '343deg', position: 'left-[55%] top-[12%]' },
-    { color: 'white', rotation: '15deg', position: 'left-[65%] top-[6%]' },
-    { color: '#FFF47E', rotation: '338deg', position: 'left-[75%] top-[16%]' },
-    { color: '#71E1E2', rotation: '13deg', position: 'left-[85%] top-[9%]' },
-    { color: 'white', rotation: '347deg', position: 'left-[95%] top-[14%]' },
-  ];
-
-  return (
-    <div className="absolute h-[180px] md:h-[240px] left-1/2 overflow-hidden top-0 -translate-x-1/2 w-full max-w-[910px] pointer-events-none">
-      {tickets.map((ticket, i) => (
-        <TicketDecoration key={i} {...ticket} />
-      ))}
-    </div>
-  );
-}
-
 export function App() {
-  const { isConnected } = useAccount()
+  const acc = useAccount()
+  const { chains: wagmiChains } = useConfig();
+  // Treat wrong chain as unconnected otherwise user might send tokens to malicious contract on another chain
+  const isConnected = acc.isConnected && acc.chainId !== undefined && wagmiChains.some((chain) => chain.id === acc.chainId)
   const config = useConfig()
   const [ticketAmount, setTicketAmount] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [purchasedTickets, setPurchasedTickets] = useState(0);
+  const [isFaqOpen, setIsFaqOpen] = useState(false)
 
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
@@ -102,14 +60,15 @@ export function App() {
       refetchInterval: 60_000,
     },
   });
-  const enterTx = useWriteContract();
+  const buyTx = useWriteContract();
+  const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false);
 
   if (!ticketPrice.data) return
   if (!raffleEndTime.data) return
   if (ticketsRemaining.data === undefined) return
 
   const hasEnded = Number(raffleEndTime.data * 1000n) < Date.now()
-  const hasSoldOut = ticketsRemaining.data <= 0n
+  const hasSoldOut = ticketsRemaining.data <= 0n && !showSuccess
 
   const ticketOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => (
     { value: v, label: v + ' ticket', price: formatEther(BigInt(v) * ticketPrice.data) + ' ROSE' }
@@ -117,14 +76,21 @@ export function App() {
 
   const handleBuyTickets = async () => {
     ticketsRemaining.refetch()
+    let hash
     try {
-      const hash = await enterTx.writeContractAsync({
+      hash = await buyTx.writeContractAsync({
         address: RAFFLE_CONTRACT_ADDRESS,
         abi: typedRoffleJson.abi,
         functionName: 'buyTickets',
         args: [BigInt(ticketAmount)],
         value: BigInt(ticketAmount) * ticketPrice.data,
       });
+    } catch (error) {
+      // Error printed next to button using buyTx.error
+      return
+    }
+    setIsWaitingForBuyReceipt(true);
+    try {
       const transactionReceipt = await waitForTransactionReceipt(config.getClient(), { hash })
       if (transactionReceipt.status === 'success') {
         setPurchasedTickets(prev => prev + ticketAmount);
@@ -136,9 +102,10 @@ export function App() {
         // Would need grpc or nexus to get the reason.
       }
     } catch (error) {
-      // TODO: handle user rejection
       console.error('error', error)
       alert((error as BaseError).shortMessage || (error as Error).message)
+    } finally {
+      setIsWaitingForBuyReceipt(false);
     }
   };
 
@@ -162,9 +129,9 @@ export function App() {
       }}
     >
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 pt-6 pb-[70px]">
+      <header className="relative z-20 flex items-start justify-between px-4 md:px-10 py-6 max-md:flex-wrap">
         {/* Logo */}
-        <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px]">
+        <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px] shrink-0">
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
             <g id="Union">
               <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
@@ -177,36 +144,53 @@ export function App() {
           </svg>
         </div>
 
+        <div className="overflow-hidden grow max-w-[910px] -mt-6 max-md:-order-1">
+          {
+            showSuccess
+              ? purchasedTickets === 10
+                ? <img src={ticketsWow_svg} />
+                : <img src={ticketsYay_svg} />
+            : hasSoldOut
+              ? <img src={ticketsOmg_svg} />
+              : <img src={tickets250_svg} />
+          }
+          {/* TODO: error <img src={ticketsNoo_svg} /> */}
+        </div>
+
         {/* Wallet */}
-        <div className='styledConnect'>
+        <div className="styledConnect shrink-0">
           <ConnectButton />
         </div>
       </header>
 
-      {/* Ticket Decorations */}
-      <TicketsHeader />
-
       {/* Main Content Area */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">
-        <div className="w-full max-w-[410px] mx-auto">
-          {!showSuccess ? (
-            <div className="flex flex-col gap-4">
+        <div className="w-full max-w-[670px] mx-auto">
+          {hasEnded ?
+            <div className="flex flex-col gap-4 items-center text-center">
+              <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">X-mas Roffle has ended</p>
+            </div>
+          : hasSoldOut ?
+            <div className="flex flex-col gap-4 items-center text-center">
+              <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">Sold out!</p>
+              <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">All tickets have been purchased for the Oasis Raffle. Better luck next time!</p>
+              <p className="font-['Mountains_of_Christmas',cursive] text-[32px] leading-[40px] text-white">Winners will be announced on Dec 24th 2025!</p>
+            </div>
+          : !showSuccess ? (
+            <div className="flex flex-col gap-4 items-center">
               <div className="flex flex-col gap-4 items-center text-center">
                 <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">X-mas Roffle</p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket purchased which costs {formatEther(ticketPrice.data)} ROSE.</p>
               </div>
 
-              {hasEnded
-                ? <div className="text-[rgba(255,255,255,0.6)]">Ended</div>
-                : hasSoldOut ? <div className="text-[rgba(255,255,255,0.6)]">Sold out</div>
-                : !isConnected
+              {!isConnected
                 ?
                   <div className='styledConnect bigButton [&_button]:w-full'>
                     <ConnectButton />
                   </div>
                 :
                   <>
-                    <div className="flex flex-col gap-6 mt-4">
+                    <div className="flex flex-col gap-6 mt-4 w-full max-w-[400px]">
                       <div className="flex flex-col gap-4">
                         {/* Amount Selector */}
                         <div className="flex flex-col gap-1">
@@ -256,36 +240,51 @@ export function App() {
 
                       <button
                         onClick={handleBuyTickets}
-                        className="bg-white hover:bg-gray-100 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                        disabled={buyTx.isPending || isWaitingForBuyReceipt}
+                        className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                       >
-                        <p className="font-medium leading-[20px] text-[16px] text-black text-center">
-                          Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
-                        </p>
+                        {buyTx.isPending || isWaitingForBuyReceipt
+                          ? <LucideLoader className="animate-spin" />
+                          : <p className="font-medium leading-[20px] text-[16px] text-black text-center">
+                              Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
+                            </p>
+                        }
                       </button>
+                      {buyTx.error && <p className="text-warning">{(buyTx.error as BaseError).shortMessage || buyTx.error.message}</p>}
                     </div>
 
                     <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white">
                       <span>{`I acknowledge and agree to the Xmas `}</span>
-                      <a href="#faq" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Roffle rules included in the FAQ section of this app.</a>.
+                      <a onClick={() => setIsFaqOpen(true)} className="cursor-pointer [text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Roffle rules included in the FAQ section of this app.</a>.
                     </p>
                   </>
               }
 
             </div>
           ) : (
-            <div className="flex flex-col gap-10 bg-[rgba(0,0,0,0.3)] backdrop-blur-md p-6 md:p-8 rounded-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-300">
-              <div className="flex flex-col gap-8 items-center">
-                <div className="flex flex-col gap-4 items-center text-center">
-                  <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Participation Successful!</p>
-                  <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Thank you for participating in the Oasis Raffle! Good luck!</p>
-                </div>
-                <button
-                  onClick={handleBuyMore}
-                  className="bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
-                >
-                  <p className="font-medium leading-[20px] text-[16px] text-white">Buy more tickets</p>
-                </button>
-              </div>
+            <div className="flex flex-col gap-10 p-6 md:p-8 animate-in fade-in zoom-in-95 duration-300">
+              {purchasedTickets === 10
+                ?
+                  <div className="flex flex-col gap-8 items-center">
+                    <div className="flex flex-col gap-4 items-center text-center">
+                      <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Max tickets bought</p>
+                      <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Wow, you bought the max amount of tickets for the Oasis Raffle! Good luck!</p>
+                    </div>
+                  </div>
+                :
+                  <div className="flex flex-col gap-8 items-center">
+                    <div className="flex flex-col gap-4 items-center text-center">
+                      <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">Participation Successful!</p>
+                      <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">Thank you for participating in the Oasis Raffle! Good luck!</p>
+                    </div>
+                    <button
+                      onClick={handleBuyMore}
+                      className="bg-[rgba(255,255,255,0.1)] hover:bg-[rgba(255,255,255,0.15)] transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                    >
+                      <p className="font-medium leading-[20px] text-[16px] text-white">Buy more tickets</p>
+                    </button>
+                  </div>
+              }
 
               <div className="flex flex-col gap-6 items-center">
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)] text-center">Share on social media</p>
@@ -368,9 +367,19 @@ export function App() {
       {/* Footer Links */}
       <footer className="relative z-10 pb-6">
         <div className="flex flex-col sm:flex-row font-normal gap-4 sm:gap-4 items-center justify-center leading-[20px] text-[14px] text-center text-white px-4">
-          <a href="#faq" className="[text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Frequently Asked Questions</a>
+          <a onClick={() => setIsFaqOpen(true)} className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Frequently Asked Questions</a>
         </div>
       </footer>
+
+      <Dialog open={isFaqOpen} onOpenChange={setIsFaqOpen}>
+        <DialogContent className="sm:max-w-[670px] p-[32px] bg-[#0A1D24] border-black">
+          <DialogHeader>
+            <DialogDescription>
+              <FAQ RAFFLE_CONTRACT_ADDRESS={RAFFLE_CONTRACT_ADDRESS} />
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
