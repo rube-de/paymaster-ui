@@ -499,7 +499,7 @@ export function App() {
                         }}
                       >
                         {({ amountLabel }) =>
-                          `Buy ${ticketAmount} Ticket${ticketAmount > 1 ? 's' : ''} for ${amountLabel}`
+                          `Buy ${ticketAmount} ticket${ticketAmount > 1 ? 's' : ''} for ${amountLabel}`
                         }
                       </TopUpButton>
                     )}
