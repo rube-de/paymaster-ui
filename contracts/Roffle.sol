@@ -5,37 +5,37 @@ import {Sapphire} from "@oasisprotocol/sapphire-contracts/contracts/Sapphire.sol
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IRoffle} from "./interfaces/IRoffle.sol";
-import {RoffleConstants} from "./libraries/RoffleConstants.sol";
 
 /// @title Roffle - Oasis Christmas Raffle 2025
 /// @author Oasis Protocol Foundation
 /// @notice A fair, on-chain raffle powered by Sapphire's secure randomness
 /// @dev Uses Sapphire's hardware-backed randomness for winner selection
 contract Roffle is IRoffle, ReentrancyGuard, Ownable {
-    using RoffleConstants for uint256;
-
     // ============================================================
     //                          CONSTANTS
     // ============================================================
 
     /// @notice Cost of a single ticket in ROSE (250 ROSE)
-    uint256 public constant TICKET_PRICE = RoffleConstants.TICKET_PRICE;
+    uint256 public constant TICKET_PRICE = 250 ether;
 
     /// @notice Maximum tickets a single wallet can purchase
-    uint256 public constant MAX_TICKETS_PER_WALLET = RoffleConstants.MAX_TICKETS_PER_WALLET;
+    uint256 public constant MAX_TICKETS_PER_WALLET = 10;
 
     /// @notice Maximum total tickets available for sale
-    uint256 public constant MAX_TOTAL_TICKETS = RoffleConstants.MAX_TOTAL_TICKETS;
+    uint256 public constant MAX_TOTAL_TICKETS = 3600;
 
     /// @notice Number of winners to be selected
-    uint256 public constant WINNER_COUNT = RoffleConstants.WINNER_COUNT;
+    uint256 public constant WINNER_COUNT = 10;
 
     /// @notice Default raffle duration (1 week)
-    uint256 public constant DEFAULT_DURATION = RoffleConstants.DEFAULT_DURATION;
+    uint256 public constant DEFAULT_DURATION = 1 weeks;
+
+    /// @notice Basis points denominator (100% = 10000)
+    uint256 public constant BASIS_POINTS = 10000;
 
     /// @notice Prize distribution percentages in basis points (100 = 1%)
     /// @dev [50%, 20%, 10%, 5%, 5%, 2%, 2%, 2%, 2%, 2%]
-    uint256[10] public PRIZE_PERCENTAGES = [
+    uint256[WINNER_COUNT] public PRIZE_PERCENTAGES = [
         uint256(5000), 2000, 1000, 500, 500, 200, 200, 200, 200, 200
     ];
 
@@ -62,7 +62,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
     mapping(address => uint256) public ticketsPurchased;
 
     /// @notice Array of winners after the raffle is completed
-    Winner[10] public winners;
+    Winner[WINNER_COUNT] public winners;
 
     // ============================================================
     //                        CONSTRUCTOR
@@ -145,7 +145,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
         state = RaffleState.Completed;
 
         uint256 totalPrizePool = address(this).balance;
-        (address[10] memory winnerAddresses, uint256[10] memory prizeAmounts) = _selectWinners(totalPrizePool);
+        (address[WINNER_COUNT] memory winnerAddresses, uint256[WINNER_COUNT] memory prizeAmounts) = _selectWinners(totalPrizePool);
 
         emit WinnersSelected(winnerAddresses, prizeAmounts);
         _distributePrizes();
@@ -201,7 +201,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
 
     /// @notice Get all winner information after raffle completion
     /// @return Array of Winner structs containing addresses and prizes
-    function getWinners() external view returns (Winner[10] memory) {
+    function getWinners() external view returns (Winner[WINNER_COUNT] memory) {
         return winners;
     }
 
@@ -216,7 +216,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
     /// @return Prize amount in ROSE for that rank
     function getPrizeForRank(uint256 rank) external view returns (uint256) {
         if (rank >= WINNER_COUNT) return 0;
-        return (address(this).balance * PRIZE_PERCENTAGES[rank]) / RoffleConstants.BASIS_POINTS;
+        return (address(this).balance * PRIZE_PERCENTAGES[rank]) / BASIS_POINTS;
     }
 
     // ============================================================
@@ -261,7 +261,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
     /// @return prizeAmounts Array of prize amounts for each winner
     function _selectWinners(uint256 totalPrizePool)
         private
-        returns (address[10] memory winnerAddresses, uint256[10] memory prizeAmounts)
+        returns (address[WINNER_COUNT] memory winnerAddresses, uint256[WINNER_COUNT] memory prizeAmounts)
     {
         uint256[] memory availableIndices = new uint256[](_entries.length);
         for (uint256 i = 0; i < _entries.length; i++) {
@@ -296,7 +296,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
                 if (remainingCount == 0) revert NotEnoughParticipants();
             }
 
-            uint256 prize = (totalPrizePool * PRIZE_PERCENTAGES[rank]) / RoffleConstants.BASIS_POINTS;
+            uint256 prize = (totalPrizePool * PRIZE_PERCENTAGES[rank]) / BASIS_POINTS;
 
             winners[rank] = Winner({winner: winnerAddress, prize: prize});
             winnerAddresses[rank] = winnerAddress;
@@ -311,7 +311,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
     /// @return True if candidate is already a winner
     function _isAlreadyWinner(
         address candidate,
-        address[10] memory winnerAddresses,
+        address[WINNER_COUNT] memory winnerAddresses,
         uint256 currentRank
     ) private pure returns (bool) {
         for (uint256 i = 0; i < currentRank; i++) {
