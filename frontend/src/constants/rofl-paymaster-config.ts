@@ -8,19 +8,18 @@ export const ROFL_PAYMASTER_DEPOSIT_GAS_LIMIT = 500_000n
 export const ROFL_PAYMASTER_DESTINATION_CHAIN = sapphire
 export const ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN = sapphire.nativeCurrency
 
-type RoflPaymasterTokenConfig = {
-  [chainId: string]: {
-    paymasterContractAddress: Address
-    TOKENS: {
-      contractAddress: Address
-      symbol: string
-      decimals: number
-      name: string
-    }[]
-  }
+export type RoflPaymasterTokenConfig = {
+  contractAddress: Address
+  symbol: string
+  decimals: number
+  name: string
+}
+export type RoflPaymasterChainConfig = {
+  paymasterContractAddress: Address
+  TOKENS: RoflPaymasterTokenConfig[]
 }
 
-export const ROFL_PAYMASTER_TOKEN_CONFIG: RoflPaymasterTokenConfig = {
+export const ROFL_PAYMASTER_TOKEN_CONFIG: Record<string, RoflPaymasterChainConfig> = {
   [base.id]: {
     paymasterContractAddress: '0x7D3B4dd07bd523E519e0A91afD8e3B325586fb5b',
     TOKENS: [
@@ -29,6 +28,12 @@ export const ROFL_PAYMASTER_TOKEN_CONFIG: RoflPaymasterTokenConfig = {
         symbol: 'USDC',
         decimals: 6,
         name: 'USDC',
+      },
+      {
+        contractAddress: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
+        symbol: 'USDT',
+        decimals: 6,
+        name: 'Tether USD',
       },
     ],
   },

@@ -10,6 +10,7 @@ import {
   ROFL_PAYMASTER_EXPECTED_TIME,
   ROFL_PAYMASTER_SAPPHIRE_CONTRACT_CONFIG,
   ROFL_PAYMASTER_TOKEN_CONFIG,
+  RoflPaymasterTokenConfig,
 } from '../constants/rofl-paymaster-config.ts'
 import { isPaymentProcessed, useRosePriceFeed, useTokenPriceFeed } from '../contracts/crossChainPaymaster.ts'
 import { aggregatorV3LatestRoundData, useAggregatorV3Decimals } from '../contracts/AggregatorV3.ts'
@@ -28,6 +29,7 @@ export type StartTopUpParams = {
 
 export type UsePaymasterTopUpFlowReturn = {
   isLoading: boolean
+  initialLoading: boolean
   error: string
   quote: bigint | null
 
@@ -68,7 +70,7 @@ const progressSteps = [
   },
 ]
 
-export function usePaymaster(): UsePaymasterTopUpFlowReturn {
+export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymasterTopUpFlowReturn {
   const { address } = useAccount()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -97,7 +99,7 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
   )
   const { data: tokenFeed } = useTokenPriceFeed(
     ROFL_PAYMASTER_SAPPHIRE_CONTRACT_CONFIG[ROFL_PAYMASTER_DESTINATION_CHAIN.id],
-    ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS[0].contractAddress,
+    targetToken.contractAddress,
     ROFL_PAYMASTER_DESTINATION_CHAIN.id
   )
   const { data: roseFeedDecimals } = useAggregatorV3Decimals(
@@ -124,9 +126,6 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
         return null
       }
 
-      const sourceChainConfig = ROFL_PAYMASTER_TOKEN_CONFIG[base.id]
-      const tokenMeta = sourceChainConfig.TOKENS[0]
-
       const [roseUsdPrice, tokenUsdPrice] = await Promise.all([
         aggregatorV3LatestRoundData(roseFeed as Address, chain.id),
         aggregatorV3LatestRoundData(tokenFeed as Address, chain.id),
@@ -135,7 +134,7 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
       if (roseUsdPrice <= 0n) throw new Error('Invalid ROSE price')
       if (tokenUsdPrice <= 0n) throw new Error('Invalid token price')
 
-      const tokenDecimals = BigInt(tokenMeta.decimals)
+      const tokenDecimals = BigInt(targetToken.decimals)
       const roseTokenDecimals = BigInt(roseDecimals)
 
       const numerator = roseAmount * roseUsdPrice * 10n ** ((tokenDecimals + tokenFeedDecimals) as bigint)
@@ -194,37 +193,28 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
     return null
   }, [])
 
-  const getQuote = async ({ amount }: StartTopUpParams) => {
-    setError('')
-    setQuote(null)
+  const getQuote = useCallback(
+    async ({ amount }: StartTopUpParams) => {
+      setError('')
+      setQuote(null)
 
-    if (!address) throw new Error('Wallet not connected')
+      if (!address) throw new Error('Wallet not connected')
 
-    setIsLoading(true)
-    try {
-      const maxAttempts = 20
-
-      let attempts = 0
-      while ((!roseFeed || !tokenFeed || !roseFeedDecimals || !tokenFeedDecimals) && attempts < maxAttempts) {
-        await new Promise<void>(resolve => setTimeout(resolve, 150))
-        attempts++
+      setIsLoading(true)
+      try {
+        const q = await _getQuote(amount, ROFL_PAYMASTER_DESTINATION_CHAIN)
+        setQuote(q)
+        return q
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Failed to fetch quote'
+        setError(msg)
+        throw e
+      } finally {
+        setIsLoading(false)
       }
-
-      if (!roseFeed || !tokenFeed || !roseFeedDecimals || !tokenFeedDecimals) {
-        throw new Error('Price feed data not ready yet. Please try again.')
-      }
-
-      const q = await _getQuote(amount, ROFL_PAYMASTER_DESTINATION_CHAIN)
-      setQuote(q)
-      return q
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Failed to fetch quote'
-      setError(msg)
-      throw e
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    },
+    [address, _getQuote]
+  )
 
   const startTopUp = useCallback(
     async ({ amount }: StartTopUpParams) => {
@@ -233,7 +223,6 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
       if (!address) throw new Error('Wallet not connected')
 
       const sourceChainConfig = ROFL_PAYMASTER_TOKEN_CONFIG[base.id]
-      const tokenMeta = sourceChainConfig.TOKENS[0]
 
       setIsLoading(true)
       setCurrentStep(1)
@@ -246,7 +235,7 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
         // Step 2: allowance
         updateStep(2, 'processing')
         await checkAndSetErc20Allowance(
-          tokenMeta.contractAddress,
+          targetToken.contractAddress,
           sourceChainConfig.paymasterContractAddress,
           amount,
           address
@@ -255,7 +244,7 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
 
         // Step 3: create a deposit
         updateStep(3, 'processing')
-        const { paymentId } = await createDeposit(tokenMeta.contractAddress, amount, address, base.id)
+        const { paymentId } = await createDeposit(targetToken.contractAddress, amount, address, base.id)
         updateStep(3, 'completed')
 
         // Step 4: poll
@@ -292,10 +281,11 @@ export function usePaymaster(): UsePaymasterTopUpFlowReturn {
     isLoading,
     error,
     quote,
-    currentStep: currentStep ? progressSteps[currentStep] : null,
+    currentStep: currentStep ? progressSteps[currentStep - 1] : null,
     stepStatuses,
     getQuote,
     startTopUp,
     reset,
+    initialLoading: !(!!roseFeed && !!tokenFeed && !!roseFeedDecimals && !!tokenFeedDecimals),
   }
 }
