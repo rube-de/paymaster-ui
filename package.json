@@ -1,7 +1,9 @@
 {
   "scripts": {
     "dev": "hardhat compile && cd frontend && yarn dev",
-    "build": "hardhat compile && cd frontend && yarn build"
+    "build:contracts": "NODE_OPTIONS=--max-old-space-size=4096 hardhat compile",
+    "build:frontend": "cd frontend && NODE_OPTIONS=--max-old-space-size=4096 yarn build",
+    "build": "yarn build:contracts && yarn build:frontend"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.15.0",

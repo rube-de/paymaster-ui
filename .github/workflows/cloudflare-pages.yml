@@ -55,8 +55,10 @@ jobs:
           cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile && cd frontend && yarn install --frozen-lockfile
+      - name: Build contracts
+        run: yarn build:contracts
       - name: Build app
-        run: yarn build
+        run: yarn build:frontend
       - name: Publish to Cloudflare Pages
         # Id is needed to access output in a next step.
         id: deploy
