@@ -51,7 +51,7 @@ function Frame6() {
         Participation Successful!
       </p>
       <p className="font-['Geist:Regular',sans-serif] font-normal leading-[20px] min-w-full relative shrink-0 text-[16px] text-[rgba(255,255,255,0.6)] w-[min-content]">
-        Thank you for participating in the Oasis Raffle! Good luck!
+        Thank you for participating in the Oasis Xmas Roffle! Good luck!
       </p>
     </div>
   )
@@ -1726,10 +1726,10 @@ function Frame9() {
   return (
     <div className="content-stretch flex flex-col gap-[16px] items-center relative shrink-0 text-center w-full">
       <p className="font-['Mountains_of_Christmas:Regular',sans-serif] leading-[64px] not-italic relative shrink-0 text-[56px] text-white w-full">
-        X-mas Roffle
+        Xmas Roffle
       </p>
       <p className="font-['Geist:Regular',sans-serif] font-normal leading-[20px] relative shrink-0 text-[16px] text-[rgba(255,255,255,0.6)] w-full">
-        Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket purchased
+        Participate in the Oasis Xmas Roffle! The initial pot is 100,000 ROSE and grows with each ticket purchased
         which costs 250 ROSE.
       </p>
     </div>

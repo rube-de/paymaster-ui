@@ -6,7 +6,7 @@ export function FAQ({ RAFFLE_CONTRACT_ADDRESS }: { RAFFLE_CONTRACT_ADDRESS: stri
         What is the Xmas Roffle?
       </h3>
       <p>
-        The Xmas Roffle (raffle + ROFL) is a bit of fun to celebrate the end of the year. Users can buy raffle
+        The Oasis Xmas Roffle (raffle + ROFL) is a bit of fun to celebrate the end of the year. Users can buy raffle
         tickets and win a share of <b>1,000,000 ROSE,</b> depending on how many tickets are sold. Everything
         runs on a Sapphire{' '}
         <a
@@ -87,7 +87,7 @@ export function FAQ({ RAFFLE_CONTRACT_ADDRESS }: { RAFFLE_CONTRACT_ADDRESS: stri
           target="_blank"
           className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
         >
-          Sapphire Explorer
+          Oasis Explorer
         </a>
         .
       </p>

@@ -21,7 +21,7 @@ export const sapphireLocalnet = defineChain({
 })
 
 export const config = getDefaultConfig({
-  appName: 'Xmas Raffle',
+  appName: 'Xmas Roffle',
   projectId: '5c76ff8764ea097205fffc221f056c98',
   // TODO: mainnet
   chains: [sapphireTestnet],

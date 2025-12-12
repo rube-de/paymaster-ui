@@ -125,7 +125,7 @@ export function App() {
 
   const shareOnX = () => {
     window.open(
-      'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just entered the Oasis X-mas Raffle!'),
+      'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just entered the Oasis Xmas Roffle!'),
       '_blank'
     )
   }
@@ -180,7 +180,7 @@ export function App() {
           {hasEnded ? (
             <div className="flex flex-col gap-4 items-center text-center">
               <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
-                X-mas Roffle has ended
+                Xmas Roffle has ended
               </p>
             </div>
           ) : hasSoldOut ? (
@@ -189,7 +189,7 @@ export function App() {
                 Sold out!
               </p>
               <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                All tickets have been purchased for the Oasis Raffle. Better luck next time!
+                All tickets have been purchased for the Oasis Xmas Roffle. Better luck next time!
               </p>
               <p className="font-['Mountains_of_Christmas',cursive] text-[32px] leading-[40px] text-white">
                 Winners will be announced on Dec 24th 2025!
@@ -199,11 +199,11 @@ export function App() {
             <div className="flex flex-col gap-4 items-center">
               <div className="flex flex-col gap-4 items-center text-center">
                 <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
-                  X-mas Roffle
+                  Xmas Roffle
                 </p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                  Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket
-                  purchased which costs {formatEther(ticketPrice.data)} ROSE.
+                  Participate in the Oasis Christmas raffle! The initial pot is 100,000 ROSE and grows with
+                  each ticket purchased which costs {formatEther(ticketPrice.data)} ROSE.
                 </p>
               </div>
 
@@ -279,25 +279,26 @@ export function App() {
                         <LucideLoader className="animate-spin" />
                       ) : (
                         <p className="font-medium leading-[20px] text-[16px] text-black text-center">
-                          Buy {ticketAmount} Ticket{ticketAmount > 1 ? 's' : ''} for{' '}
+                          Buy {ticketAmount} ticket{ticketAmount > 1 ? 's' : ''} for{' '}
                           {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
                         </p>
                       )}
                     </button>
                     {buyTx.error && (
-                      <p className="text-warning">
+                      <p className="text-warning text-center">
                         {(buyTx.error as BaseError).shortMessage || buyTx.error.message}
                       </p>
                     )}
                   </div>
 
                   <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white">
-                    <span>{`I acknowledge and agree to the Xmas `}</span>
+                    <span>By buying the ticket{ticketAmount > 1 ? 's' : ''} you acknowledge and agree to the</span>
+                    <br />
                     <a
                       onClick={() => setIsFaqOpen(true)}
                       className="cursor-pointer [text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
                     >
-                      Roffle rules included in the FAQ section of this app.
+                      Xmas Roffle rules included in the FAQ section of this app.
                     </a>
                     .
                   </p>
@@ -313,7 +314,7 @@ export function App() {
                       Max tickets bought
                     </p>
                     <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                      Wow, you bought the max amount of tickets for the Oasis Raffle! Good luck!
+                      Wow, you bought the max amount of tickets for the Oasis Xmas Roffle! Good luck!
                     </p>
                   </div>
                 </div>
@@ -324,7 +325,7 @@ export function App() {
                       Participation Successful!
                     </p>
                     <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                      Thank you for participating in the Oasis Raffle! Good luck!
+                      Thank you for participating in the Oasis Xmas Roffle! Good luck!
                     </p>
                   </div>
                   <button
