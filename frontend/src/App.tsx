@@ -73,11 +73,13 @@ export function App() {
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'opfContribution',
+    chainId: CONTRACT_NETWORK.id
   })
   const maxTotalTickers = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'MAX_TOTAL_TICKETS',
+    chainId: CONTRACT_NETWORK.id
   })
   const ticketPrice = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
