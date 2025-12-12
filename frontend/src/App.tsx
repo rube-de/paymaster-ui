@@ -24,7 +24,7 @@ import {
 } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
 import { TopUpButton } from './components/TopUpButton'
-import { base, sapphireTestnet } from 'wagmi/chains'
+import { base, sapphire } from 'wagmi/chains'
 import { ROFL_PAYMASTER_TOKEN_CONFIG } from './constants/rofl-paymaster-config.ts'
 
 const typedRoffleJson = RoffleJson as Roffle$Type
@@ -38,10 +38,10 @@ const CONTRACTS = {
   only2hours: '0xf786f37EF135f690803F9aD0247DEF654fDBA361',
   only4hours: '0x7CC7ca43b9bdA25b5682b69b8f028eD64BF3157a',
   only4hours15tickets: '0x136b8c13927f60439aF8fAde24B04b7DD27D81E9',
+  mainnet1week3winners: '0x5507E5dE2A23ED8D5BB10Bd8d3734FFCbFC84DA3',
 } as const
-// TODO: mainnet
-const CONTRACT_NETWORK = sapphireTestnet
-const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.normal
+const CONTRACT_NETWORK = sapphire
+const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.mainnet1week3winners
 
 export function App() {
   const acc = useAccount()
