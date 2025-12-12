@@ -208,7 +208,7 @@ export function App() {
               </div>
 
               {!isConnected ? (
-                <div className="styledConnect bigButton [&_button]:w-full">
+                <div className="styledConnect bigButton [&_button]:w-full w-full max-w-[400px]">
                   <ConnectButton />
                 </div>
               ) : (
