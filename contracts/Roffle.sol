@@ -145,7 +145,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
         state = RaffleState.Completed;
 
         uint256 totalPrizePool = address(this).balance;
-        (address[10] memory winnerAddresses, uint256[10] memory prizeAmounts) = _selectWinners(totalPrizePool);
+        (address[WINNER_COUNT] memory winnerAddresses, uint256[WINNER_COUNT] memory prizeAmounts) = _selectWinners(totalPrizePool);
 
         emit WinnersSelected(winnerAddresses, prizeAmounts);
         _distributePrizes();
