@@ -162,9 +162,8 @@
   }
 }
 
-
 /* RainbowKit ConnectButton styling */
-.styledConnect:has([data-testid="rk-connect-button"]) {
+.styledConnect:has([data-testid='rk-connect-button']) {
   button {
     color: rgb(24, 24, 27);
     background-color: rgb(255, 255, 255);
@@ -178,7 +177,7 @@
     padding: 8px 8px 8px 16px;
   }
 }
-.styledConnect:has([data-testid="rk-account-button"]) {
+.styledConnect:has([data-testid='rk-account-button']) {
   button {
     background: rgba(255, 255, 255, 0.1) !important;
     border: none !important;
@@ -207,4 +206,3 @@
     line-height: 20px !important;
   }
 }
-

@@ -1,24 +1,24 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { defineChain } from 'viem'
-import { sapphire, sapphireTestnet } from 'wagmi/chains';
+import { sapphire, sapphireTestnet } from 'wagmi/chains'
 
 export const sapphireLocalnet = defineChain({
-	id: 0x5afd,
-	name: 'Sapphire Localnet',
-	nativeCurrency: {
-		decimals: 18,
-		name: 'TEST',
-		symbol: 'TEST'
-	},
-	rpcUrls: {
-		default: {
-			http: ['http://localhost:8545']
-		},
-		public: {
-			http: ['http://localhost:8545']
-		}
-	}
-});
+  id: 0x5afd,
+  name: 'Sapphire Localnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'TEST',
+    symbol: 'TEST',
+  },
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:8545'],
+    },
+    public: {
+      http: ['http://localhost:8545'],
+    },
+  },
+})
 
 export const config = getDefaultConfig({
   appName: 'Xmas Raffle',
@@ -29,5 +29,4 @@ export const config = getDefaultConfig({
   batch: {
     multicall: false,
   },
-});
-
+})
