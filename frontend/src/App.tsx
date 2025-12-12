@@ -12,6 +12,8 @@ import ticketsWow_svg from "./assets/ticketsWow.svg";
 import ticketsOmg_svg from "./assets/ticketsOmg.svg";
 import ticketsNoo_svg from "./assets/ticketsNoo.svg";
 import { LucideLoader } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts';
+import { FAQ } from './FAQ.tsx';
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -35,6 +37,7 @@ export function App() {
   const [ticketAmount, setTicketAmount] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [purchasedTickets, setPurchasedTickets] = useState(0);
+  const [isFaqOpen, setIsFaqOpen] = useState(false)
 
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
@@ -251,7 +254,7 @@ export function App() {
 
                     <p className="font-normal leading-[18px] opacity-60 text-[12px] text-center text-white">
                       <span>{`I acknowledge and agree to the Xmas `}</span>
-                      <a href="#faq" className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Roffle rules included in the FAQ section of this app.</a>.
+                      <a onClick={() => setIsFaqOpen(true)} className="cursor-pointer [text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Roffle rules included in the FAQ section of this app.</a>.
                     </p>
                   </>
               }
@@ -363,9 +366,19 @@ export function App() {
       {/* Footer Links */}
       <footer className="relative z-10 pb-6">
         <div className="flex flex-col sm:flex-row font-normal gap-4 sm:gap-4 items-center justify-center leading-[20px] text-[14px] text-center text-white px-4">
-          <a href="#faq" className="[text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Frequently Asked Questions</a>
+          <a onClick={() => setIsFaqOpen(true)} className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity">Frequently Asked Questions</a>
         </div>
       </footer>
+
+      <Dialog open={isFaqOpen} onOpenChange={setIsFaqOpen}>
+        <DialogContent className="sm:max-w-[670px] p-[32px] bg-[#0A1D24] border-black">
+          <DialogHeader>
+            <DialogDescription>
+              <FAQ RAFFLE_CONTRACT_ADDRESS={RAFFLE_CONTRACT_ADDRESS} />
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
