@@ -9,6 +9,7 @@ import {
   ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN,
   ROFL_PAYMASTER_EXPECTED_TIME,
   ROFL_PAYMASTER_SAPPHIRE_CONTRACT_CONFIG,
+  ROFL_PAYMASTER_SLIPPAGE_PERCENTAGE,
   ROFL_PAYMASTER_TOKEN_CONFIG,
   RoflPaymasterTokenConfig,
 } from '../constants/rofl-paymaster-config.ts'
@@ -116,7 +117,7 @@ export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymaste
       roseAmount: bigint,
       chain: Chain,
       roseDecimals = ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN.decimals,
-      slippageBps = 2000n
+      slippagePercentage = ROFL_PAYMASTER_SLIPPAGE_PERCENTAGE
     ): Promise<bigint | null> => {
       if (chain.id !== ROFL_PAYMASTER_DESTINATION_CHAIN.id) {
         throw new Error('Invalid chain!')
@@ -142,8 +143,7 @@ export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymaste
 
       const tokenAmount = ceilDiv(numerator, denominator)
 
-      // Add 2%(slippageBps=2000n) slippage
-      return ceilDiv(tokenAmount * (100_000n + slippageBps), 100_000n)
+      return ceilDiv(tokenAmount * (100n + slippagePercentage), 100n)
     },
     [roseFeed, tokenFeed, tokenFeedDecimals, roseFeedDecimals]
   )
