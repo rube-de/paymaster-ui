@@ -7,7 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IRoffle} from "./interfaces/IRoffle.sol";
 import {RoffleConstants} from "./libraries/RoffleConstants.sol";
 
-/// @title Roffle - Oasis Christmas Raffle 2024
+/// @title Roffle - Oasis Christmas Raffle 2025
 /// @author Oasis Protocol Foundation
 /// @notice A fair, on-chain raffle powered by Sapphire's secure randomness
 /// @dev Uses Sapphire's hardware-backed randomness for winner selection
