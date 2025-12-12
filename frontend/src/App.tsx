@@ -125,7 +125,7 @@ export function App() {
 
   const shareOnX = () => {
     window.open(
-      'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just entered the Oasis X-mas Raffle!'),
+      'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just entered the Oasis Xmas Raffle!'),
       '_blank'
     )
   }
@@ -180,7 +180,7 @@ export function App() {
           {hasEnded ? (
             <div className="flex flex-col gap-4 items-center text-center">
               <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
-                X-mas Roffle has ended
+                Xmas Roffle has ended
               </p>
             </div>
           ) : hasSoldOut ? (
@@ -199,7 +199,7 @@ export function App() {
             <div className="flex flex-col gap-4 items-center">
               <div className="flex flex-col gap-4 items-center text-center">
                 <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
-                  X-mas Roffle
+                  Xmas Roffle
                 </p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
                   Participate in the Oasis Raffle! The initial pot is 100,000 ROSE and grows with each ticket
