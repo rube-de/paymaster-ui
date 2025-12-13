@@ -6,6 +6,8 @@ import {
   RoflPaymasterTokenConfig,
 } from '../../constants/rofl-paymaster-config.ts'
 import { LucideLoader } from 'lucide-react'
+import { useAccount, useBalance } from 'wagmi'
+import { base } from 'wagmi/chains'
 
 interface Props {
   roseAmountInBaseUnits: bigint
@@ -20,6 +22,14 @@ export const TopUpButton: FC<Props> = ({
   children,
   onSuccess,
 }) => {
+  const { address } = useAccount()
+
+  const { data: tokenBalance } = useBalance({
+    address,
+    token: targetToken.contractAddress,
+    chainId: base.id
+  })
+
   const [quote, setQuote] = useState<bigint | null>(null)
   const { isLoading, initialLoading, error, currentStep, getQuote, startTopUp } = usePaymaster(targetToken)
 
@@ -37,19 +47,21 @@ export const TopUpButton: FC<Props> = ({
     }
   }, [roseAmountInBaseUnits, initialLoading])
 
-  if (initialLoading || !quote)
+  if (initialLoading || !quote || !tokenBalance)
     return (
       <div className="flex justify-center">
         <LucideLoader className="animate-spin" />
       </div>
     )
 
+  const insufficientBalance = tokenBalance.value < quote
+
   return (
     <>
       {!!quote && (
         <button
           className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
-          disabled={isLoading}
+          disabled={isLoading || insufficientBalance}
           onClick={async () => {
             await startTopUp({
               amount: quote,
@@ -69,14 +81,15 @@ export const TopUpButton: FC<Props> = ({
       )}
 
       {isLoading && !!quote && currentStep && (
-        <div className="self-stretch text-center justify-start text-teal-300 text-base font-normal font-['Geist'] leading-4">
+        <div className="text-teal-300 text-center break-words">
           ({currentStep?.id}/5) {currentStep?.label}
         </div>
       )}
 
-      {!isLoading && error && (
-        <p className="self-stretch text-center justify-start text-red-600 text-base font-normal font-['Geist'] leading-4 break-words">
-          {error.length > 150 ? `${error.slice(0, 150)}...` : error}
+      {((!isLoading && error) || insufficientBalance) && (
+        <p className="text-warning text-center break-words">
+          {insufficientBalance && `Insufficient $${targetToken.symbol} balance`}
+          {error && error.length > 150 ? `${error.slice(0, 150)}...` : error}
         </p>
       )}
     </>
