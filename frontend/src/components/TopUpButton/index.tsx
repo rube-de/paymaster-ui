@@ -42,10 +42,11 @@ export const TopUpButton: FC<Props> = ({
       )
     }
 
-    if (!initialLoading) {
+    if (!initialLoading && targetToken) {
       _init()
     }
-  }, [roseAmountInBaseUnits, initialLoading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Ignore getQuote
+  }, [roseAmountInBaseUnits, initialLoading, targetToken])
 
   if (initialLoading || !quote || !tokenBalance)
     return (

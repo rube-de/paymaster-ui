@@ -145,7 +145,7 @@ export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymaste
 
       return ceilDiv(tokenAmount * (100n + slippagePercentage), 100n)
     },
-    [roseFeed, tokenFeed, tokenFeedDecimals, roseFeedDecimals]
+    [roseFeed, tokenFeed, tokenFeedDecimals, roseFeedDecimals, targetToken.decimals]
   )
 
   const createDeposit = useCallback(
@@ -274,7 +274,7 @@ export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymaste
         setIsLoading(false)
       }
     },
-    [address, createDeposit, currentStep, pollPayment, updateStep]
+    [address, createDeposit, currentStep, pollPayment, updateStep, targetToken.contractAddress]
   )
 
   return {
