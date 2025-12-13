@@ -1,8 +1,9 @@
 {
   "scripts": {
     "dev": "npx hardhat compile && cd frontend && vite",
-    "build": "npx hardhat compile && cd frontend && tsc && vite build",
-    "preview": "cd frontend && vite preview"
+    "build:contracts": "NODE_OPTIONS=--max-old-space-size=4096 hardhat compile",
+    "build:frontend": "cd frontend && NODE_OPTIONS=--max-old-space-size=4096 yarn build",
+    "build": "yarn build:contracts && yarn build:frontend"
   },
   "dependencies": {
     "@oasisprotocol/sapphire-contracts": "^0.2.15",
