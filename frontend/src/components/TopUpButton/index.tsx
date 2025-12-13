@@ -48,7 +48,7 @@ export const TopUpButton: FC<Props> = ({
     <>
       {!!quote && (
         <button
-          className="bg-white hover:bg-gray-100 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full disabled:bg-[linear-gradient(0deg,rgba(0,0,0,0.5)_0%,rgba(0,0,0,0.5)_100%),linear-gradient(#fff,#fff)]"
+          className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
           disabled={isLoading}
           onClick={async () => {
             await startTopUp({
