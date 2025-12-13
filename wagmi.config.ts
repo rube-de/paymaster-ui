@@ -12,14 +12,4 @@ export default defineConfig([
       react(),
     ],
   },
-  {
-    out: "frontend/src/hooks/generated/paymasterVault.ts",
-    plugins: [
-      hardhat({
-        project: "../rofl-paymaster/contracts",
-        include: ["remote/PaymasterVault.sol/PaymasterVault.json"],
-      }),
-      react(),
-    ],
-  },
 ]);
