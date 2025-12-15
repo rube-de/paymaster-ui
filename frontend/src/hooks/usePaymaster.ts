@@ -284,8 +284,10 @@ export function usePaymaster(
         setCurrentStep(null)
         throw e
       } finally {
-        await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
         setIsLoading(false)
+        setCurrentStep(null)
+
+        await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
       }
     },
     [
