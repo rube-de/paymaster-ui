@@ -7,10 +7,6 @@ import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
 import { formatEther, parseEther } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import tickets250_svg from './assets/tickets250.svg'
-import ticketsYay_svg from './assets/ticketsYay.svg'
-import ticketsWow_svg from './assets/ticketsWow.svg'
-import ticketsOmg_svg from './assets/ticketsOmg.svg'
-import ticketsNoo_svg from './assets/ticketsNoo.svg'
 import { LucideLoader } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
@@ -234,19 +230,7 @@ export function App() {
         </div>
 
         <div className="overflow-hidden grow max-w-[910px] -mt-6 max-md:-order-1">
-          {showError ? (
-            <img src={ticketsNoo_svg} />
-          ) : showSuccess ? (
-            BigInt(purchasedTickets) === (maxTicketsPerWallet.data ?? BigInt(Number.MAX_SAFE_INTEGER)) ? (
-              <img src={ticketsWow_svg} />
-            ) : (
-              <img src={ticketsYay_svg} />
-            )
-          ) : hasSoldOut ? (
-            <img src={ticketsOmg_svg} />
-          ) : (
-            <img src={tickets250_svg} />
-          )}
+          {!isConnected && <img src={tickets250_svg} />}
         </div>
 
         {/* Wallet */}
