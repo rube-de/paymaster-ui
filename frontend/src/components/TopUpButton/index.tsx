@@ -1,13 +1,11 @@
 import { FC, ReactNode, useEffect, useState } from 'react'
 import { usePaymaster } from '../../hooks/usePaymaster.ts'
 import { formatUnits } from 'viem'
-import {
-  ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN,
-  RoflPaymasterTokenConfig,
-} from '../../constants/rofl-paymaster-config.ts'
+import { RoflPaymasterTokenConfig } from '../../constants/rofl-paymaster-config.ts'
 import { LucideLoader } from 'lucide-react'
 import { useAccount, useBalance } from 'wagmi'
 import { base } from 'wagmi/chains'
+import { useCountdownTimer } from '../../hooks/useCountdownTimer.ts'
 
 interface Props {
   roseAmountInBaseUnits: bigint
@@ -16,12 +14,7 @@ interface Props {
   onSuccess?: () => void
 }
 
-export const TopUpButton: FC<Props> = ({
-  roseAmountInBaseUnits = 100n * 10n ** BigInt(ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN.decimals),
-  targetToken,
-  children,
-  onSuccess,
-}) => {
+export const TopUpButton: FC<Props> = ({ roseAmountInBaseUnits, targetToken, children, onSuccess }) => {
   const { address } = useAccount()
 
   const { data: tokenBalance } = useBalance({
@@ -32,6 +25,10 @@ export const TopUpButton: FC<Props> = ({
 
   const [quote, setQuote] = useState<bigint | null>(null)
   const { isLoading, initialLoading, error, currentStep, getQuote, startTopUp } = usePaymaster(targetToken)
+
+  const countdown = useCountdownTimer({
+    initialTimeInSeconds: currentStep?.expectedTimeInSeconds || 0,
+  })
 
   useEffect(() => {
     const _init = async () => {
@@ -47,6 +44,19 @@ export const TopUpButton: FC<Props> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Ignore getQuote
   }, [roseAmountInBaseUnits, initialLoading, targetToken])
+
+  useEffect(() => {
+    const expected = currentStep?.expectedTimeInSeconds ?? 0
+
+    if (isLoading && currentStep && expected > 0) {
+      countdown.reset()
+      countdown.start()
+      return
+    }
+
+    countdown.stop()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ignore countdown methods
+  }, [isLoading, currentStep?.id, currentStep?.expectedTimeInSeconds])
 
   if (initialLoading || !quote || !tokenBalance)
     return (
@@ -82,8 +92,14 @@ export const TopUpButton: FC<Props> = ({
       )}
 
       {isLoading && !!quote && currentStep && (
-        <div className="text-teal-300 text-center break-words">
-          ({currentStep?.id}/5) {currentStep?.label}
+        <div className="text-center break-words">
+          <p className="text-teal-300">
+            ({currentStep?.id}/5) {currentStep?.label}
+          </p>
+
+          {!!currentStep.expectedTimeInSeconds && currentStep.expectedTimeInSeconds > 0 && (
+            <div className="text-xs text-teal-200/80 mt-1">Est. time left: {countdown.formattedTime}</div>
+          )}
         </div>
       )}
 
