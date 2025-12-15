@@ -183,7 +183,7 @@
   }
 }
 .styledConnect:has([data-testid='rk-account-button']) {
-  button {
+  button[data-testid='rk-account-button'] {
     background: rgba(255, 255, 255, 0.1) !important;
     border: none !important;
     color: white !important;
@@ -199,15 +199,48 @@
     gap: 8px !important;
   }
 
-  button:hover {
+  button[data-testid='rk-account-button']:hover {
     background: rgba(255, 255, 255, 0.15) !important;
   }
 
-  button > div {
+  button[data-testid='rk-account-button'] > div {
     all: unset;
     color: white !important;
     font-weight: 500 !important;
     font-size: 14px !important;
     line-height: 20px !important;
+  }
+}
+
+.styledConnect:has([data-testid='rk-chain-button']) {
+  button[data-testid='rk-chain-button'] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    line-height: 20px !important;
+    height: 48px !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    transition: background-color 0.2s !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  button[data-testid='rk-chain-button']:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  button[data-testid='rk-chain-button'] img {
+    width: 24px !important;
+    height: 24px !important;
+    flex: 0 0 auto !important;
+    display: block !important;
+  }
+
+  button[data-testid='rk-chain-button'] svg {
+    flex: 0 0 auto !important;
   }
 }
