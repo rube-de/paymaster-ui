@@ -22,6 +22,7 @@ import { ROSEIcon } from './components/icons/RoseIcon.tsx'
 import { IconCenter } from './components/icons/IconCenter.tsx'
 import { USDTIcon } from './components/icons/USDTIcon.tsx'
 import { USDCIcon } from './components/icons/USDCIcon.tsx'
+import { switchToChain } from './contracts/erc-20.ts'
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -51,6 +52,7 @@ export function App() {
   const [showError, setShowError] = useState<{ txHash: `0x${string}`; message?: string } | undefined>(
     undefined
   )
+  const [buyInlineError, setBuyInlineError] = useState<string | undefined>(undefined)
   const [purchasedTickets, setPurchasedTickets] = useState(0)
   const [isFaqOpen, setIsFaqOpen] = useState(false)
   const [payIn, setPayIn] = useState<PayInOption>('ROSE')
@@ -142,6 +144,17 @@ export function App() {
   }))
 
   const handleBuyTickets = async () => {
+    setBuyInlineError(undefined)
+
+    const switchToChainResponse = await switchToChain({
+      targetChainId: CONTRACT_NETWORK.id,
+      address: acc.address,
+    })
+    if (!switchToChainResponse.success) {
+      setBuyInlineError(`Please switch your wallet to ${CONTRACT_NETWORK.name} to buy tickets.`)
+      return
+    }
+
     ticketsRemaining.refetch()
     let hash
     try {
@@ -431,9 +444,11 @@ export function App() {
                             Please, confirm the action(s) in your wallet.
                           </div>
                         )}
-                        {(buyTx.error || insufficientRoseBalance) && (
+                        {(buyInlineError || buyTx.error || insufficientRoseBalance) && (
                           <p className="text-warning text-center">
-                            {buyTx.error && ((buyTx.error as BaseError).shortMessage || buyTx.error.message)}
+                            {buyInlineError ||
+                              (buyTx.error as BaseError).shortMessage ||
+                              buyTx.error?.message}
                             {insufficientRoseBalance &&
                               `Insufficient $${CONTRACT_NETWORK.nativeCurrency.symbol} balance`}
                           </p>
