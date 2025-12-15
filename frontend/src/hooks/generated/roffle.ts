@@ -389,9 +389,7 @@ export const roffleAbi = [
     type: 'function',
     inputs: [],
     name: 'state',
-    outputs: [
-      { name: '', internalType: 'enum IRoffle.RaffleState', type: 'uint8' },
-    ],
+    outputs: [{ name: '', internalType: 'enum IRoffle.RaffleState', type: 'uint8' }],
     stateMutability: 'view',
   },
   {
@@ -448,27 +446,26 @@ export const useReadRoffle = /*#__PURE__*/ createUseReadContract({
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"MAX_TICKETS_PER_WALLET"`
  */
-export const useReadRoffleMaxTicketsPerWallet =
-  /*#__PURE__*/ createUseReadContract({
-    abi: roffleAbi,
-    functionName: 'MAX_TICKETS_PER_WALLET',
-  })
+export const useReadRoffleMaxTicketsPerWallet = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'MAX_TICKETS_PER_WALLET',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"MAX_TOTAL_TICKETS"`
  */
-export const useReadRoffleMaxTotalTickets = /*#__PURE__*/ createUseReadContract(
-  { abi: roffleAbi, functionName: 'MAX_TOTAL_TICKETS' },
-)
+export const useReadRoffleMaxTotalTickets = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'MAX_TOTAL_TICKETS',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"PRIZE_PERCENTAGES"`
  */
-export const useReadRofflePrizePercentages =
-  /*#__PURE__*/ createUseReadContract({
-    abi: roffleAbi,
-    functionName: 'PRIZE_PERCENTAGES',
-  })
+export const useReadRofflePrizePercentages = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'PRIZE_PERCENTAGES',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"TICKET_PRICE"`
@@ -489,52 +486,50 @@ export const useReadRoffleWinnerCount = /*#__PURE__*/ createUseReadContract({
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"getPrizeForRank"`
  */
-export const useReadRoffleGetPrizeForRank = /*#__PURE__*/ createUseReadContract(
-  { abi: roffleAbi, functionName: 'getPrizeForRank' },
-)
+export const useReadRoffleGetPrizeForRank = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'getPrizeForRank',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"getTicketsAllowedForWallet"`
  */
-export const useReadRoffleGetTicketsAllowedForWallet =
-  /*#__PURE__*/ createUseReadContract({
-    abi: roffleAbi,
-    functionName: 'getTicketsAllowedForWallet',
-  })
+export const useReadRoffleGetTicketsAllowedForWallet = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'getTicketsAllowedForWallet',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"getTicketsRemaining"`
  */
-export const useReadRoffleGetTicketsRemaining =
-  /*#__PURE__*/ createUseReadContract({
-    abi: roffleAbi,
-    functionName: 'getTicketsRemaining',
-  })
+export const useReadRoffleGetTicketsRemaining = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'getTicketsRemaining',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"getTimeRemaining"`
  */
-export const useReadRoffleGetTimeRemaining =
-  /*#__PURE__*/ createUseReadContract({
-    abi: roffleAbi,
-    functionName: 'getTimeRemaining',
-  })
+export const useReadRoffleGetTimeRemaining = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'getTimeRemaining',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"getTotalEntries"`
  */
-export const useReadRoffleGetTotalEntries = /*#__PURE__*/ createUseReadContract(
-  { abi: roffleAbi, functionName: 'getTotalEntries' },
-)
+export const useReadRoffleGetTotalEntries = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'getTotalEntries',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"getTotalPrizePool"`
  */
-export const useReadRoffleGetTotalPrizePool =
-  /*#__PURE__*/ createUseReadContract({
-    abi: roffleAbi,
-    functionName: 'getTotalPrizePool',
-  })
+export const useReadRoffleGetTotalPrizePool = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'getTotalPrizePool',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"getWinners"`
@@ -555,9 +550,10 @@ export const useReadRoffleIsActive = /*#__PURE__*/ createUseReadContract({
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"opfContribution"`
  */
-export const useReadRoffleOpfContribution = /*#__PURE__*/ createUseReadContract(
-  { abi: roffleAbi, functionName: 'opfContribution' },
-)
+export const useReadRoffleOpfContribution = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'opfContribution',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"owner"`
@@ -586,11 +582,10 @@ export const useReadRoffleState = /*#__PURE__*/ createUseReadContract({
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"ticketsPurchased"`
  */
-export const useReadRoffleTicketsPurchased =
-  /*#__PURE__*/ createUseReadContract({
-    abi: roffleAbi,
-    functionName: 'ticketsPurchased',
-  })
+export const useReadRoffleTicketsPurchased = /*#__PURE__*/ createUseReadContract({
+  abi: roffleAbi,
+  functionName: 'ticketsPurchased',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"ticketsSold"`
@@ -618,11 +613,10 @@ export const useWriteRoffle = /*#__PURE__*/ createUseWriteContract({
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"addOPFContribution"`
  */
-export const useWriteRoffleAddOpfContribution =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: roffleAbi,
-    functionName: 'addOPFContribution',
-  })
+export const useWriteRoffleAddOpfContribution = /*#__PURE__*/ createUseWriteContract({
+  abi: roffleAbi,
+  functionName: 'addOPFContribution',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"buyTickets"`
@@ -635,56 +629,50 @@ export const useWriteRoffleBuyTickets = /*#__PURE__*/ createUseWriteContract({
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"cancelAndRefund"`
  */
-export const useWriteRoffleCancelAndRefund =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: roffleAbi,
-    functionName: 'cancelAndRefund',
-  })
+export const useWriteRoffleCancelAndRefund = /*#__PURE__*/ createUseWriteContract({
+  abi: roffleAbi,
+  functionName: 'cancelAndRefund',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"closeSalesEarly"`
  */
-export const useWriteRoffleCloseSalesEarly =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: roffleAbi,
-    functionName: 'closeSalesEarly',
-  })
+export const useWriteRoffleCloseSalesEarly = /*#__PURE__*/ createUseWriteContract({
+  abi: roffleAbi,
+  functionName: 'closeSalesEarly',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"renounceOwnership"`
  */
-export const useWriteRoffleRenounceOwnership =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: roffleAbi,
-    functionName: 'renounceOwnership',
-  })
+export const useWriteRoffleRenounceOwnership = /*#__PURE__*/ createUseWriteContract({
+  abi: roffleAbi,
+  functionName: 'renounceOwnership',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"selectWinnersAndDistribute"`
  */
-export const useWriteRoffleSelectWinnersAndDistribute =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: roffleAbi,
-    functionName: 'selectWinnersAndDistribute',
-  })
+export const useWriteRoffleSelectWinnersAndDistribute = /*#__PURE__*/ createUseWriteContract({
+  abi: roffleAbi,
+  functionName: 'selectWinnersAndDistribute',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"transferOwnership"`
  */
-export const useWriteRoffleTransferOwnership =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: roffleAbi,
-    functionName: 'transferOwnership',
-  })
+export const useWriteRoffleTransferOwnership = /*#__PURE__*/ createUseWriteContract({
+  abi: roffleAbi,
+  functionName: 'transferOwnership',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"withdrawOPFContribution"`
  */
-export const useWriteRoffleWithdrawOpfContribution =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: roffleAbi,
-    functionName: 'withdrawOPFContribution',
-  })
+export const useWriteRoffleWithdrawOpfContribution = /*#__PURE__*/ createUseWriteContract({
+  abi: roffleAbi,
+  functionName: 'withdrawOPFContribution',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__
@@ -696,74 +684,66 @@ export const useSimulateRoffle = /*#__PURE__*/ createUseSimulateContract({
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"addOPFContribution"`
  */
-export const useSimulateRoffleAddOpfContribution =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'addOPFContribution',
-  })
+export const useSimulateRoffleAddOpfContribution = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'addOPFContribution',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"buyTickets"`
  */
-export const useSimulateRoffleBuyTickets =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'buyTickets',
-  })
+export const useSimulateRoffleBuyTickets = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'buyTickets',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"cancelAndRefund"`
  */
-export const useSimulateRoffleCancelAndRefund =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'cancelAndRefund',
-  })
+export const useSimulateRoffleCancelAndRefund = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'cancelAndRefund',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"closeSalesEarly"`
  */
-export const useSimulateRoffleCloseSalesEarly =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'closeSalesEarly',
-  })
+export const useSimulateRoffleCloseSalesEarly = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'closeSalesEarly',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"renounceOwnership"`
  */
-export const useSimulateRoffleRenounceOwnership =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'renounceOwnership',
-  })
+export const useSimulateRoffleRenounceOwnership = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'renounceOwnership',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"selectWinnersAndDistribute"`
  */
-export const useSimulateRoffleSelectWinnersAndDistribute =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'selectWinnersAndDistribute',
-  })
+export const useSimulateRoffleSelectWinnersAndDistribute = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'selectWinnersAndDistribute',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"transferOwnership"`
  */
-export const useSimulateRoffleTransferOwnership =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'transferOwnership',
-  })
+export const useSimulateRoffleTransferOwnership = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'transferOwnership',
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link roffleAbi}__ and `functionName` set to `"withdrawOPFContribution"`
  */
-export const useSimulateRoffleWithdrawOpfContribution =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: roffleAbi,
-    functionName: 'withdrawOPFContribution',
-  })
+export const useSimulateRoffleWithdrawOpfContribution = /*#__PURE__*/ createUseSimulateContract({
+  abi: roffleAbi,
+  functionName: 'withdrawOPFContribution',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__
@@ -775,71 +755,63 @@ export const useWatchRoffleEvent = /*#__PURE__*/ createUseWatchContractEvent({
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"OPFContributionAdded"`
  */
-export const useWatchRoffleOpfContributionAddedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'OPFContributionAdded',
-  })
+export const useWatchRoffleOpfContributionAddedEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'OPFContributionAdded',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"OPFContributionWithdrawn"`
  */
-export const useWatchRoffleOpfContributionWithdrawnEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'OPFContributionWithdrawn',
-  })
+export const useWatchRoffleOpfContributionWithdrawnEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'OPFContributionWithdrawn',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"OwnershipTransferred"`
  */
-export const useWatchRoffleOwnershipTransferredEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'OwnershipTransferred',
-  })
+export const useWatchRoffleOwnershipTransferredEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'OwnershipTransferred',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"PrizeDistributed"`
  */
-export const useWatchRofflePrizeDistributedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'PrizeDistributed',
-  })
+export const useWatchRofflePrizeDistributedEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'PrizeDistributed',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"RefundIssued"`
  */
-export const useWatchRoffleRefundIssuedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'RefundIssued',
-  })
+export const useWatchRoffleRefundIssuedEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'RefundIssued',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"SalesClosed"`
  */
-export const useWatchRoffleSalesClosedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'SalesClosed',
-  })
+export const useWatchRoffleSalesClosedEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'SalesClosed',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"TicketsPurchased"`
  */
-export const useWatchRoffleTicketsPurchasedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'TicketsPurchased',
-  })
+export const useWatchRoffleTicketsPurchasedEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'TicketsPurchased',
+})
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link roffleAbi}__ and `eventName` set to `"WinnersSelected"`
  */
-export const useWatchRoffleWinnersSelectedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: roffleAbi,
-    eventName: 'WinnersSelected',
-  })
+export const useWatchRoffleWinnersSelectedEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: roffleAbi,
+  eventName: 'WinnersSelected',
+})

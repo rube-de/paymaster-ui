@@ -177,7 +177,7 @@
     padding: 8px 8px 8px 16px;
   }
 }
-.styledConnect:has([data-testid="rk-wrong-network-button"]) {
+.styledConnect:has([data-testid='rk-wrong-network-button']) {
   button {
     justify-content: center;
   }

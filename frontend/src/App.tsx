@@ -70,31 +70,31 @@ export function App() {
     query: {
       refetchInterval: 60_000,
     },
-    chainId: CONTRACT_NETWORK.id
+    chainId: CONTRACT_NETWORK.id,
   })
   const initialPot = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'opfContribution',
-    chainId: CONTRACT_NETWORK.id
+    chainId: CONTRACT_NETWORK.id,
   })
   const maxTotalTickers = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'MAX_TOTAL_TICKETS',
-    chainId: CONTRACT_NETWORK.id
+    chainId: CONTRACT_NETWORK.id,
   })
   const ticketPrice = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'TICKET_PRICE',
-    chainId: CONTRACT_NETWORK.id
+    chainId: CONTRACT_NETWORK.id,
   })
   const raffleEndTime = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
     abi: typedRoffleJson.abi,
     functionName: 'raffleEndTime',
-    chainId: CONTRACT_NETWORK.id
+    chainId: CONTRACT_NETWORK.id,
   })
   const ticketsRemaining = useReadContract({
     address: RAFFLE_CONTRACT_ADDRESS,
@@ -103,7 +103,7 @@ export function App() {
     query: {
       refetchInterval: 60_000,
     },
-    chainId: CONTRACT_NETWORK.id
+    chainId: CONTRACT_NETWORK.id,
   })
   const buyTx = useWriteContract()
   const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false)
@@ -131,10 +131,10 @@ export function App() {
         functionName: 'buyTickets',
         args: [BigInt(ticketAmount)],
         value: BigInt(ticketAmount) * ticketPrice.data,
-        chainId: CONTRACT_NETWORK.id
+        chainId: CONTRACT_NETWORK.id,
       })
-    } catch (error) {
-      // Error printed next to button using buyTx.error
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Error printed next to button using buyTx.error
+    } catch (_error) {
       return
     }
     setIsWaitingForBuyReceipt(true)
@@ -278,8 +278,9 @@ export function App() {
                   Xmas Roffle
                 </p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                  Participate in the Oasis Christmas raffle! The initial pot is {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and grows with
-                  each ticket purchased which costs {formatEther(ticketPrice.data)} ROSE.
+                  Participate in the Oasis Christmas raffle! The initial pot is{' '}
+                  {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and grows with each ticket
+                  purchased which costs {formatEther(ticketPrice.data)} ROSE.
                 </p>
               </div>
 

@@ -1,6 +1,6 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { defineChain } from 'viem'
-import { sapphire, sapphireTestnet, base } from 'wagmi/chains'
+import { sapphire, base } from 'wagmi/chains'
 import { Config } from 'wagmi'
 
 export const sapphireLocalnet = defineChain({
