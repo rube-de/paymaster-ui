@@ -355,8 +355,14 @@ export function App() {
                         }
                         onSuccess={() => {
                           setPayIn('ROSE')
-                          handleBuyTickets()
                         }}
+                        additionalSteps={[
+                          {
+                            id: 6,
+                            label: `Confirm buying ticket${ticketAmount > 1 ? 's' : ''} on Sapphire`,
+                            action: handleBuyTickets,
+                          },
+                        ]}
                       >
                         {({ amountLabel }) =>
                           `Buy ${ticketAmount} ticket${ticketAmount > 1 ? 's' : ''} for ${amountLabel}`
@@ -364,31 +370,32 @@ export function App() {
                       </TopUpButton>
                     )}
                     {payIn === 'ROSE' && (
-                      <button
-                        onClick={handleBuyTickets}
-                        disabled={buyTx.isPending || isWaitingForBuyReceipt}
-                        className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
-                      >
-                        {buyTx.isPending || isWaitingForBuyReceipt ? (
-                          <LucideLoader className="animate-spin" />
-                        ) : (
-                          <p className="font-medium leading-[20px] text-[16px] text-black text-center">
-                            Buy {ticketAmount} ticket{ticketAmount > 1 ? 's' : ''} for{' '}
-                            {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
+                      <>
+                        <button
+                          onClick={handleBuyTickets}
+                          disabled={buyTx.isPending || isWaitingForBuyReceipt}
+                          className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
+                        >
+                          {buyTx.isPending || isWaitingForBuyReceipt ? (
+                            <LucideLoader className="animate-spin" />
+                          ) : (
+                            <p className="font-medium leading-[20px] text-[16px] text-black text-center">
+                              Buy {ticketAmount} ticket{ticketAmount > 1 ? 's' : ''} for{' '}
+                              {formatEther(BigInt(ticketAmount) * ticketPrice.data)} ROSE
+                            </p>
+                          )}
+                        </button>
+                        {buyTx.isPending && (
+                          <div className="text-center text-teal-300">
+                            Please, confirm the action(s) in your wallet.
+                          </div>
+                        )}
+                        {buyTx.error && (
+                          <p className="text-warning text-center">
+                            {(buyTx.error as BaseError).shortMessage || buyTx.error.message}
                           </p>
                         )}
-                      </button>
-                    )}
-
-                    {buyTx.isPending && (
-                      <div className="text-center text-teal-300">
-                        Please, confirm the action(s) in your wallet.
-                      </div>
-                    )}
-                    {buyTx.error && (
-                      <p className="text-warning text-center">
-                        {(buyTx.error as BaseError).shortMessage || buyTx.error.message}
-                      </p>
+                      </>
                     )}
                   </div>
 
