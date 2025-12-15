@@ -141,6 +141,7 @@ export function App() {
 
   const handleBuyTickets = async () => {
     setBuyInlineError(undefined)
+    setShowError(undefined)
 
     const switchToChainResponse = await switchToChain({
       targetChainId: CONTRACT_NETWORK.id,
@@ -242,37 +243,7 @@ export function App() {
       {/* Main Content Area */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">
         <div className="w-full max-w-[670px] mx-auto">
-          {showError ? (
-            <div className="flex flex-col gap-8 items-center">
-              <div className="flex flex-col gap-4 items-center text-center">
-                <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white max-w-[400px]">
-                  Something went wrong...
-                </p>
-                <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                  Oops! Your ticket purchase failed. Click below to try again.
-                </p>
-                {showError.message ? (
-                  <pre>{showError.message}</pre>
-                ) : (
-                  <a
-                    href={`https://explorer.oasis.io/mainnet/sapphire/tx/${showError.txHash}`}
-                    target="_blank"
-                    className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
-                  >
-                    See why transaction was reverted in Oasis Explorer
-                  </a>
-                )}
-              </div>
-              <button
-                onClick={() => setShowError(undefined)}
-                className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
-              >
-                <p className="font-medium leading-[20px] text-[16px] text-black text-center">
-                  Back to Raffle
-                </p>
-              </button>
-            </div>
-          ) : hasEnded ? (
+          {hasEnded ? (
             <div className="flex flex-col gap-4 items-center text-center">
               <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
                 Xmas Roffle has ended
@@ -429,13 +400,31 @@ export function App() {
                             Please, confirm the action(s) in your wallet.
                           </div>
                         )}
-                        {(buyInlineError || buyTx.error || insufficientRoseBalance) && (
+                        {(buyInlineError || buyTx.error) && (
                           <p className="text-warning text-center">
                             {buyInlineError ||
                               (buyTx.error as BaseError)?.shortMessage ||
                               buyTx.error?.message}
-                            {insufficientRoseBalance &&
-                              `Insufficient $${CONTRACT_NETWORK.nativeCurrency.symbol} balance`}
+                          </p>
+                        )}
+                        {insufficientRoseBalance && (
+                          <p className="text-warning text-center">
+                            Insufficient ${CONTRACT_NETWORK.nativeCurrency.symbol} balance
+                          </p>
+                        )}
+
+                        {showError && (
+                          <p className="text-error text-center">
+                            Oops! Your ticket purchase failed.{' '}
+                            {showError.message || (
+                              <a
+                                href={`https://explorer.oasis.io/mainnet/sapphire/tx/${showError.txHash}`}
+                                target="_blank"
+                                className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
+                              >
+                                See why transaction was reverted in Oasis Explorer
+                              </a>
+                            )}
                           </p>
                         )}
                       </>
