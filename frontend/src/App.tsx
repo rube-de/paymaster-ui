@@ -220,7 +220,7 @@ export function App() {
           {showError ? (
             <img src={ticketsNoo_svg} />
           ) : showSuccess ? (
-            purchasedTickets === 10 ? (
+            BigInt(purchasedTickets) === (maxTicketsPerWallet.data ?? BigInt(Number.MAX_SAFE_INTEGER)) ? (
               <img src={ticketsWow_svg} />
             ) : (
               <img src={ticketsYay_svg} />
