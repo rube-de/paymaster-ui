@@ -121,10 +121,13 @@ export function App() {
 
   const buyTx = useWriteContract()
   const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false)
+  const [isTopUpLoading, setIsTopUpLoading] = useState(false)
 
   if (!ticketPrice.data) return
   if (!raffleEndTime.data) return
   if (ticketsRemaining.data === undefined) return
+
+  const isBlockingDropdowns = buyTx.isPending || isWaitingForBuyReceipt || isTopUpLoading
 
   const hasEnded = Number(raffleEndTime.data * 1000n) < Date.now()
   const hasSoldOut = ticketsRemaining.data <= 0n && !showSuccess
@@ -322,6 +325,7 @@ export function App() {
                             ariaLabel="Select ticket amount"
                             value={ticketAmount}
                             onChange={setTicketAmount}
+                            disabled={isBlockingDropdowns}
                             options={ticketOptions.map(o => ({
                               value: o.value,
                               label: o.label,
@@ -343,6 +347,7 @@ export function App() {
                           ariaLabel="Select payment token"
                           value={payIn}
                           onChange={setPayIn}
+                          disabled={isBlockingDropdowns}
                           options={[
                             {
                               value: 'ROSE',
@@ -398,6 +403,7 @@ export function App() {
                             action: handleBuyTickets,
                           },
                         ]}
+                        onLoadingChange={setIsTopUpLoading}
                       >
                         {({ amountLabel }) =>
                           `Buy ${ticketAmount} ticket${ticketAmount > 1 ? 's' : ''} for ${amountLabel}`

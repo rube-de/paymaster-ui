@@ -22,6 +22,7 @@ type Props<T extends string | number> = {
   sideOffset?: number
   ariaLabel?: string
   renderTrailing?: ReactNode
+  disabled?: boolean
 }
 
 export const DropdownSelect = <T extends string | number>({
@@ -35,12 +36,14 @@ export const DropdownSelect = <T extends string | number>({
   sideOffset = 8,
   ariaLabel,
   renderTrailing,
+  disabled = false,
 }: Props<T>) => {
   const selected = useMemo(() => options.find(o => o.value === value), [options, value])
 
   const triggerBase = cn(
     'bg-[rgba(0,0,0,0.2)] border border-black h-[3rem] rounded-[0.75rem] w-full px-[1rem] py-[0.75rem]',
-    'flex items-center justify-between hover:bg-[rgba(0,0,0,0.6)] transition-colors'
+    'flex items-center justify-between hover:bg-[rgba(0,0,0,0.6)] transition-colors',
+    'disabled:opacity-50 disabled:pointer-events-none'
   )
 
   const contentBase = cn(
@@ -62,7 +65,12 @@ export const DropdownSelect = <T extends string | number>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" aria-label={ariaLabel} className={cn(triggerBase, triggerClassName)}>
+        <button
+          type="button"
+          aria-label={ariaLabel}
+          disabled={disabled}
+          className={cn(triggerBase, triggerClassName)}
+        >
           <span className="flex gap-[0.5rem] items-center min-w-0">
             {selected?.leading ? <span className="shrink-0">{selected.leading}</span> : null}
 
@@ -95,8 +103,11 @@ export const DropdownSelect = <T extends string | number>({
             return (
               <DropdownMenuItem
                 key={String(option.value)}
-                disabled={option.disabled}
-                onSelect={() => onChange(option.value)}
+                disabled={disabled || option.disabled}
+                onSelect={() => {
+                  if (disabled) return
+                  onChange(option.value)
+                }}
                 className={cn(itemBase, !isLast && 'border-b border-[#1f1f1f]', itemClassName)}
               >
                 <span className="flex gap-[0.5rem] items-center min-w-0">
