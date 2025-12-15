@@ -244,3 +244,7 @@
     flex: 0 0 auto !important;
   }
 }
+[data-rk] {
+  --rk-radii-modal: 12px !important;
+  --rk-fonts-body: 'Geist', Helvetica !important;
+}

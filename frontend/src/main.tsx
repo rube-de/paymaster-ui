@@ -12,7 +12,12 @@ const queryClient = new QueryClient()
 createRoot(document.getElementById('root')!).render(
   <WagmiProvider config={config}>
     <QueryClientProvider client={queryClient}>
-      <RainbowKitProvider theme={darkTheme()} modalSize="compact">
+      <RainbowKitProvider
+        theme={darkTheme({
+          borderRadius: 'medium',
+        })}
+        modalSize="compact"
+      >
         <App />
       </RainbowKitProvider>
     </QueryClientProvider>
