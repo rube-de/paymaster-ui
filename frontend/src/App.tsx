@@ -55,6 +55,13 @@ export function App() {
   const [isFaqOpen, setIsFaqOpen] = useState(false)
   const [payIn, setPayIn] = useState<PayInOption>('ROSE')
 
+  const roseBalance = useBalance({
+    address: acc.address,
+    chainId: CONTRACT_NETWORK.id,
+    query: {
+      refetchInterval: 60_000,
+    },
+  })
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
     query: {
@@ -95,6 +102,23 @@ export function App() {
     },
     chainId: CONTRACT_NETWORK.id,
   })
+  const maxTicketsPerWallet = useReadContract({
+    address: RAFFLE_CONTRACT_ADDRESS,
+    abi: typedRoffleJson.abi,
+    functionName: 'MAX_TICKETS_PER_WALLET',
+    chainId: CONTRACT_NETWORK.id,
+  })
+  const ticketsPurchased = useReadContract({
+    address: RAFFLE_CONTRACT_ADDRESS,
+    abi: typedRoffleJson.abi,
+    functionName: 'ticketsPurchased',
+    chainId: CONTRACT_NETWORK.id,
+    args: [acc.address!],
+    query: {
+      enabled: !!acc.address,
+    },
+  })
+
   const buyTx = useWriteContract()
   const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false)
 
@@ -104,6 +128,9 @@ export function App() {
 
   const hasEnded = Number(raffleEndTime.data * 1000n) < Date.now()
   const hasSoldOut = ticketsRemaining.data <= 0n && !showSuccess
+  const insufficientRoseBalance = roseBalance.data
+    ? roseBalance.data?.value < BigInt(ticketAmount) * ticketPrice.data
+    : false
 
   const ticketOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => ({
     value: v,
@@ -134,6 +161,7 @@ export function App() {
         setPurchasedTickets(prev => prev + ticketAmount)
         setShowSuccess(true)
         ticketsRemaining.refetch()
+        ticketsPurchased.refetch()
       } else {
         console.log('reverted', transactionReceipt)
         setShowError({ txHash: hash })
@@ -192,7 +220,7 @@ export function App() {
           {showError ? (
             <img src={ticketsNoo_svg} />
           ) : showSuccess ? (
-            purchasedTickets === 10 ? (
+            BigInt(purchasedTickets) === (maxTicketsPerWallet.data ?? BigInt(Number.MAX_SAFE_INTEGER)) ? (
               <img src={ticketsWow_svg} />
             ) : (
               <img src={ticketsYay_svg} />
@@ -297,6 +325,10 @@ export function App() {
                               value: o.value,
                               label: o.label,
                               subLabel: `(${o.price})`,
+                              disabled:
+                                maxTicketsPerWallet.data !== undefined && ticketsPurchased.data !== undefined
+                                  ? maxTicketsPerWallet.data - ticketsPurchased.data < BigInt(o.value)
+                                  : false,
                             }))}
                           />
                         </div>
@@ -373,7 +405,7 @@ export function App() {
                       <>
                         <button
                           onClick={handleBuyTickets}
-                          disabled={buyTx.isPending || isWaitingForBuyReceipt}
+                          disabled={buyTx.isPending || isWaitingForBuyReceipt || insufficientRoseBalance}
                           className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                         >
                           {buyTx.isPending || isWaitingForBuyReceipt ? (
@@ -390,9 +422,11 @@ export function App() {
                             Please, confirm the action(s) in your wallet.
                           </div>
                         )}
-                        {buyTx.error && (
+                        {(buyTx.error || insufficientRoseBalance) && (
                           <p className="text-warning text-center">
-                            {(buyTx.error as BaseError).shortMessage || buyTx.error.message}
+                            {buyTx.error && ((buyTx.error as BaseError).shortMessage || buyTx.error.message)}
+                            {insufficientRoseBalance &&
+                              `Insufficient $${CONTRACT_NETWORK.nativeCurrency.symbol} balance`}
                           </p>
                         )}
                       </>
