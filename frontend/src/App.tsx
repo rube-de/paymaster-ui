@@ -391,6 +391,7 @@ export function App() {
                             : ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS[1]
                         }
                         onSuccess={() => {
+                          setIsTopUpLoading(false)
                           setPayIn('ROSE')
                         }}
                         additionalSteps={[
