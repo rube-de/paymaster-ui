@@ -1,7 +1,8 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
-import { defineChain } from 'viem'
+import { connectorsForWallets } from '@rainbow-me/rainbowkit'
+import { defineChain, http } from 'viem'
 import { sapphire, base } from 'wagmi/chains'
-import { Config } from 'wagmi'
+import { Config, createConfig } from 'wagmi'
+import { metaMaskWallet, rabbyWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets'
 
 export const sapphireLocalnet = defineChain({
   id: 0x5afd,
@@ -21,10 +22,27 @@ export const sapphireLocalnet = defineChain({
   },
 })
 
-export const config: Config = getDefaultConfig({
-  appName: 'Xmas Roffle',
-  projectId: '5c76ff8764ea097205fffc221f056c98',
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [metaMaskWallet, walletConnectWallet, rabbyWallet],
+    },
+  ],
+  {
+    appName: 'Xmas Roffle',
+    projectId: '5c76ff8764ea097205fffc221f056c98',
+  }
+)
+
+export const config: Config = createConfig({
   chains: [{ ...sapphire, iconUrl: 'https://assets.oasis.io/logotypes/metamask-oasis-sapphire.png' }, base],
+  connectors,
+  transports: {
+    [sapphire.id]: http(),
+    [base.id]: http(),
+  },
+  multiInjectedProviderDiscovery: false, // Disable auto-discovery of injected providers
   ssr: false,
   batch: {
     multicall: false,
