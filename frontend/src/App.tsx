@@ -133,8 +133,8 @@ export function App() {
         value: BigInt(ticketAmount) * ticketPrice.data,
         chainId: CONTRACT_NETWORK.id,
       })
-    } catch (error) {
-      // Error printed next to button using buyTx.error
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Error printed next to button using buyTx.error
+    } catch (_error) {
       return
     }
     setIsWaitingForBuyReceipt(true)
