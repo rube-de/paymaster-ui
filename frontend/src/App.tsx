@@ -561,15 +561,40 @@ export function App() {
           <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
             <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
               <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Days to go</p>
-              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                {!raffleEndTime.data
-                  ? ''
-                  : Number(raffleEndTime.data * 1000n) < Date.now()
-                    ? '0'
-                    : (Number(raffleEndTime.data * 1000n) - Date.now()) / 1000 / 60 / 60 / 24 < 1
-                      ? '<1'
-                      : Math.floor((Number(raffleEndTime.data * 1000n) - Date.now()) / 1000 / 60 / 60 / 24)}
-              </p>
+              {!raffleEndTime.data ? (
+                <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                  ...
+                </p>
+              ) : Number(raffleEndTime.data * 1000n) < Date.now() ? (
+                <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                  0<span className="text-[rgba(255,255,255,0.6)] text-[32px]">days</span>
+                </p>
+              ) : (
+                (() => {
+                  const timeRemaining = Number(raffleEndTime.data * 1000n) - Date.now()
+                  const days = Math.floor(timeRemaining / 1000 / 60 / 60 / 24)
+                  const hours = Math.floor((timeRemaining / 1000 / 60 / 60) % 24)
+                  const minutes = Math.floor((timeRemaining / 1000 / 60) % 60)
+                  return (
+                    <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                      {days > 0 && (
+                        <span>
+                          {days}
+                          <span className="text-[rgba(255,255,255,0.6)] text-[32px]">days</span>
+                        </span>
+                      )}{' '}
+                      {hours > 0 && (
+                        <span>
+                          {hours}
+                          <span className="text-[rgba(255,255,255,0.6)] text-[32px]">hours</span>
+                        </span>
+                      )}{' '}
+                      {minutes}
+                      <span className="text-[rgba(255,255,255,0.6)] text-[32px]">min</span>
+                    </p>
+                  )
+                })()
+              )}
             </div>
           </div>
           <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
