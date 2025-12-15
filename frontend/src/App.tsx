@@ -55,6 +55,10 @@ export function App() {
   const [isFaqOpen, setIsFaqOpen] = useState(false)
   const [payIn, setPayIn] = useState<PayInOption>('ROSE')
 
+  const roseBalance = useBalance({
+    address: acc.address,
+    chainId: CONTRACT_NETWORK.id,
+  })
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
     query: {
@@ -104,6 +108,9 @@ export function App() {
 
   const hasEnded = Number(raffleEndTime.data * 1000n) < Date.now()
   const hasSoldOut = ticketsRemaining.data <= 0n && !showSuccess
+  const insufficientRoseBalance = roseBalance.data
+    ? roseBalance.data?.value < BigInt(ticketAmount) * ticketPrice.data
+    : false
 
   const ticketOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => ({
     value: v,
@@ -373,7 +380,7 @@ export function App() {
                       <>
                         <button
                           onClick={handleBuyTickets}
-                          disabled={buyTx.isPending || isWaitingForBuyReceipt}
+                          disabled={buyTx.isPending || isWaitingForBuyReceipt || insufficientRoseBalance}
                           className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                         >
                           {buyTx.isPending || isWaitingForBuyReceipt ? (
@@ -390,9 +397,10 @@ export function App() {
                             Please, confirm the action(s) in your wallet.
                           </div>
                         )}
-                        {buyTx.error && (
+                        {(buyTx.error || insufficientRoseBalance) && (
                           <p className="text-warning text-center">
-                            {(buyTx.error as BaseError).shortMessage || buyTx.error.message}
+                            {buyTx.error && ((buyTx.error as BaseError).shortMessage || buyTx.error.message)}
+                            {insufficientRoseBalance && `Insufficient $${CONTRACT_NETWORK.nativeCurrency.symbol} balance`}
                           </p>
                         )}
                       </>
