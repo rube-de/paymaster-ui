@@ -4,7 +4,7 @@ import svgPaths from './imports/svg-tho7mppomn'
 import { BaseError, useAccount, useBalance, useConfig, useReadContract, useWriteContract } from 'wagmi'
 import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json'
 import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
-import { formatEther } from 'viem'
+import { formatEther, parseEther } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import tickets250_svg from './assets/tickets250.svg'
 import ticketsYay_svg from './assets/ticketsYay.svg'
@@ -380,7 +380,9 @@ export function App() {
 
                     {payIn !== 'ROSE' && (
                       <TopUpButton
-                        roseAmountInBaseUnits={BigInt(ticketAmount) * ticketPrice.data}
+                        roseAmountInBaseUnits={
+                          BigInt(ticketAmount) * ticketPrice.data + parseEther('0.01') /* gas fee */
+                        }
                         targetToken={
                           payIn === 'USDC_BASE'
                             ? ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS[0]
