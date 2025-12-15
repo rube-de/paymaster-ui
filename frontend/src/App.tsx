@@ -58,6 +58,9 @@ export function App() {
   const roseBalance = useBalance({
     address: acc.address,
     chainId: CONTRACT_NETWORK.id,
+    query: {
+      refetchInterval: 60_000,
+    },
   })
   const raffleBalance = useBalance({
     address: RAFFLE_CONTRACT_ADDRESS,
@@ -99,6 +102,23 @@ export function App() {
     },
     chainId: CONTRACT_NETWORK.id,
   })
+  const maxTicketsPerWallet = useReadContract({
+    address: RAFFLE_CONTRACT_ADDRESS,
+    abi: typedRoffleJson.abi,
+    functionName: 'MAX_TICKETS_PER_WALLET',
+    chainId: CONTRACT_NETWORK.id,
+  })
+  const ticketsPurchased = useReadContract({
+    address: RAFFLE_CONTRACT_ADDRESS,
+    abi: typedRoffleJson.abi,
+    functionName: 'ticketsPurchased',
+    chainId: CONTRACT_NETWORK.id,
+    args: [acc.address!],
+    query: {
+      enabled: !!acc.address,
+    },
+  })
+
   const buyTx = useWriteContract()
   const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false)
 
@@ -141,6 +161,7 @@ export function App() {
         setPurchasedTickets(prev => prev + ticketAmount)
         setShowSuccess(true)
         ticketsRemaining.refetch()
+        ticketsPurchased.refetch()
       } else {
         console.log('reverted', transactionReceipt)
         setShowError({ txHash: hash })
@@ -304,6 +325,10 @@ export function App() {
                               value: o.value,
                               label: o.label,
                               subLabel: `(${o.price})`,
+                              disabled:
+                                maxTicketsPerWallet.data !== undefined && ticketsPurchased.data !== undefined
+                                  ? maxTicketsPerWallet.data - ticketsPurchased.data < BigInt(o.value)
+                                  : false,
                             }))}
                           />
                         </div>
@@ -400,7 +425,8 @@ export function App() {
                         {(buyTx.error || insufficientRoseBalance) && (
                           <p className="text-warning text-center">
                             {buyTx.error && ((buyTx.error as BaseError).shortMessage || buyTx.error.message)}
-                            {insufficientRoseBalance && `Insufficient $${CONTRACT_NETWORK.nativeCurrency.symbol} balance`}
+                            {insufficientRoseBalance &&
+                              `Insufficient $${CONTRACT_NETWORK.nativeCurrency.symbol} balance`}
                           </p>
                         )}
                       </>
