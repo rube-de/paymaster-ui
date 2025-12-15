@@ -1,5 +1,5 @@
 import { FC, ReactNode, useEffect, useState } from 'react'
-import { usePaymaster } from '../../hooks/usePaymaster.ts'
+import { ProgressStepWithAction, usePaymaster } from '../../hooks/usePaymaster.ts'
 import { formatUnits } from 'viem'
 import { RoflPaymasterTokenConfig } from '../../constants/rofl-paymaster-config.ts'
 import { LucideLoader } from 'lucide-react'
@@ -11,10 +11,17 @@ interface Props {
   roseAmountInBaseUnits: bigint
   targetToken: RoflPaymasterTokenConfig
   children: ({ amountLabel }: { amountLabel: string }) => ReactNode
+  additionalSteps: ProgressStepWithAction[]
   onSuccess?: () => void
 }
 
-export const TopUpButton: FC<Props> = ({ roseAmountInBaseUnits, targetToken, children, onSuccess }) => {
+export const TopUpButton: FC<Props> = ({
+  roseAmountInBaseUnits,
+  targetToken,
+  children,
+  additionalSteps = [],
+  onSuccess,
+}) => {
   const { address } = useAccount()
 
   const { data: tokenBalance } = useBalance({
@@ -24,7 +31,10 @@ export const TopUpButton: FC<Props> = ({ roseAmountInBaseUnits, targetToken, chi
   })
 
   const [quote, setQuote] = useState<bigint | null>(null)
-  const { isLoading, initialLoading, error, currentStep, getQuote, startTopUp } = usePaymaster(targetToken)
+  const { isLoading, initialLoading, error, currentStep, getQuote, startTopUp } = usePaymaster(
+    targetToken,
+    additionalSteps
+  )
 
   const countdown = useCountdownTimer({
     initialTimeInSeconds: currentStep?.expectedTimeInSeconds || 0,
@@ -94,7 +104,7 @@ export const TopUpButton: FC<Props> = ({ roseAmountInBaseUnits, targetToken, chi
       {isLoading && !!quote && currentStep && (
         <div className="text-center break-words">
           <p className="text-teal-300">
-            ({currentStep?.id}/5) {currentStep?.label}
+            ({currentStep?.id}/{5 + (additionalSteps.length ?? 0)}) {currentStep?.label}
           </p>
 
           {!!currentStep.expectedTimeInSeconds && currentStep.expectedTimeInSeconds > 0 && (

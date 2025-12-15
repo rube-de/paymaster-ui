@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { useAccount } from 'wagmi'
+import { BaseError, useAccount } from 'wagmi'
 import { checkAndSetErc20Allowance, switchToChain } from '../contracts/erc-20'
 import { Address, Chain } from 'viem'
 import { base } from 'wagmi/chains'
@@ -24,6 +24,10 @@ export type ProgressStep = {
   expectedTimeInSeconds?: number
 }
 
+export type ProgressStepWithAction = ProgressStep & {
+  action: () => Promise<void>
+}
+
 export type StartTopUpParams = {
   amount: bigint
 }
@@ -34,7 +38,7 @@ export type UsePaymasterTopUpFlowReturn = {
   error: string
   quote: bigint | null
 
-  currentStep: ProgressStep | null
+  currentStep: ProgressStep | ProgressStepWithAction | null
   stepStatuses: Partial<Record<number, PaymasterStepStatus>>
 
   getQuote: (p: StartTopUpParams) => Promise<bigint | null>
@@ -71,7 +75,10 @@ const progressSteps = [
   },
 ]
 
-export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymasterTopUpFlowReturn {
+export function usePaymaster(
+  targetToken: RoflPaymasterTokenConfig,
+  additionalSteps: ProgressStepWithAction[]
+): UsePaymasterTopUpFlowReturn {
   const { address } = useAccount()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -252,15 +259,22 @@ export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymaste
         await pollPayment(paymentId!, ROFL_PAYMASTER_DESTINATION_CHAIN)
         updateStep(4, 'completed')
 
-        // Step 1: switch to destination
+        // Step 5: switch to destination
         updateStep(5, 'processing')
         await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
         updateStep(5, 'completed')
 
+        // Additional steps
+        for (let i = 0; i < additionalSteps.length; i++) {
+          updateStep(i + 6, 'processing')
+          await additionalSteps[i].action()
+          updateStep(i + 6, 'completed')
+        }
+
         setCurrentStep(null)
         return { paymentId }
       } catch (e) {
-        const msg = e instanceof Error ? e.message : 'Top up failed'
+        const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Top up failed'
         setError(msg)
 
         if (currentStep) {
@@ -274,14 +288,26 @@ export function usePaymaster(targetToken: RoflPaymasterTokenConfig): UsePaymaste
         setIsLoading(false)
       }
     },
-    [address, createDeposit, currentStep, pollPayment, updateStep, targetToken.contractAddress]
+    [
+      address,
+      createDeposit,
+      currentStep,
+      pollPayment,
+      updateStep,
+      targetToken.contractAddress,
+      additionalSteps,
+    ]
   )
 
   return {
     isLoading,
     error,
     quote,
-    currentStep: currentStep ? progressSteps[currentStep - 1] : null,
+    currentStep: currentStep
+      ? currentStep <= progressSteps.length
+        ? progressSteps[currentStep - 1]
+        : additionalSteps[currentStep - 1 - progressSteps.length]
+      : null,
     stepStatuses,
     getQuote,
     startTopUp,
