@@ -13,6 +13,7 @@ interface Props {
   children: ({ amountLabel }: { amountLabel: string }) => ReactNode
   additionalSteps: ProgressStepWithAction[]
   onSuccess?: () => void
+  onLoadingChange?: (isLoading: boolean) => void
 }
 
 export const TopUpButton: FC<Props> = ({
@@ -21,6 +22,7 @@ export const TopUpButton: FC<Props> = ({
   children,
   additionalSteps = [],
   onSuccess,
+  onLoadingChange,
 }) => {
   const { address } = useAccount()
 
@@ -54,6 +56,10 @@ export const TopUpButton: FC<Props> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Ignore getQuote
   }, [roseAmountInBaseUnits, initialLoading, targetToken])
+
+  useEffect(() => {
+    onLoadingChange?.(isLoading)
+  }, [onLoadingChange, isLoading])
 
   useEffect(() => {
     const expected = currentStep?.expectedTimeInSeconds ?? 0
