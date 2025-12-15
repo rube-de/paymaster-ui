@@ -44,12 +44,11 @@ export function App() {
     acc.isConnected && acc.chainId !== undefined && wagmiChains.some(chain => chain.id === acc.chainId)
   const config = useConfig()
   const [ticketAmount, setTicketAmount] = useState(1)
-  const [showSuccess, setShowSuccess] = useState(false)
+  const [_showSuccess, setShowSuccess] = useState(false)
   const [showError, setShowError] = useState<{ txHash: `0x${string}`; message?: string } | undefined>(
     undefined
   )
   const [buyInlineError, setBuyInlineError] = useState<string | undefined>(undefined)
-  const [purchasedTickets, setPurchasedTickets] = useState(0)
   const [isFaqOpen, setIsFaqOpen] = useState(false)
   const [payIn, setPayIn] = useState<PayInOption>('ROSE')
 
@@ -127,6 +126,10 @@ export function App() {
 
   const isBlockingDropdowns = buyTx.isPending || isWaitingForBuyReceipt || isTopUpLoading
 
+  const hasBoughtMaxTickets =
+    ticketsPurchased.data !== undefined &&
+    ticketsPurchased.data >= (maxTicketsPerWallet.data ?? BigInt(Number.MAX_SAFE_INTEGER))
+  const showSuccess = hasBoughtMaxTickets || _showSuccess
   const hasEnded = Number(raffleEndTime.data * 1000n) < Date.now()
   const hasSoldOut = ticketsRemaining.data <= 0n && !showSuccess
   const insufficientRoseBalance = roseBalance.data
@@ -172,7 +175,6 @@ export function App() {
     try {
       const transactionReceipt = await waitForTransactionReceipt(config.getClient(), { hash })
       if (transactionReceipt.status === 'success') {
-        setPurchasedTickets(prev => prev + ticketAmount)
         setShowSuccess(true)
         ticketsRemaining.refetch()
         ticketsPurchased.refetch()
@@ -470,7 +472,7 @@ export function App() {
             </div>
           ) : (
             <div className="flex flex-col gap-10 p-6 md:p-8 animate-in fade-in zoom-in-95 duration-300">
-              {purchasedTickets === 10 ? (
+              {hasBoughtMaxTickets ? (
                 <div className="flex flex-col gap-8 items-center">
                   <div className="flex flex-col gap-4 items-center text-center">
                     <p className="font-['Mountains_of_Christmas',cursive] leading-[normal] text-[36px] md:text-[48px] text-white">
