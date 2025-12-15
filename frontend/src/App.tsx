@@ -7,7 +7,7 @@ import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
 import { formatEther, parseEther } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import tickets250_svg from './assets/tickets250.svg'
-import { LucideLoader } from 'lucide-react'
+import { LucideLoader, LucideTicket } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
 import { TopUpButton } from './components/TopUpButton'
@@ -215,24 +215,45 @@ export function App() {
       }}
     >
       {/* Header */}
-      <header className="relative z-20 flex items-start justify-between px-4 md:px-10 py-6 max-md:flex-wrap">
-        {/* Logo */}
-        <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px] shrink-0">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
-            <g id="Union">
-              <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
-              <path clipRule="evenodd" d={svgPaths.p2b736500} fill="white" fillRule="evenodd" />
-              <path d={svgPaths.p1bd1ab00} fill="white" />
-              <path d={svgPaths.p2a757eb0} fill="white" />
-              <path clipRule="evenodd" d={svgPaths.p3d36a900} fill="white" fillRule="evenodd" />
-              <path d={svgPaths.p19eb9c00} fill="white" />
-            </g>
-          </svg>
+      <header className="relative z-20 flex items-start justify-between px-4 md:px-10 py-6 max-md:flex-wrap gap-2">
+        <div className="flex items-center gap-[24px] shrink-0">
+          {/* Logo */}
+          <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px] shrink-0">
+            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
+              <g id="Union">
+                <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
+                <path clipRule="evenodd" d={svgPaths.p2b736500} fill="white" fillRule="evenodd" />
+                <path d={svgPaths.p1bd1ab00} fill="white" />
+                <path d={svgPaths.p2a757eb0} fill="white" />
+                <path clipRule="evenodd" d={svgPaths.p3d36a900} fill="white" fillRule="evenodd" />
+                <path d={svgPaths.p19eb9c00} fill="white" />
+              </g>
+            </svg>
+          </div>
+
+          {/* Separator */}
+          <div className="h-6 w-px bg-[rgba(255,255,255,0.1)]" />
+
+          {/* Purchased Tickets */}
+          {isConnected && ticketsPurchased.data !== undefined && (
+            <div className="flex items-center gap-2">
+              <LucideTicket className="w-5 h-5 shrink-0 text-[rgba(255,255,255,0.3)]" />
+              <span className="text-sm font-normal">
+                <span className="text-white">Purchased: {ticketsPurchased.data.toString()}</span>
+                <span className="text-[rgba(255,255,255,0.6)]">
+                  /{maxTicketsPerWallet.data?.toString() || '10'}
+                </span>
+              </span>
+            </div>
+          )}
         </div>
 
-        <div className="overflow-hidden grow max-w-[910px] -mt-6 max-md:-order-1">
-          {!isConnected && <img src={tickets250_svg} />}
-        </div>
+        {isConnected && <div className="grow"></div>}
+        {!isConnected && (
+          <div className="overflow-hidden grow max-w-[910px] -mt-6 max-md:-order-1">
+            <img src={tickets250_svg} />
+          </div>
+        )}
 
         {/* Wallet */}
         <div className="styledConnect shrink-0">
