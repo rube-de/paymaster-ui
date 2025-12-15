@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { BaseError, useAccount } from 'wagmi'
+import { BaseError, useAccount, useBalance } from 'wagmi'
 import { checkAndSetErc20Allowance, switchToChain } from '../contracts/erc-20'
 import { Address, Chain } from 'viem'
 import { base } from 'wagmi/chains'
@@ -80,6 +80,11 @@ export function usePaymaster(
   additionalSteps: ProgressStepWithAction[]
 ): UsePaymasterTopUpFlowReturn {
   const { address } = useAccount()
+  const { refetch: refetchSapphireNativeBalance } = useBalance({
+    address,
+    chainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id,
+    query: { enabled: !!address },
+  })
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -223,6 +228,33 @@ export function usePaymaster(
     [address, _getQuote]
   )
 
+  const waitForSapphireNativeBalanceIncrease = useCallback(
+    async ({
+      baseline,
+      timeoutMs,
+      intervalMs,
+      minIncrease,
+    }: {
+      baseline: bigint
+      timeoutMs: number
+      intervalMs: number
+      minIncrease: bigint
+    }) => {
+      const startedAt = Date.now()
+      while (Date.now() - startedAt < timeoutMs) {
+        const res = await refetchSapphireNativeBalance()
+        const current = res.data?.value
+
+        if (typeof current === 'bigint' && current >= baseline + minIncrease) return current
+
+        await new Promise(resolve => setTimeout(resolve, intervalMs))
+      }
+
+      throw new Error('Payment likely processed, but Sapphire native balance did not increase in time')
+    },
+    [refetchSapphireNativeBalance]
+  )
+
   const startTopUp = useCallback(
     async ({ amount }: StartTopUpParams) => {
       setError('')
@@ -234,6 +266,13 @@ export function usePaymaster(
       setIsLoading(true)
       setCurrentStep(1)
       try {
+        // Snapshot baseline Sapphire native balance
+        const baselineSapphireNative =
+          (await refetchSapphireNativeBalance()).data?.value ??
+          (() => {
+            throw new Error('Failed to read Sapphire native balance')
+          })()
+
         // Step 1: switch to source
         updateStep(1, 'processing')
         await switchToChain({ targetChainId: base.id, address })
@@ -257,6 +296,13 @@ export function usePaymaster(
         // Step 4: poll
         updateStep(4, 'processing')
         await pollPayment(paymentId!, ROFL_PAYMASTER_DESTINATION_CHAIN)
+
+        await waitForSapphireNativeBalanceIncrease({
+          baseline: baselineSapphireNative,
+          timeoutMs: 3 * 60_000,
+          intervalMs: 4_000,
+          minIncrease: 1n,
+        })
         updateStep(4, 'completed')
 
         // Step 5: switch to destination
@@ -298,6 +344,8 @@ export function usePaymaster(
       updateStep,
       targetToken.contractAddress,
       additionalSteps,
+      refetchSapphireNativeBalance,
+      waitForSapphireNativeBalanceIncrease,
     ]
   )
 
