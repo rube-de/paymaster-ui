@@ -162,7 +162,7 @@ export function App() {
         args: [BigInt(ticketAmount)],
         value: BigInt(ticketAmount) * ticketPrice.data,
         chainId: CONTRACT_NETWORK.id,
-        gas: 100_000n,
+        gas: 500_000n,
       })
       // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Error printed next to button using buyTx.error
     } catch (_error) {
@@ -375,7 +375,7 @@ export function App() {
                     {payIn !== 'ROSE' && (
                       <TopUpButton
                         roseAmountInBaseUnits={
-                          BigInt(ticketAmount) * ticketPrice.data + parseEther('0.01') /* gas fee */
+                          BigInt(ticketAmount) * ticketPrice.data + parseEther('0.05') /* gas fee */
                         }
                         targetToken={
                           payIn === 'USDC_BASE'
