@@ -27,7 +27,7 @@ export const TopUpButton: FC<Props> = ({
   const { data: tokenBalance } = useBalance({
     address,
     token: targetToken.contractAddress,
-    chainId: base.id
+    chainId: base.id,
   })
 
   const [quote, setQuote] = useState<bigint | null>(null)
