@@ -24,7 +24,7 @@ export const sapphireLocalnet = defineChain({
 export const config: Config = getDefaultConfig({
   appName: 'Xmas Roffle',
   projectId: '5c76ff8764ea097205fffc221f056c98',
-  chains: [sapphire, base],
+  chains: [{ ...sapphire, iconUrl: 'https://assets.oasis.io/logotypes/metamask-oasis-sapphire.png' }, base],
   ssr: false,
   batch: {
     multicall: false,
