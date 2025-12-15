@@ -432,7 +432,7 @@ export function App() {
                         {(buyInlineError || buyTx.error || insufficientRoseBalance) && (
                           <p className="text-warning text-center">
                             {buyInlineError ||
-                              (buyTx.error as BaseError).shortMessage ||
+                              (buyTx.error as BaseError)?.shortMessage ||
                               buyTx.error?.message}
                             {insufficientRoseBalance &&
                               `Insufficient $${CONTRACT_NETWORK.nativeCurrency.symbol} balance`}
