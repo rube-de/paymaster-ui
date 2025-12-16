@@ -114,7 +114,11 @@ export const TopUpButton: FC<Props> = ({
           </p>
 
           {!!currentStep.expectedTimeInSeconds && currentStep.expectedTimeInSeconds > 0 && (
-            <div className="text-xs text-teal-200/80 mt-1">Est. time left: {countdown.formattedTime}</div>
+            <div className={`text-xs mt-1 ${countdown.isNegative ? 'text-warning' : 'text-teal-200/80'}`}>
+              {countdown.isNegative
+                ? `Est. time reached. Overdue by ${countdown.formattedTime.replace('-', '')}`
+                : `Est. time left: ${countdown.formattedTime}`}
+            </div>
           )}
         </div>
       )}
