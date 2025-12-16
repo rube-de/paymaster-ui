@@ -22,8 +22,9 @@ export function FAQ({ RAFFLE_CONTRACT_ADDRESS }: { RAFFLE_CONTRACT_ADDRESS: stri
         How does it work?
       </h3>
       <p>
-        Connect any EVM wallet and buy tickets using <b>ROSE or USDC on Base</b>. USDC will be converted to
-        ROSE automatically, so you don’t need to buy ROSE upfront.
+        Connect any standard EOA wallet (e.g. MetaMask) wallet and buy tickets using{' '}
+        <b>ROSE or USDC/USDT on Base</b>. USDC will be converted to ROSE automatically, so you don’t need to
+        buy ROSE upfront.
         <br />
         Each ticket costs an equivalent of <b>250 ROSE</b>, each contributing to the prize pot, and once all
         tickets are sold or the raffle ends, winners are randomly selected, and rewards are distributed
@@ -68,6 +69,35 @@ export function FAQ({ RAFFLE_CONTRACT_ADDRESS }: { RAFFLE_CONTRACT_ADDRESS: stri
       <p>
         This way, we ensure there are higher chances for more users to win a share of the pot, keeping the
         highest rewards attractive.
+      </p>
+      <h3 className="text-white text-2xl font-normal font-['Mountains_of_Christmas',cursive] leading-8">
+        How does paying with USDC/USDT on Base work?
+      </h3>
+      <p>
+        You can buy tickets using USDC or USDT on Base — no ROSE required.
+        <br />
+        <br />
+        To participate, use a standard EOA wallet (e.g. MetaMask) that has the same address on Base and
+        Sapphire. Everything is handled by the{' '}
+        <a
+          href="https://github.com/oasisprotocol/rofl-paymaster"
+          target="_blank"
+          className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
+        >
+          ROFL Paymaster
+        </a>
+        . This is what happens in the background:
+        <br />
+        <br />
+        <ul className="list-disc list-inside">
+          <li>You deposit USDC or USDT on Base.</li>
+          <li>The deposit is verified and bridged using an onchain light client powered by ROFL.</li>
+          <li>Your funds are automatically converted to ROSE.</li>
+          <li>
+            The converted ROSE is sent to the same wallet address on Sapphire, where your tickets are
+            purchased.
+          </li>
+        </ul>
       </p>
       <h3 className="text-white text-2xl font-normal font-['Mountains_of_Christmas',cursive] leading-8">
         Who can win?

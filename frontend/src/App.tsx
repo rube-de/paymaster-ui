@@ -38,6 +38,10 @@ const CONTRACTS = {
 const CONTRACT_NETWORK = sapphire
 const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.final
 
+const SOCIAL_SHARE_TEXT = `I'm in! 🎄
+Just got my tickets for the Oasis Xmas Roffle — 10 winners sharing up to 1M $ROSE!
+Get yours here: ${window.location.href}`
+
 export function App() {
   const acc = useAccount()
   const { chains: wagmiChains } = useConfig()
@@ -204,16 +208,16 @@ export function App() {
 
   const shareOnLinkedIn = () => {
     window.open(
-      'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href),
+      'https://www.linkedin.com/sharing/share-offsite/?url=' +
+        encodeURIComponent(window.location.href) +
+        '&title=' +
+        encodeURIComponent(SOCIAL_SHARE_TEXT),
       '_blank'
     )
   }
 
   const shareOnX = () => {
-    window.open(
-      'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just entered the Oasis Xmas Roffle!'),
-      '_blank'
-    )
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(SOCIAL_SHARE_TEXT), '_blank')
   }
 
   return (
@@ -304,9 +308,13 @@ export function App() {
                   Xmas Roffle
                 </p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                  Participate in the Oasis Christmas raffle! The initial pot is{' '}
-                  {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and grows with each ticket
-                  purchased which costs {formatEther(ticketPrice.data)} ROSE.
+                  Join the Oasis Christmas raffle!
+                  <br />
+                  <br />
+                  The prize pool starts at {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and
+                  grows with every ticket purchased.
+                  <br />
+                  Each ticket costs {ticketPrice.data ? formatEther(ticketPrice.data) : '...'} ROSE.
                 </p>
               </div>
 
@@ -521,25 +529,6 @@ export function App() {
                 </p>
                 <div className="flex flex-col gap-6 w-full">
                   <button
-                    onClick={shareOnLinkedIn}
-                    className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
-                  >
-                    <div className="relative shrink-0 size-[24px]">
-                      <svg
-                        className="block size-full"
-                        fill="none"
-                        preserveAspectRatio="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <g>
-                          <path d={svgPaths.p2ccee40} fill="#18181B" />
-                        </g>
-                      </svg>
-                    </div>
-                    <p className="font-medium leading-[20px] text-[16px] text-black text-center">LinkedIn</p>
-                    <div className="shrink-0 size-[24px]" />
-                  </button>
-                  <button
                     onClick={shareOnX}
                     className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
                   >
@@ -556,6 +545,25 @@ export function App() {
                       </svg>
                     </div>
                     <p className="font-medium leading-[20px] text-[16px] text-black text-center">X</p>
+                    <div className="shrink-0 size-[24px]" />
+                  </button>
+                  <button
+                    onClick={shareOnLinkedIn}
+                    className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
+                  >
+                    <div className="relative shrink-0 size-[24px]">
+                      <svg
+                        className="block size-full"
+                        fill="none"
+                        preserveAspectRatio="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <g>
+                          <path d={svgPaths.p2ccee40} fill="#18181B" />
+                        </g>
+                      </svg>
+                    </div>
+                    <p className="font-medium leading-[20px] text-[16px] text-black text-center">LinkedIn</p>
                     <div className="shrink-0 size-[24px]" />
                   </button>
                 </div>
