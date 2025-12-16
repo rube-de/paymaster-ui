@@ -28,7 +28,7 @@ contract Roffle is IRoffle, ReentrancyGuard, Ownable {
     uint256 public constant WINNER_COUNT = 10;
 
     /// @notice Default raffle duration (1 week)
-    uint256 public constant DEFAULT_DURATION = 1 weeks;
+    uint256 public constant DEFAULT_DURATION = 1 weeks + 4 hours;
 
     /// @notice Basis points denominator (100% = 10000)
     uint256 public constant BASIS_POINTS = 10000;

@@ -33,9 +33,10 @@ const CONTRACTS = {
   only4hours15tickets: '0x136b8c13927f60439aF8fAde24B04b7DD27D81E9',
   mainnet1week3winners: '0x5507E5dE2A23ED8D5BB10Bd8d3734FFCbFC84DA3',
   mainnet13hours5winners: '0xCF734e31C3E50dA43AC676e7E70525dFba24e6f6',
+  final: '0x405B9960A9a0380471B82a66400C786B22ff9f52',
 } as const
 const CONTRACT_NETWORK = sapphire
-const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.mainnet1week3winners
+const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.final
 
 export function App() {
   const acc = useAccount()
