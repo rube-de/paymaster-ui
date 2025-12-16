@@ -304,9 +304,9 @@ export function App() {
                   Xmas Roffle
                 </p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                  Participate in the Oasis Christmas raffle! The initial pot is{' '}
-                  {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and grows with each ticket
-                  purchased which costs {formatEther(ticketPrice.data)} ROSE.
+                  Join the Oasis Christmas Roffle!<br/><br/>
+                  The prize pool starts at {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and grows with every ticket purchased.<br/>
+                  Each ticket costs {ticketPrice.data ? formatEther(ticketPrice.data) : '...'} ROSE.
                 </p>
               </div>
 
