@@ -43,6 +43,7 @@ export const checkAndSetErc20Allowance = async (
   approvalAddress: Address,
   amount: bigint,
   userAddress: Address,
+  chainId: number,
   allowanceAmount = amount
 ): Promise<void> => {
   // Transactions with the native token don't need approval
@@ -55,6 +56,7 @@ export const checkAndSetErc20Allowance = async (
     abi: ERC_20_ABI,
     functionName: 'allowance',
     args: [userAddress, approvalAddress],
+    chainId,
   })) as bigint
 
   if (allowance < amount) {
@@ -64,10 +66,12 @@ export const checkAndSetErc20Allowance = async (
         abi: ERC_20_ABI,
         functionName: 'approve',
         args: [approvalAddress, allowanceAmount],
+        chainId,
       })
 
       await waitForTransactionReceipt(config, {
         hash,
+        chainId,
       })
 
       console.log(`Transaction mined successfully: ${hash}`)
