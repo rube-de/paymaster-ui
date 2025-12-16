@@ -49,7 +49,7 @@ export const CustomConnectButton = () => {
 
                   {/* Wallet Balance */}
                   <div className="hidden md:flex h-12 px-3 items-center gap-2 text-white">
-                    <Wallet className="w-5 h-5 text-white" strokeWidth={2} />
+                    <Wallet className="size-6 shrink-0 text-[rgba(255,255,255,0.3)] translate-y-[-1px]" />
                     <span className="text-[16px] font-normal leading-5">{account.displayBalance}</span>
                   </div>
 
