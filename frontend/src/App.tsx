@@ -38,6 +38,10 @@ const CONTRACTS = {
 const CONTRACT_NETWORK = sapphire
 const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.final
 
+const SOCIAL_SHARE_TEXT = `I'm in! 🎄
+Just got my tickets for the Oasis Xmas Roffle — 10 winners sharing up to 1M $ROSE!
+Get yours here: ${window.location.href}`
+
 export function App() {
   const acc = useAccount()
   const { chains: wagmiChains } = useConfig()
@@ -204,16 +208,16 @@ export function App() {
 
   const shareOnLinkedIn = () => {
     window.open(
-      'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href),
+      'https://www.linkedin.com/sharing/share-offsite/?url=' +
+        encodeURIComponent(window.location.href) +
+        '&summary=' +
+        encodeURIComponent(SOCIAL_SHARE_TEXT),
       '_blank'
     )
   }
 
   const shareOnX = () => {
-    window.open(
-      'https://twitter.com/intent/tweet?text=' + encodeURIComponent('I just entered the Oasis Xmas Roffle!'),
-      '_blank'
-    )
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(SOCIAL_SHARE_TEXT), '_blank')
   }
 
   return (
@@ -304,8 +308,12 @@ export function App() {
                   Xmas Roffle
                 </p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                  Join the Oasis Christmas Roffle!<br/><br/>
-                  The prize pool starts at {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and grows with every ticket purchased.<br/>
+                  Join the Oasis Christmas Roffle!
+                  <br />
+                  <br />
+                  The prize pool starts at {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and
+                  grows with every ticket purchased.
+                  <br />
                   Each ticket costs {ticketPrice.data ? formatEther(ticketPrice.data) : '...'} ROSE.
                 </p>
               </div>
