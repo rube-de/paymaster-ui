@@ -6,6 +6,7 @@ import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json'
 import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
 import { formatEther, parseEther } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
+import tickets250_svg from './assets/tickets250.svg'
 import { LucideLoader, LucideTicket } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
@@ -227,9 +228,15 @@ export function App() {
         background: 'radial-gradient(50% 50% at 50% 50%, #19323C 0%, #0A1D24 100%)',
       }}
     >
+      {!isConnected && !hasEnded && !hasSoldOut && (
+        <div className="grow max-w-[910px] -mt-6 md:hidden">
+          <img src={tickets250_svg} />
+        </div>
+      )}
+
       {/* Header */}
-      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 py-6 gap-4">
-        <div className="flex items-center gap-3 md:gap-[24px] shrink-0">
+      <header className="relative z-20 flex items-start justify-between px-4 md:px-10 py-6 gap-4">
+        <div className="flex items-center gap-3 md:gap-[24px] shrink-0 h-[48px]">
           {/* Logo */}
           <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px] shrink-0">
             <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
@@ -260,6 +267,12 @@ export function App() {
             </div>
           )}
         </div>
+
+        {!isConnected && !hasEnded && !hasSoldOut && (
+          <div className="grow max-w-[910px] -mt-6 max-md:hidden">
+            <img src={tickets250_svg} />
+          </div>
+        )}
 
         {/* Wallet */}
         <div className="styledConnect shrink-0">
