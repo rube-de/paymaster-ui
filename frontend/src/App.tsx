@@ -453,13 +453,16 @@ export function App() {
                           <p className="text-error text-center">
                             Oops! Your ticket purchase failed.{' '}
                             {showError.message || (
-                              <a
-                                href={`https://explorer.oasis.io/mainnet/sapphire/tx/${showError.txHash}`}
-                                target="_blank"
-                                className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
-                              >
-                                See why transaction was reverted in Oasis Explorer
-                              </a>
+                              <>
+                                <a
+                                  href={`https://explorer.oasis.io/mainnet/sapphire/tx/${showError.txHash}`}
+                                  target="_blank"
+                                  className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
+                                >
+                                  See why transaction was reverted in Oasis Explorer
+                                </a>
+                                .
+                              </>
                             )}
                           </p>
                         )}
@@ -476,7 +479,7 @@ export function App() {
                       onClick={() => setIsFaqOpen(true)}
                       className="cursor-pointer [text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
                     >
-                      Xmas Roffle rules included in the FAQ section of this app.
+                      Xmas Roffle rules included in the FAQ section of this app
                     </a>
                     .
                   </p>
