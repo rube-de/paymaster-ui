@@ -285,7 +285,7 @@ export function usePaymaster(
           sourceChainConfig.paymasterContractAddress,
           amount,
           address,
-          base.id,
+          base.id
         )
         updateStep(2, 'completed')
 

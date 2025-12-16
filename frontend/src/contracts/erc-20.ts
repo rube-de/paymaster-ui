@@ -100,6 +100,16 @@ export const switchToChain = async ({
     throw new Error('Wallet not connected')
   }
 
+  const waitUntilOnChain = async (expectedChainId: number, timeoutMs: number, pollIntervalMs = 250) => {
+    const t0 = Date.now()
+    while (Date.now() - t0 < timeoutMs) {
+      const current = await getChainId(config)
+      if (current === expectedChainId) return true
+      await new Promise(resolve => setTimeout(resolve, pollIntervalMs))
+    }
+    return false
+  }
+
   try {
     const actualCurrentChainId = await getChainId(config)
 
@@ -113,8 +123,13 @@ export const switchToChain = async ({
 
     await Promise.race([switchChain(config, { chainId: targetChainId }), timeoutPromise])
 
-    await new Promise(resolve => setTimeout(resolve, 7000))
-    return { success: true }
+    const settled = await waitUntilOnChain(targetChainId, 20_000)
+    if (settled) return { success: true }
+
+    return {
+      success: false,
+      error: `Chain switch did not settle in time (expected ${targetChainId}).`,
+    }
   } catch (switchError) {
     if (switchError instanceof Error && switchError.message.includes('Unsupported Chain')) {
       console.warn("Got 'Unsupported Chain' error, likely succeeded, but throwing anyway.")
