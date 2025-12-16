@@ -6,7 +6,6 @@ import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json'
 import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
 import { formatEther, parseEther } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
-import tickets250_svg from './assets/tickets250.svg'
 import { LucideLoader, LucideTicket } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
@@ -219,8 +218,8 @@ export function App() {
       }}
     >
       {/* Header */}
-      <header className="relative z-20 flex items-start justify-between px-4 md:px-10 py-6 max-md:flex-wrap gap-2">
-        <div className="flex items-center gap-[24px] shrink-0">
+      <header className="relative z-20 flex items-center justify-between px-4 md:px-10 py-6 gap-4">
+        <div className="flex items-center gap-3 md:gap-[24px] shrink-0">
           {/* Logo */}
           <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px] shrink-0">
             <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
@@ -236,13 +235,13 @@ export function App() {
           </div>
 
           {/* Separator */}
-          <div className="h-6 w-px bg-[rgba(255,255,255,0.1)]" />
+          <div className="hidden sm:block h-6 w-px bg-[rgba(255,255,255,0.1)]" />
 
           {/* Purchased Tickets */}
           {isConnected && ticketsPurchased.data !== undefined && (
-            <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
               <LucideTicket className="w-5 h-5 shrink-0 text-[rgba(255,255,255,0.3)]" />
-              <span className="text-sm font-normal">
+              <span className="text-sm font-normal whitespace-nowrap">
                 <span className="text-white">Purchased: {ticketsPurchased.data.toString()}</span>
                 <span className="text-[rgba(255,255,255,0.6)]">
                   /{maxTicketsPerWallet.data?.toString() || '10'}
@@ -252,18 +251,24 @@ export function App() {
           )}
         </div>
 
-        {isConnected && <div className="grow"></div>}
-        {!isConnected && (
-          <div className="overflow-hidden grow max-w-[910px] -mt-6 max-md:-order-1">
-            <img src={tickets250_svg} />
-          </div>
-        )}
-
         {/* Wallet */}
         <div className="styledConnect shrink-0">
           <CustomConnectButton />
         </div>
       </header>
+
+      {/* Mobile Purchased Tickets */}
+      {isConnected && ticketsPurchased.data !== undefined && (
+        <div className="sm:hidden relative z-20 flex items-center justify-center gap-2 px-4 -mt-2 mb-4">
+          <LucideTicket className="w-5 h-5 shrink-0 text-[rgba(255,255,255,0.3)]" />
+          <span className="text-sm font-normal">
+            <span className="text-white">Purchased: {ticketsPurchased.data.toString()}</span>
+            <span className="text-[rgba(255,255,255,0.6)]">
+              /{maxTicketsPerWallet.data?.toString() || '10'}
+            </span>
+          </span>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">

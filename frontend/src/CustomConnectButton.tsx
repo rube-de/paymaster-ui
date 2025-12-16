@@ -48,13 +48,13 @@ export const CustomConnectButton = () => {
                   <div className="w-px h-6 bg-gray-600 mx-2" />
 
                   {/* Wallet Balance */}
-                  <div className="h-12 px-3 flex items-center gap-2 text-white">
+                  <div className="hidden md:flex h-12 px-3 items-center gap-2 text-white">
                     <Wallet className="w-5 h-5 text-white" strokeWidth={2} />
                     <span className="text-[16px] font-normal leading-5">{account.displayBalance}</span>
                   </div>
 
                   {/* Separator */}
-                  <div className="w-px h-6 bg-gray-600 mx-2" />
+                  <div className="hidden md:block w-px h-6 bg-gray-600 mx-2" />
 
                   {/* Account Button */}
                   <button
