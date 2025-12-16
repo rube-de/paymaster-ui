@@ -4,13 +4,11 @@ import { addressToJazzIconSeed } from '../JazzIcon/addressToJazzIconSeed'
 
 type AccountAvatarProps = {
   diameter: number
-  account:
-    | { address: `oasis1${string}`; address_eth?: `0x${string}` }
-    | { address?: `oasis1${string}`; address_eth: `0x${string}` }
+  account: { address_eth: `0x${string}` }
 }
 
 export const AccountAvatar: FC<AccountAvatarProps> = ({ account, diameter }) => {
-  if (!account.address && !account.address_eth) {
+  if (!account.address_eth) {
     return null
   }
 
