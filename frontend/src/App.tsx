@@ -118,14 +118,14 @@ export function App() {
   })
 
   const buyTx = useWriteContract()
-  const [isWaitingForBuyReceipt, setIsWaitingForBuyReceipt] = useState(false)
+  const [isBuyingTicketsLoading, setIsBuyingTicketsLoading] = useState(false)
   const [isTopUpLoading, setIsTopUpLoading] = useState(false)
 
   if (!ticketPrice.data) return
   if (!raffleEndTime.data) return
   if (ticketsRemaining.data === undefined) return
 
-  const isBlockingDropdowns = buyTx.isPending || isWaitingForBuyReceipt || isTopUpLoading
+  const isBlockingDropdowns = isBuyingTicketsLoading || isTopUpLoading
 
   const hasBoughtMaxTickets =
     ticketsPurchased.data !== undefined &&
@@ -147,12 +147,15 @@ export function App() {
     setBuyInlineError(undefined)
     setShowError(undefined)
 
+    setIsBuyingTicketsLoading(true)
+
     const switchToChainResponse = await switchToChain({
       targetChainId: CONTRACT_NETWORK.id,
       address: acc.address,
     })
     if (!switchToChainResponse.success) {
       setBuyInlineError(`Please switch your wallet to ${CONTRACT_NETWORK.name} to buy tickets.`)
+      setIsBuyingTicketsLoading(false)
       return
     }
 
@@ -170,9 +173,9 @@ export function App() {
       })
       // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Error printed next to button using buyTx.error
     } catch (_error) {
+      setIsBuyingTicketsLoading(false)
       return
     }
-    setIsWaitingForBuyReceipt(true)
     try {
       const transactionReceipt = await waitForTransactionReceipt(config.getClient(), { hash })
       if (transactionReceipt.status === 'success') {
@@ -188,7 +191,7 @@ export function App() {
       console.error('error', error)
       setShowError({ txHash: hash, message: (error as BaseError).shortMessage || (error as Error).message })
     } finally {
-      setIsWaitingForBuyReceipt(false)
+      setIsBuyingTicketsLoading(false)
     }
   }
 
@@ -413,10 +416,10 @@ export function App() {
                       <>
                         <button
                           onClick={handleBuyTickets}
-                          disabled={buyTx.isPending || isWaitingForBuyReceipt || insufficientRoseBalance}
+                          disabled={isBuyingTicketsLoading || insufficientRoseBalance}
                           className="bg-white hover:bg-gray-100 disabled:bg-gray-500 transition-colors flex h-[64px] items-center justify-center px-4 py-2 rounded-[12px] w-full"
                         >
-                          {buyTx.isPending || isWaitingForBuyReceipt ? (
+                          {isBuyingTicketsLoading ? (
                             <LucideLoader className="animate-spin" />
                           ) : (
                             <p className="font-medium leading-[20px] text-[16px] text-black text-center">
