@@ -569,7 +569,9 @@ export function App() {
         <div className="flex flex-col md:flex-row gap-4 max-w-[1360px] mx-auto">
           <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
             <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
-              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Days to go</p>
+              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
+                Time remaining
+              </p>
               {!raffleEndTime.data ? (
                 <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
                   ...
@@ -619,7 +621,9 @@ export function App() {
           </div>
           <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
             <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
-              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Pot size</p>
+              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
+                Current prize pool
+              </p>
               <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
                 {raffleBalance.data?.value ? formatEther(raffleBalance.data?.value) : ''}
                 <span className="hero-text-muted">ROSE</span>
