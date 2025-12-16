@@ -193,6 +193,8 @@ export function App() {
   }
 
   const handleBuyMore = () => {
+    // reset to 1 ticket; hasBoughtMaxTickets should handle the max ticket bought
+    setTicketAmount(1)
     setShowSuccess(false)
   }
 
