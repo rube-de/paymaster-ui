@@ -36,7 +36,14 @@ const connectors = connectorsForWallets(
 )
 
 export const config: Config = createConfig({
-  chains: [{ ...sapphire, iconUrl: 'https://assets.oasis.io/logotypes/metamask-oasis-sapphire.png' }, base],
+  chains: [
+    {
+      ...sapphire,
+      name: 'Sapphire',
+      iconUrl: 'https://assets.oasis.io/logotypes/metamask-oasis-sapphire.png',
+    },
+    base,
+  ],
   connectors,
   transports: {
     [sapphire.id]: http(),

@@ -19,6 +19,7 @@ import { IconCenter } from './components/icons/IconCenter.tsx'
 import { USDTIcon } from './components/icons/USDTIcon.tsx'
 import { USDCIcon } from './components/icons/USDCIcon.tsx'
 import { switchToChain } from './contracts/erc-20.ts'
+import { CustomConnectButton } from './CustomConnectButton.tsx'
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -260,7 +261,7 @@ export function App() {
 
         {/* Wallet */}
         <div className="styledConnect shrink-0">
-          <ConnectButton />
+          <CustomConnectButton />
         </div>
       </header>
 
