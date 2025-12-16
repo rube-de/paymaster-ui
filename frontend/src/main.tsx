@@ -6,6 +6,7 @@ import { config } from './wagmi.ts'
 import { App } from './App.tsx'
 import './index.css'
 import '@rainbow-me/rainbowkit/styles.css'
+import { AccountAvatar } from './components/AccountAvatar/index.tsx'
 
 const queryClient = new QueryClient()
 
@@ -17,6 +18,9 @@ createRoot(document.getElementById('root')!).render(
           borderRadius: 'medium',
         })}
         modalSize="compact"
+        avatar={({ address, size }) => (
+          <AccountAvatar diameter={size} account={{ address_eth: address as `0x${string}` }} />
+        )}
       >
         <App />
       </RainbowKitProvider>
