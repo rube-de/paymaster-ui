@@ -162,6 +162,10 @@
   }
 }
 
+.hero-text-muted {
+  @apply text-[rgba(255,255,255,0.3)] text-[32px] leading-[56px] font-normal;
+}
+
 /* RainbowKit ConnectButton styling */
 .styledConnect:has([data-testid='rk-connect-button']) {
   button {

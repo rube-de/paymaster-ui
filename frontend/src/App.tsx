@@ -589,17 +589,17 @@ export function App() {
                       {days > 0 && (
                         <span>
                           {days}
-                          <span className="text-[rgba(255,255,255,0.6)] text-[32px]">days</span>
+                          <span className="hero-text-muted">days</span>
                         </span>
                       )}{' '}
                       {hours > 0 && (
                         <span>
                           {hours}
-                          <span className="text-[rgba(255,255,255,0.6)] text-[32px]">hours</span>
+                          <span className="hero-text-muted">hours</span>
                         </span>
                       )}{' '}
                       {minutes}
-                      <span className="text-[rgba(255,255,255,0.6)] text-[32px]">min</span>
+                      <span className="hero-text-muted">min</span>
                     </p>
                   )
                 })()
@@ -613,14 +613,7 @@ export function App() {
               </p>
               <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
                 {ticketsRemaining.data?.toString()}
-                <span
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.30)',
-                    fontSize: '32px',
-                  }}
-                >
-                  /{maxTotalTickers.data?.toString()}
-                </span>
+                <span className="hero-text-muted">/{maxTotalTickers.data?.toString()}</span>
               </p>
             </div>
           </div>
@@ -628,7 +621,8 @@ export function App() {
             <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
               <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">Pot size</p>
               <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                {raffleBalance.data?.value ? formatEther(raffleBalance.data?.value) : ''} ROSE
+                {raffleBalance.data?.value ? formatEther(raffleBalance.data?.value) : ''}
+                <span className="hero-text-muted">ROSE</span>
               </p>
             </div>
           </div>
