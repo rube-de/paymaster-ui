@@ -245,10 +245,10 @@ export function App() {
           {/* Purchased Tickets */}
           {isConnected && ticketsPurchased.data !== undefined && (
             <div className="hidden sm:flex items-center gap-2">
-              <LucideTicket className="w-5 h-5 shrink-0 text-[rgba(255,255,255,0.3)]" />
-              <span className="text-sm font-normal whitespace-nowrap">
+              <LucideTicket className="size-6 shrink-0 text-[rgba(255,255,255,0.3)] translate-y-[-1px]" />
+              <span className="text-[16px] font-normal leading-5">
                 <span className="text-white">Purchased: {ticketsPurchased.data.toString()}</span>
-                <span className="text-[rgba(255,255,255,0.6)]">
+                <span className="text-[rgba(255,255,255,0.5)]">
                   /{maxTicketsPerWallet.data?.toString() || '10'}
                 </span>
               </span>
@@ -265,10 +265,10 @@ export function App() {
       {/* Mobile Purchased Tickets */}
       {isConnected && ticketsPurchased.data !== undefined && (
         <div className="sm:hidden relative z-20 flex items-center justify-center gap-2 px-4 -mt-2 mb-4">
-          <LucideTicket className="w-5 h-5 shrink-0 text-[rgba(255,255,255,0.3)]" />
-          <span className="text-sm font-normal">
+          <LucideTicket className="size-6 shrink-0 text-[rgba(255,255,255,0.3)] translate-y-[-1px]" />
+          <span className="text-[16px] font-normal leading-5">
             <span className="text-white">Purchased: {ticketsPurchased.data.toString()}</span>
-            <span className="text-[rgba(255,255,255,0.6)]">
+            <span className="text-[rgba(255,255,255,0.5)]">
               /{maxTicketsPerWallet.data?.toString() || '10'}
             </span>
           </span>

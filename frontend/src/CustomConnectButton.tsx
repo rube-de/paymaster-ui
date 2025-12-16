@@ -30,7 +30,7 @@ export const CustomConnectButton = () => {
                   {/* Chain Selector */}
                   <button
                     onClick={openChainModal}
-                    className="h-12 px-3 rounded-l-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
+                    className="h-12 px-3 rounded-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
                     type="button"
                   >
                     {chain.hasIcon && chain.iconUrl && (
@@ -49,7 +49,7 @@ export const CustomConnectButton = () => {
 
                   {/* Wallet Balance */}
                   <div className="hidden md:flex h-12 px-3 items-center gap-2 text-white">
-                    <Wallet className="w-5 h-5 text-white" strokeWidth={2} />
+                    <Wallet className="size-6 shrink-0 text-[rgba(255,255,255,0.3)] translate-y-[-1px]" />
                     <span className="text-[16px] font-normal leading-5">{account.displayBalance}</span>
                   </div>
 
@@ -59,7 +59,7 @@ export const CustomConnectButton = () => {
                   {/* Account Button */}
                   <button
                     onClick={openAccountModal}
-                    className="h-12 px-3 rounded-r-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
+                    className="h-12 px-3 rounded-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
                     type="button"
                   >
                     <AccountAvatar
