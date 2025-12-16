@@ -30,7 +30,7 @@ export const CustomConnectButton = () => {
                   {/* Chain Selector */}
                   <button
                     onClick={openChainModal}
-                    className="h-12 px-3 rounded-l-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
+                    className="h-12 px-3 rounded-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
                     type="button"
                   >
                     {chain.hasIcon && chain.iconUrl && (
@@ -59,7 +59,7 @@ export const CustomConnectButton = () => {
                   {/* Account Button */}
                   <button
                     onClick={openAccountModal}
-                    className="h-12 px-3 rounded-r-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
+                    className="h-12 px-3 rounded-xl flex items-center gap-2 text-white hover:bg-white/10 active:bg-white/15 transition-colors duration-200"
                     type="button"
                   >
                     <AccountAvatar
