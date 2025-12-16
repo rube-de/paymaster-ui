@@ -210,7 +210,7 @@ export function App() {
     window.open(
       'https://www.linkedin.com/sharing/share-offsite/?url=' +
         encodeURIComponent(window.location.href) +
-        '&summary=' +
+        '&title=' +
         encodeURIComponent(SOCIAL_SHARE_TEXT),
       '_blank'
     )
@@ -529,25 +529,6 @@ export function App() {
                 </p>
                 <div className="flex flex-col gap-6 w-full">
                   <button
-                    onClick={shareOnLinkedIn}
-                    className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
-                  >
-                    <div className="relative shrink-0 size-[24px]">
-                      <svg
-                        className="block size-full"
-                        fill="none"
-                        preserveAspectRatio="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <g>
-                          <path d={svgPaths.p2ccee40} fill="#18181B" />
-                        </g>
-                      </svg>
-                    </div>
-                    <p className="font-medium leading-[20px] text-[16px] text-black text-center">LinkedIn</p>
-                    <div className="shrink-0 size-[24px]" />
-                  </button>
-                  <button
                     onClick={shareOnX}
                     className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
                   >
@@ -564,6 +545,25 @@ export function App() {
                       </svg>
                     </div>
                     <p className="font-medium leading-[20px] text-[16px] text-black text-center">X</p>
+                    <div className="shrink-0 size-[24px]" />
+                  </button>
+                  <button
+                    onClick={shareOnLinkedIn}
+                    className="bg-white hover:bg-gray-100 transition-colors flex h-[48px] items-center justify-between pl-4 pr-2 py-2 rounded-[12px] w-full"
+                  >
+                    <div className="relative shrink-0 size-[24px]">
+                      <svg
+                        className="block size-full"
+                        fill="none"
+                        preserveAspectRatio="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <g>
+                          <path d={svgPaths.p2ccee40} fill="#18181B" />
+                        </g>
+                      </svg>
+                    </div>
+                    <p className="font-medium leading-[20px] text-[16px] text-black text-center">LinkedIn</p>
                     <div className="shrink-0 size-[24px]" />
                   </button>
                 </div>
