@@ -7,6 +7,7 @@ import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
 import { formatEther, parseEther } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import tickets250_svg from './assets/tickets250.svg'
+import bowl_svg from './assets/bowl.svg'
 import { LucideLoader, LucideTicket } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from './components/index.ts'
 import { FAQ } from './FAQ.tsx'
@@ -304,6 +305,7 @@ export function App() {
             </div>
           ) : hasSoldOut ? (
             <div className="flex flex-col gap-4 items-center text-center">
+              <img src={bowl_svg} />
               <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
                 Sold out!
               </p>
