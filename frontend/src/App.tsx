@@ -36,7 +36,7 @@ const CONTRACTS = {
   mainnet13hours5winners: '0xCF734e31C3E50dA43AC676e7E70525dFba24e6f6',
 } as const
 const CONTRACT_NETWORK = sapphire
-const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.mainnet13hours5winners
+const RAFFLE_CONTRACT_ADDRESS = CONTRACTS.mainnet1week3winners
 
 export function App() {
   const acc = useAccount()
