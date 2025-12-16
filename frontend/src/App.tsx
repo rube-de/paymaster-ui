@@ -308,7 +308,7 @@ export function App() {
                   Xmas Roffle
                 </p>
                 <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
-                  Join the Oasis Christmas Roffle!
+                  Join the Oasis Christmas raffle!
                   <br />
                   <br />
                   The prize pool starts at {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and
