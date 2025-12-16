@@ -224,7 +224,7 @@ export function App() {
         background: 'radial-gradient(50% 50% at 50% 50%, #19323C 0%, #0A1D24 100%)',
       }}
     >
-      {!isConnected && (
+      {!isConnected && !hasEnded && !hasSoldOut && (
         <div className="grow max-w-[910px] -mt-6 md:hidden">
           <img src={tickets250_svg} />
         </div>
@@ -264,7 +264,7 @@ export function App() {
           )}
         </div>
 
-        {!isConnected && (
+        {!isConnected && !hasEnded && !hasSoldOut && (
           <div className="grow max-w-[910px] -mt-6 max-md:hidden">
             <img src={tickets250_svg} />
           </div>
