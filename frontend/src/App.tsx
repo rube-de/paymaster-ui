@@ -44,6 +44,11 @@ const SOCIAL_SHARE_TEXT = `I'm in! 🎄
 Just got my tickets for the Oasis Xmas Roffle — 10 winners sharing up to 1M $ROSE!
 Get yours here: ${window.location.href}`
 
+/** Adds thousands separators but might lose precision */
+function formatEtherLocale(valueInBaseUnits: bigint) {
+  return parseFloat(formatEther(valueInBaseUnits)).toLocaleString()
+}
+
 export function App() {
   const acc = useAccount()
   const { chains: wagmiChains } = useConfig()
@@ -326,8 +331,10 @@ export function App() {
                   Join the Oasis Christmas raffle!
                   <br />
                   <br />
-                  The prize pool starts at {initialPot?.data ? formatEther(initialPot.data) : '...'} ROSE and
-                  grows with every ticket purchased.
+                  The prize pool starts at {initialPot?.data
+                    ? formatEtherLocale(initialPot.data)
+                    : '...'}{' '}
+                  ROSE and grows with every ticket purchased.
                   <br />
                   Each ticket costs {ticketPrice.data ? formatEther(ticketPrice.data) : '...'} ROSE.
                 </p>
@@ -652,7 +659,7 @@ export function App() {
                 Current prize pool
               </p>
               <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                {raffleBalance.data?.value ? formatEther(raffleBalance.data?.value) : ''}
+                {raffleBalance.data?.value ? formatEtherLocale(raffleBalance.data?.value) : ''}
                 <span className="hero-text-muted">ROSE</span>
               </p>
             </div>
