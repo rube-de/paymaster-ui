@@ -1,8 +1,9 @@
-import { connectorsForWallets } from '@rainbow-me/rainbowkit'
+import { connectorsForWallets, Wallet } from '@rainbow-me/rainbowkit'
 import { defineChain, http } from 'viem'
 import { sapphire, base } from 'wagmi/chains'
 import { Config, createConfig } from 'wagmi'
 import { metaMaskWallet, rabbyWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets'
+import { isMetaMaskInjected, isMobileDevice } from './lib'
 
 export const sapphireLocalnet = defineChain({
   id: 0x5afd,
@@ -22,11 +23,52 @@ export const sapphireLocalnet = defineChain({
   },
 })
 
+const metaMaskWalletWithoutDeeplinks = (options: { projectId: string }): Wallet => {
+  const wallet = walletConnectWallet({
+    ...options,
+    options: {
+      metadata: {
+        name: 'MetaMask',
+        description: 'Connect with MetaMask',
+        url: window.location.origin,
+        icons: [
+          'https://images.ctfassets.net/clixtyxoaeas/4rnpEzy1ATWRKVBOLxZ1Fm/a74dc1eed36d23d7ea6030383a4d5163/MetaMask-icon-fox.svg',
+        ],
+      },
+    },
+  })
+
+  return {
+    ...wallet,
+    iconUrl:
+      'https://raw.githubusercontent.com/rainbow-me/rainbowkit/refs/heads/main/packages/rainbowkit/src/wallets/walletConnectors/metaMaskWallet/metaMaskWallet.svg',
+    iconBackground: '#f6851b',
+    mobile: wallet.mobile || {
+      getUri: (uri: string) => uri,
+    },
+    desktop: wallet.desktop || {
+      getUri: (uri: string) => uri,
+    },
+    qrCode: wallet.qrCode || {
+      getUri: (uri: string) => uri,
+    },
+  }
+}
+
+// MetaMask wallet that uses WalletConnect on mobile, native MetaMask on desktop
+const createMetaMaskWallet = (options: { projectId: string }): Wallet => {
+  if (isMobileDevice() && !isMetaMaskInjected()) {
+    return metaMaskWalletWithoutDeeplinks(options)
+  }
+
+  return metaMaskWallet(options)
+}
+
 const connectors = connectorsForWallets(
   [
     {
       groupName: 'Recommended',
-      wallets: [metaMaskWallet, walletConnectWallet, rabbyWallet],
+      wallets: [createMetaMaskWallet, walletConnectWallet, rabbyWallet],
     },
   ],
   {
