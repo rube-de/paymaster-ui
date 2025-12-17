@@ -777,14 +777,23 @@ export function App() {
       </div>
 
       {/* Footer Links */}
-      <footer className="relative z-10 pb-6">
-        <div className="flex flex-col sm:flex-row font-normal gap-4 sm:gap-4 items-center justify-center leading-[20px] text-[14px] text-center text-white px-4">
+      <footer className="relative z-10 px-10 pb-6">
+        <div className="flex flex-col-reverse sm:flex-row font-normal gap-4 sm:gap-4 items-center sm:justify-between leading-[20px] text-[14px] text-center text-white max-w">
+          <a
+            href="https://github.com/oasisprotocol/xmas-roffle"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
+          >
+            GitHub
+          </a>
           <a
             onClick={() => setIsFaqOpen(true)}
             className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
           >
             Frequently Asked Questions
           </a>
+          <div className="hidden sm:block w-[60px]" />
         </div>
       </footer>
 
