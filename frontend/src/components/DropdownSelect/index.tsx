@@ -49,7 +49,7 @@ export const DropdownSelect = <T extends string | number>({
   const contentBase = cn(
     'w-[var(--radix-dropdown-menu-trigger-width)]',
     'outline-none shadow-none p-0',
-    'rounded-[0.75rem] overflow-hidden',
+    'rounded-[0.75rem] overflow-auto',
     'border border-[#1f1f1f]'
   )
 
