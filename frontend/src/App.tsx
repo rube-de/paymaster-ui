@@ -21,6 +21,7 @@ import { USDTIcon } from './components/icons/USDTIcon.tsx'
 import { USDCIcon } from './components/icons/USDCIcon.tsx'
 import { switchToChain } from './contracts/erc-20.ts'
 import { CustomConnectButton } from './CustomConnectButton.tsx'
+import { AccountAvatar } from './components/AccountAvatar/index.tsx'
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -48,6 +49,7 @@ Get yours here: ${window.location.href}`
 function formatEtherLocale(valueInBaseUnits: bigint) {
   return parseFloat(formatEther(valueInBaseUnits)).toLocaleString()
 }
+const getOrdinalSuffix = (n: number) => (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th')
 
 export function App() {
   const acc = useAccount()
@@ -128,6 +130,24 @@ export function App() {
       enabled: !!acc.address,
     },
   })
+  const _winners = useReadContract({
+    address: RAFFLE_CONTRACT_ADDRESS,
+    abi: typedRoffleJson.abi,
+    functionName: 'getWinners',
+    chainId: CONTRACT_NETWORK.id,
+  })
+  const winners = _winners.data?.filter(w => w.prize > 0n) ?? []
+  const totalWinnings = winners.reduce((sum, w) => sum + w.prize, 0n)
+  const winnersByPrize = Object.values(
+    winners.reduce(
+      (acc, winner) => {
+        acc[winner.prize.toString()] ??= []
+        acc[winner.prize.toString()]!.push(winner)
+        return acc
+      },
+      {} as Record<string, typeof winners>
+    )
+  ).sort((a, b) => Number(b[0].prize) - Number(a[0].prize))
 
   const buyTx = useWriteContract()
   const [isBuyingTicketsLoading, setIsBuyingTicketsLoading] = useState(false)
@@ -143,7 +163,9 @@ export function App() {
     ticketsPurchased.data !== undefined &&
     ticketsPurchased.data >= (maxTicketsPerWallet.data ?? BigInt(Number.MAX_SAFE_INTEGER))
   const showSuccess = hasBoughtMaxTickets || _showSuccess
-  const hasEnded = Number(raffleEndTime.data * 1000n) < Date.now()
+  const hasEndedByTime = Number(raffleEndTime.data * 1000n) < Date.now()
+  const hasEndedByWinners = winners.length > 0
+  const hasEnded = hasEndedByTime || hasEndedByWinners
   const hasSoldOut = ticketsRemaining.data <= 0n && !showSuccess
   const insufficientRoseBalance = roseBalance.data
     ? roseBalance.data?.value < BigInt(ticketAmount) * ticketPrice.data
@@ -303,10 +325,63 @@ export function App() {
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 md:py-0">
         <div className="w-full max-w-[670px] mx-auto">
           {hasEnded ? (
-            <div className="flex flex-col gap-4 items-center text-center">
-              <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
-                Xmas Roffle has ended
-              </p>
+            <div className="flex flex-col gap-6 items-center text-center w-full">
+              {winners.length <= 0 ? (
+                <>
+                  <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
+                    Xmas Roffle has ended
+                  </p>
+                  <p className="font-['Mountains_of_Christmas',cursive] text-[32px] leading-[40px] text-white">
+                    Winners will be announced on Dec 24th 2025!
+                  </p>
+                </>
+              ) : (
+                <div className="flex flex-col gap-6 w-full">
+                  <div className="flex flex-col gap-4">
+                    <p className="font-['Mountains_of_Christmas',cursive] text-[40px] leading-[48px] md:text-[56px] md:leading-[64px] text-white">
+                      Congrats to our winners!
+                    </p>
+                    <p className="font-normal leading-[20px] text-[16px] text-[rgba(255,255,255,0.6)]">
+                      Winners have been drawn! Check if you're on the list.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-[40px] w-full mt-4 text-white text-[16px] font-normal">
+                    {winnersByPrize.map((prizeGroup, groupIndex) => (
+                      <div key={groupIndex} className="flex flex-col gap-[16px]">
+                        <div className="text-[rgba(255,255,255,0.60)] flex items-center gap-[16px] text-[14px]">
+                          <span>
+                            {groupIndex + 1}
+                            {getOrdinalSuffix(groupIndex + 1)} prize
+                          </span>
+                          <hr className="border-[rgba(255,255,255,0.1)] border-t-1 grow" />
+                          <span>
+                            {((Number(prizeGroup[0].prize) / Number(totalWinnings)) * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        {prizeGroup.map((winner, winnerIndex) => (
+                          <div
+                            key={`${winner.winner}-${winnerIndex}`}
+                            className="flex items-center gap-4 w-full px-4 py-3 rounded-[12px] bg-[rgba(255,255,255,0.05)]"
+                          >
+                            <AccountAvatar diameter={24} account={{ address_eth: winner.winner }} />
+                            <div className="flex-1 min-w-0">
+                              <p className="truncate text-left">{winner.winner}</p>
+                            </div>
+                            <div className="shrink-0">
+                              <p>
+                                {parseFloat(formatEther(winner.prize)).toLocaleString(undefined, {
+                                  maximumFractionDigits: 0,
+                                })}{' '}
+                                ROSE
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : hasSoldOut ? (
             <div className="flex flex-col gap-4 items-center text-center">
@@ -601,69 +676,99 @@ export function App() {
       {/* Stats */}
       <div className="relative z-10 px-4 md:px-10 pb-5 pt-12">
         <div className="flex flex-col md:flex-row gap-4 max-w-[1360px] mx-auto">
-          <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
-            <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
-              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
-                Time remaining
-              </p>
-              {!raffleEndTime.data ? (
-                <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                  ...
-                </p>
-              ) : Number(raffleEndTime.data * 1000n) < Date.now() ? (
-                <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                  0<span className="text-[rgba(255,255,255,0.6)] text-[32px]">days</span>
-                </p>
-              ) : (
-                (() => {
-                  const timeRemaining = Number(raffleEndTime.data * 1000n) - Date.now()
-                  const days = Math.floor(timeRemaining / 1000 / 60 / 60 / 24)
-                  const hours = Math.floor((timeRemaining / 1000 / 60 / 60) % 24)
-                  const minutes = Math.floor((timeRemaining / 1000 / 60) % 60)
-                  return (
+          {hasEnded && winners.length > 0 ? (
+            <>
+              <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+                <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+                  <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
+                    Tickets sold
+                  </p>
+                  <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                    {maxTotalTickers.data && ticketsRemaining.data !== undefined
+                      ? (maxTotalTickers.data - ticketsRemaining.data).toString()
+                      : '...'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+                <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+                  <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
+                    Total prize pool
+                  </p>
+                  <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                    {formatEtherLocale(totalWinnings)}
+                    <span className="hero-text-muted">ROSE</span>
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+                <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+                  <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
+                    Time remaining
+                  </p>
+                  {!raffleEndTime.data ? (
                     <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                      {days > 0 && (
-                        <span>
-                          {days}
-                          <span className="hero-text-muted">days</span>
-                        </span>
-                      )}{' '}
-                      {hours > 0 && (
-                        <span>
-                          {hours}
-                          <span className="hero-text-muted">hours</span>
-                        </span>
-                      )}{' '}
-                      {minutes}
-                      <span className="hero-text-muted">min</span>
+                      ...
                     </p>
-                  )
-                })()
-              )}
-            </div>
-          </div>
-          <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
-            <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
-              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
-                Tickets left
-              </p>
-              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                {ticketsRemaining.data?.toString()}
-                <span className="hero-text-muted">/{maxTotalTickers.data?.toString()}</span>
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
-            <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
-              <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
-                Current prize pool
-              </p>
-              <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
-                {raffleBalance.data?.value ? formatEtherLocale(raffleBalance.data?.value) : ''}
-                <span className="hero-text-muted">ROSE</span>
-              </p>
-            </div>
-          </div>
+                  ) : Number(raffleEndTime.data * 1000n) < Date.now() ? (
+                    <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                      0<span className="text-[rgba(255,255,255,0.6)] text-[32px]">days</span>
+                    </p>
+                  ) : (
+                    (() => {
+                      const timeRemaining = Number(raffleEndTime.data * 1000n) - Date.now()
+                      const days = Math.floor(timeRemaining / 1000 / 60 / 60 / 24)
+                      const hours = Math.floor((timeRemaining / 1000 / 60 / 60) % 24)
+                      const minutes = Math.floor((timeRemaining / 1000 / 60) % 60)
+                      return (
+                        <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                          {days > 0 && (
+                            <span>
+                              {days}
+                              <span className="hero-text-muted">days</span>
+                            </span>
+                          )}{' '}
+                          {hours > 0 && (
+                            <span>
+                              {hours}
+                              <span className="hero-text-muted">hours</span>
+                            </span>
+                          )}{' '}
+                          {minutes}
+                          <span className="hero-text-muted">min</span>
+                        </p>
+                      )
+                    })()
+                  )}
+                </div>
+              </div>
+              <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+                <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+                  <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
+                    Tickets left
+                  </p>
+                  <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                    {ticketsRemaining.data?.toString()}
+                    <span className="hero-text-muted">/{maxTotalTickers.data?.toString()}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex-1 bg-[rgba(0,0,0,0.15)] rounded-[12px]">
+                <div className="flex flex-col items-center px-6 md:px-10 py-5 text-center">
+                  <p className="font-light leading-[20px] text-[14px] text-[rgba(255,255,255,0.6)]">
+                    Current prize pool
+                  </p>
+                  <p className="font-['Mountains_of_Christmas',cursive] leading-[56px] text-[48px] text-white">
+                    {raffleBalance.data?.value ? formatEtherLocale(raffleBalance.data?.value) : ''}
+                    <span className="hero-text-muted">ROSE</span>
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
