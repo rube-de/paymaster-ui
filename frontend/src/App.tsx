@@ -778,23 +778,31 @@ export function App() {
 
       {/* Footer Links */}
       <footer className="relative z-10 px-10 pb-6">
-        <div className="flex flex-col-reverse sm:flex-row font-normal gap-4 sm:gap-4 items-center sm:justify-between leading-[20px] text-[14px] text-center text-white max-w">
+        <div className="flex flex-col font-normal gap-4 items-center sm:grid sm:grid-cols-3 leading-[20px] text-[14px] text-center text-white max-w-[1360px] mx-auto">
+          <a
+            href="https://oasis.net/"
+            rel="noopener noreferrer"
+            target="_blank"
+            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity order-2 sm:order-1 sm:text-left"
+          >
+            Copyright © Oasis Protocol Foundation 2025
+          </a>
+          <a
+            onClick={() => setIsFaqOpen(true)}
+            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity order-1 sm:order-2"
+          >
+            Frequently Asked Questions
+          </a>
           <a
             href="https://github.com/oasisprotocol/xmas-roffle"
             target="_blank"
             rel="noopener noreferrer"
-            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
+            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity order-3 sm:text-right"
           >
             GitHub
           </a>
-          <a
-            onClick={() => setIsFaqOpen(true)}
-            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
-          >
-            Frequently Asked Questions
-          </a>
-          <div className="hidden sm:block w-[60px]" />
         </div>
+        <div className="sm:hidden flex justify-center gap-4 mt-4 leading-[20px] text-[14px] text-white" />
       </footer>
 
       <Dialog open={isFaqOpen} onOpenChange={setIsFaqOpen}>
