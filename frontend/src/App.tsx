@@ -22,6 +22,7 @@ import { USDCIcon } from './components/icons/USDCIcon.tsx'
 import { switchToChain } from './contracts/erc-20.ts'
 import { CustomConnectButton } from './CustomConnectButton.tsx'
 import { AccountAvatar } from './components/AccountAvatar/index.tsx'
+import { cn } from './lib/utils.ts'
 
 const typedRoffleJson = RoffleJson as Roffle$Type
 
@@ -361,7 +362,10 @@ export function App() {
                         {prizeGroup.map((winner, winnerIndex) => (
                           <div
                             key={`${winner.winner}-${winnerIndex}`}
-                            className="flex items-center gap-4 w-full px-4 py-3 rounded-[12px] bg-[rgba(255,255,255,0.05)]"
+                            className={cn(
+                              'flex items-center gap-4 w-full px-4 py-3 rounded-[12px] bg-[rgba(255,255,255,0.05)]',
+                              winner.winner === acc.address && 'bg-primary/40'
+                            )}
                           >
                             <AccountAvatar diameter={24} account={{ address_eth: winner.winner }} />
                             <div className="flex-1 min-w-0">
