@@ -777,15 +777,38 @@ export function App() {
       </div>
 
       {/* Footer Links */}
-      <footer className="relative z-10 pb-6">
-        <div className="flex flex-col sm:flex-row font-normal gap-4 sm:gap-4 items-center justify-center leading-[20px] text-[14px] text-center text-white px-4">
+      <footer className="relative z-10 px-4 lg:px-10 pb-4 lg:pb-6">
+        <div className="flex flex-col font-normal gap-4 items-center lg:grid lg:grid-cols-3 leading-[20px] text-[14px] text-center text-white">
+          <div className="flex flex-row justify-between w-full gap-4 order-2 lg:order-1 lg:justify-start lg:w-auto">
+            <span className="[text-underline-position:from-font] decoration-none text-muted-foreground">
+              <span className="lg:hidden">Copyright © OPF 2025</span>
+              <span className="hidden lg:inline">Copyright © Oasis Protocol Foundation 2025</span>
+            </span>
+            <a
+              href="https://github.com/oasisprotocol/xmas-roffle"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="lg:hidden cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity"
+            >
+              GitHub
+            </a>
+          </div>
           <a
             onClick={() => setIsFaqOpen(true)}
-            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity"
+            className="cursor-pointer [text-underline-position:from-font] decoration-solid underline hover:opacity-80 transition-opacity order-1 lg:order-2"
           >
             Frequently Asked Questions
           </a>
+          <a
+            href="https://github.com/oasisprotocol/xmas-roffle"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden lg:block cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity order-3 lg:text-right"
+          >
+            GitHub
+          </a>
         </div>
+        <div className="lg:hidden flex" />
       </footer>
 
       <Dialog open={isFaqOpen} onOpenChange={setIsFaqOpen}>
