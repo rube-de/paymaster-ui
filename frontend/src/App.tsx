@@ -268,16 +268,18 @@ export function App() {
         <div className="flex items-center gap-3 md:gap-[24px] shrink-0 h-[48px]">
           {/* Logo */}
           <div className="h-[40px] w-[110px] md:h-[48px] md:w-[131px] shrink-0">
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
-              <g id="Union">
-                <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
-                <path clipRule="evenodd" d={svgPaths.p2b736500} fill="white" fillRule="evenodd" />
-                <path d={svgPaths.p1bd1ab00} fill="white" />
-                <path d={svgPaths.p2a757eb0} fill="white" />
-                <path clipRule="evenodd" d={svgPaths.p3d36a900} fill="white" fillRule="evenodd" />
-                <path d={svgPaths.p19eb9c00} fill="white" />
-              </g>
-            </svg>
+            <a href="/" className="block">
+              <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 131 48">
+                <g id="Union">
+                  <path clipRule="evenodd" d={svgPaths.p1f562c00} fill="white" fillRule="evenodd" />
+                  <path clipRule="evenodd" d={svgPaths.p2b736500} fill="white" fillRule="evenodd" />
+                  <path d={svgPaths.p1bd1ab00} fill="white" />
+                  <path d={svgPaths.p2a757eb0} fill="white" />
+                  <path clipRule="evenodd" d={svgPaths.p3d36a900} fill="white" fillRule="evenodd" />
+                  <path d={svgPaths.p19eb9c00} fill="white" />
+                </g>
+              </svg>
+            </a>
           </div>
 
           {/* Separator */}
