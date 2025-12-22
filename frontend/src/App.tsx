@@ -786,14 +786,25 @@ export function App() {
               <span className="lg:hidden">Copyright © OPF 2025</span>
               <span className="hidden lg:inline">Copyright © Oasis Protocol Foundation 2025</span>
             </span>
-            <a
-              href="https://github.com/oasisprotocol/xmas-roffle"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="lg:hidden cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity"
-            >
-              GitHub
-            </a>
+            <span>
+              <a
+                href="https://github.com/oasisprotocol/xmas-roffle"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lg:hidden cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity"
+              >
+                GitHub
+              </a>
+              <span className="lg:hidden text-muted-foreground">&nbsp;|&nbsp;</span>
+              <a
+                href="https://oasis.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lg:hidden cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity"
+              >
+                Oasis
+              </a>
+            </span>
           </div>
           <a
             onClick={() => setIsFaqOpen(true)}
@@ -801,14 +812,25 @@ export function App() {
           >
             Frequently Asked Questions
           </a>
-          <a
-            href="https://github.com/oasisprotocol/xmas-roffle"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden lg:block cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity order-3 lg:text-right"
-          >
-            GitHub
-          </a>
+          <div className="hidden lg:flex lg:order-3 justify-end">
+            <a
+              href="https://github.com/oasisprotocol/xmas-roffle"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:block cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity lg:text-right"
+            >
+              GitHub
+            </a>
+            <span className="hidden lg:inline text-muted-foreground">&nbsp;|&nbsp;</span>
+            <a
+              href="https://oasis.net/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:block cursor-pointer [text-underline-position:from-font] text-muted-foreground decoration-solid underline hover:opacity-80 transition-opacity lg:text-right"
+            >
+              Oasis
+            </a>
+          </div>
         </div>
         <div className="lg:hidden flex" />
       </footer>
