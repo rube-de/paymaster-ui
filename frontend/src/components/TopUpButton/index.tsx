@@ -1,6 +1,6 @@
 import { FC, ReactNode, useEffect, useState } from 'react'
 import { ProgressStepWithAction, usePaymaster } from '../../hooks/usePaymaster.ts'
-import { formatUnits } from 'viem'
+import { formatUnits, parseEther } from 'viem'
 import { RoflPaymasterTokenConfig } from '../../constants/rofl-paymaster-config.ts'
 import { LucideLoader } from 'lucide-react'
 import { useAccount, useBalance } from 'wagmi'
@@ -31,6 +31,11 @@ export const TopUpButton: FC<Props> = ({
     token: targetToken.contractAddress,
     chainId: base.id,
   })
+  const { data: feeTokenBalance } = useBalance({
+    address,
+    chainId: base.id,
+  })
+  const insufficientFeeBalance = (feeTokenBalance?.value ?? parseEther('1')) < parseEther('0.00001')
 
   const [quote, setQuote] = useState<bigint | null>(null)
   const { isLoading, initialLoading, error, currentStep, getQuote, startTopUp } = usePaymaster(
@@ -123,9 +128,12 @@ export const TopUpButton: FC<Props> = ({
         </div>
       )}
 
-      {((!isLoading && error) || insufficientBalance) && (
+      {((!isLoading && error) || insufficientBalance || insufficientFeeBalance) && (
         <p className="text-warning text-center break-words">
           {insufficientBalance && `Insufficient $${targetToken.symbol} balance`}
+          <br />
+          {insufficientFeeBalance && `Insufficient ${base.name} $${base.nativeCurrency.symbol} balance`}
+          <br />
           {error && error.length > 150 ? `${error.slice(0, 150)}...` : error}
         </p>
       )}
