@@ -131,6 +131,7 @@ export function usePaymaster(
     setIsLoading(false)
     setError('')
     setQuote(null)
+    setRoseEstimate(null)
     setCurrentStep(null)
     setStepStatuses({})
   }, [])
