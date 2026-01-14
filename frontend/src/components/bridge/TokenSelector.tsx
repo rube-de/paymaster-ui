@@ -21,14 +21,15 @@ interface TokenSelectorProps {
   /** Token key in "chainId:address" format, or null if none selected */
   value: string | null
   options: TokenOption[]
-  /** Called with both the composite key and the full token object */
-  onChange: (key: string, token: TokenOption) => void
+  /** Called with both the composite key and the full token object. Optional when singleToken=true. */
+  onChange?: (key: string, token: TokenOption) => void
   disabled?: boolean
   className?: string
   placeholder?: string
   showChainName?: boolean
   showBalance?: boolean
   label?: string
+  /** When true, displays as read-only single token (no dropdown) */
   singleToken?: boolean
 }
 
@@ -154,7 +155,7 @@ export function TokenSelector({
               <DropdownMenuItem
                 key={key}
                 disabled={disabled}
-                onSelect={() => onChange(key, option)}
+                onSelect={() => onChange?.(key, option)}
                 className={cn(
                   'flex items-center gap-3 px-4 py-3',
                   'cursor-pointer outline-none',

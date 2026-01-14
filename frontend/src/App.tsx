@@ -98,8 +98,8 @@ export function App() {
   // Fetch ROSE estimate when amount changes
   useEffect(() => {
     if (parsedAmount > 0n && tokenConfig) {
-      paymaster.getRoseEstimate({ amount: parsedAmount }).catch(() => {
-        // Estimate fetch failed, error handled in hook
+      paymaster.getRoseEstimate({ amount: parsedAmount }).catch(err => {
+        console.warn('Estimate fetch failed:', err)
       })
     }
   }, [parsedAmount, tokenConfig, paymaster.getRoseEstimate])
@@ -118,7 +118,7 @@ export function App() {
   }, [parsedAmount, paymaster])
 
   // Handle token change
-  const handleTokenChange = useCallback((key: string) => {
+  const handleTokenChange = useCallback((key: string, _token: TokenOption) => {
     setSelectedTokenKey(key)
     setAmount('') // Reset amount when changing token
     paymaster.reset()
@@ -244,7 +244,6 @@ export function App() {
               <TokenSelector
                 value={getTokenKey(DESTINATION_TOKEN)}
                 options={[DESTINATION_TOKEN]}
-                onChange={() => {}}
                 showChainName
                 singleToken
               />
