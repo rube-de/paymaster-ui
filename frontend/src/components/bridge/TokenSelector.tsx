@@ -13,9 +13,9 @@ export interface TokenOption {
   balance?: string
 }
 
-/** Creates a unique composite key for token identity: "chainId:address" or "0:symbol" as fallback */
+/** Creates a unique composite key for token identity: "chainId:address" or "chainId:symbol:name" as fallback */
 export const getTokenKey = (token: TokenOption): string =>
-  `${token.chainId ?? 0}:${token.address ?? token.symbol}`
+  `${token.chainId ?? 0}:${token.address ?? `${token.symbol}:${token.name}`}`
 
 interface TokenSelectorProps {
   /** Token key in "chainId:address" format, or null if none selected */
@@ -57,7 +57,7 @@ export function TokenSelector({
     return (
       <div data-slot="token-selector" className={cn('space-y-2', className)}>
         {label && (
-          <span id={labelId} className="text-sm font-medium text-[rgba(255,255,255,0.7)]">
+          <span id={labelId} className="text-sm font-medium text-white/70">
             {label}
           </span>
         )}
@@ -66,7 +66,7 @@ export function TokenSelector({
           aria-labelledby={label ? labelId : undefined}
           className={cn(
             'flex items-center gap-3 px-4 py-3',
-            'bg-[rgba(0,0,0,0.2)] border border-[rgba(255,255,255,0.1)]',
+            'bg-black/20 border border-white/10',
             'rounded-xl'
           )}
         >
@@ -74,11 +74,11 @@ export function TokenSelector({
           <div className="flex flex-col min-w-0">
             <span className="font-medium text-white">{selected.symbol}</span>
             {showChainName && selected.chainName && (
-              <span className="text-xs text-[rgba(255,255,255,0.5)]">on {selected.chainName}</span>
+              <span className="text-xs text-white/50">on {selected.chainName}</span>
             )}
           </div>
           {showBalance && selected.balance && (
-            <span className="ml-auto text-sm text-[rgba(255,255,255,0.5)]">{selected.balance}</span>
+            <span className="ml-auto text-sm text-white/50">{selected.balance}</span>
           )}
         </div>
       </div>
@@ -91,18 +91,18 @@ export function TokenSelector({
       <div className="flex flex-col items-start min-w-0">
         <span className="font-medium text-white leading-tight">{selected.symbol}</span>
         {showChainName && selected.chainName && (
-          <span className="text-xs text-[rgba(255,255,255,0.5)] leading-tight">on {selected.chainName}</span>
+          <span className="text-xs text-white/50 leading-tight">on {selected.chainName}</span>
         )}
       </div>
     </>
   ) : (
-    <span className="text-[rgba(255,255,255,0.5)]">{placeholder}</span>
+    <span className="text-white/50">{placeholder}</span>
   )
 
   return (
     <div data-slot="token-selector" className={cn('space-y-2', className)}>
       {label && (
-        <label htmlFor={buttonId} className="text-sm font-medium text-[rgba(255,255,255,0.7)]">
+        <label htmlFor={buttonId} className="text-sm font-medium text-white/70">
           {label}
         </label>
       )}
@@ -115,9 +115,9 @@ export function TokenSelector({
             aria-label={selected ? `Selected: ${selected.symbol}` : placeholder}
             className={cn(
               'w-full flex items-center justify-between gap-3',
-              'bg-[rgba(0,0,0,0.2)] border border-[rgba(255,255,255,0.1)]',
+              'bg-black/20 border border-white/10',
               'rounded-xl px-4 py-3',
-              'hover:bg-[rgba(0,0,0,0.3)] hover:border-[rgba(255,255,255,0.2)]',
+              'hover:bg-black/30 hover:border-white/20',
               'transition-colors',
               'disabled:opacity-50 disabled:pointer-events-none'
             )}
@@ -128,7 +128,7 @@ export function TokenSelector({
               height="20"
               viewBox="0 0 24 24"
               fill="none"
-              className="shrink-0 text-[rgba(255,255,255,0.5)]"
+              className="shrink-0 text-white/50"
               aria-hidden="true"
             >
               <path d="M8 10L12 14L16 10" stroke="currentColor" strokeWidth="1.5" />
@@ -141,8 +141,8 @@ export function TokenSelector({
           sideOffset={8}
           className={cn(
             'w-[var(--radix-dropdown-menu-trigger-width)]',
-            'bg-[rgba(20,20,20,0.95)] backdrop-blur-xl',
-            'border border-[rgba(255,255,255,0.1)]',
+            'bg-neutral-900/95 backdrop-blur-xl',
+            'border border-white/10',
             'rounded-xl overflow-hidden p-0'
           )}
         >
@@ -158,20 +158,20 @@ export function TokenSelector({
                 className={cn(
                   'flex items-center gap-3 px-4 py-3',
                   'cursor-pointer outline-none',
-                  'hover:bg-[rgba(255,255,255,0.06)]',
-                  'data-[highlighted]:bg-[rgba(255,255,255,0.06)]',
-                  !isLast && 'border-b border-[rgba(255,255,255,0.05)]'
+                  'hover:bg-white/[0.06]',
+                  'data-[highlighted]:bg-white/[0.06]',
+                  !isLast && 'border-b border-white/5'
                 )}
               >
                 {option.icon && <span className="shrink-0">{option.icon}</span>}
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="font-medium text-white">{option.symbol}</span>
                   {option.name !== option.symbol && (
-                    <span className="text-xs text-[rgba(255,255,255,0.5)]">{option.name}</span>
+                    <span className="text-xs text-white/50">{option.name}</span>
                   )}
                 </div>
                 {showBalance && option.balance && (
-                  <span className="text-sm text-[rgba(255,255,255,0.5)]">{option.balance}</span>
+                  <span className="text-sm text-white/50">{option.balance}</span>
                 )}
               </DropdownMenuItem>
             )

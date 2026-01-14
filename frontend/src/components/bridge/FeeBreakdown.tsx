@@ -34,15 +34,15 @@ export function FeeBreakdown({
     <div
       data-slot="fee-breakdown"
       className={cn(
-        'rounded-xl border border-[rgba(255,255,255,0.1)]',
-        'bg-[rgba(0,0,0,0.15)]',
+        'rounded-xl border border-white/10',
+        'bg-black/15',
         'overflow-hidden',
         className
       )}
     >
       {title && (
-        <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.05)]">
-          <span className="text-sm font-medium text-[rgba(255,255,255,0.7)]">{title}</span>
+        <div className="px-4 py-3 border-b border-white/5">
+          <span className="text-sm font-medium text-white/70">{title}</span>
         </div>
       )}
 
@@ -53,7 +53,7 @@ export function FeeBreakdown({
           ))}
 
           {(estimatedTime || slippage) && items.length > 0 && (
-            <div className="h-px bg-[rgba(255,255,255,0.05)] my-2" aria-hidden="true" />
+            <div className="h-px bg-white/5 my-2" aria-hidden="true" />
           )}
 
           {estimatedTime && (
@@ -67,7 +67,7 @@ export function FeeBreakdown({
                   viewBox="0 0 14 14"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="text-[rgba(255,255,255,0.5)]"
+                  className="text-white/50"
                   aria-hidden="true"
                 >
                   <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.5" />
@@ -88,7 +88,7 @@ export function FeeBreakdown({
                   viewBox="0 0 14 14"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="text-[rgba(255,255,255,0.5)]"
+                  className="text-white/50"
                   aria-hidden="true"
                 >
                   <path
@@ -114,7 +114,7 @@ interface FeeRowProps extends FeeItem {
 function FeeRow({ label, value, subValue, highlight, loading, icon }: FeeRowProps) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="flex items-center gap-2 text-sm text-[rgba(255,255,255,0.5)]">
+      <span className="flex items-center gap-2 text-sm text-white/50">
         {icon}
         {label}
       </span>
@@ -133,7 +133,7 @@ function FeeRow({ label, value, subValue, highlight, loading, icon }: FeeRowProp
               {value}
             </span>
             {subValue && (
-              <span className="text-xs text-[rgba(255,255,255,0.5)]">{subValue}</span>
+              <span className="text-xs text-white/50">{subValue}</span>
             )}
           </>
         )}
@@ -145,9 +145,9 @@ function FeeRow({ label, value, subValue, highlight, loading, icon }: FeeRowProp
 function LoadingDots() {
   return (
     <div className="flex items-center gap-1" aria-label="Loading">
-      <span className="size-1.5 rounded-full bg-[rgba(255,255,255,0.3)] animate-pulse" />
-      <span className="size-1.5 rounded-full bg-[rgba(255,255,255,0.3)] animate-pulse [animation-delay:150ms]" />
-      <span className="size-1.5 rounded-full bg-[rgba(255,255,255,0.3)] animate-pulse [animation-delay:300ms]" />
+      <span className="size-1.5 rounded-full bg-white/30 animate-pulse" />
+      <span className="size-1.5 rounded-full bg-white/30 animate-pulse [animation-delay:150ms]" />
+      <span className="size-1.5 rounded-full bg-white/30 animate-pulse [animation-delay:300ms]" />
     </div>
   )
 }
@@ -177,12 +177,12 @@ export function FeeEstimate({
         className={cn(
           'flex items-center justify-between',
           'px-4 py-3',
-          'bg-[rgba(0,0,0,0.15)] border border-[rgba(255,255,255,0.1)]',
+          'bg-black/15 border border-white/10',
           'rounded-xl'
         )}
       >
         <div className="flex flex-col">
-          <span className="text-xs text-[rgba(255,255,255,0.5)]">You pay</span>
+          <span className="text-xs text-white/50">You pay</span>
           {loading ? (
             <LoadingDots />
           ) : (
@@ -198,7 +198,7 @@ export function FeeEstimate({
           viewBox="0 0 16 16"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="text-[rgba(255,255,255,0.3)]"
+          className="text-white/50"
           aria-hidden="true"
         >
           <path
@@ -211,7 +211,7 @@ export function FeeEstimate({
         </svg>
 
         <div className="flex flex-col items-end">
-          <span className="text-xs text-[rgba(255,255,255,0.5)]">You receive</span>
+          <span className="text-xs text-white/50">You receive</span>
           {loading ? (
             <LoadingDots />
           ) : (
@@ -224,7 +224,7 @@ export function FeeEstimate({
 
       {rate && !loading && (
         <div className="text-center">
-          <span className="text-xs text-[rgba(255,255,255,0.4)]">{rate}</span>
+          <span className="text-xs text-white/50">{rate}</span>
         </div>
       )}
     </div>
