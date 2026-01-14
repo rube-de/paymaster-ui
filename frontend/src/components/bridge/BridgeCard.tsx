@@ -14,8 +14,8 @@ export function BridgeCard({ children, className, title, description }: BridgeCa
       data-slot="bridge-card"
       className={cn(
         'w-full max-w-md mx-auto',
-        'bg-[rgba(0,0,0,0.4)] backdrop-blur-xl',
-        'border border-[rgba(255,255,255,0.1)]',
+        'bg-black/40 backdrop-blur-xl',
+        'border border-white/10',
         'rounded-2xl shadow-2xl',
         'p-6',
         className
@@ -27,7 +27,7 @@ export function BridgeCard({ children, className, title, description }: BridgeCa
             <h2 className="text-xl font-semibold text-white">{title}</h2>
           )}
           {description && (
-            <p className="text-sm text-[rgba(255,255,255,0.5)] mt-1">{description}</p>
+            <p className="text-sm text-white/50 mt-1">{description}</p>
           )}
         </div>
       )}
@@ -46,7 +46,7 @@ export function BridgeCardSection({ children, className, label }: BridgeCardSect
   return (
     <div data-slot="bridge-card-section" className={cn('space-y-2', className)}>
       {label && (
-        <label className="text-sm font-medium text-[rgba(255,255,255,0.7)]">{label}</label>
+        <span className="text-sm font-medium text-white/70">{label}</span>
       )}
       {children}
     </div>
@@ -66,15 +66,15 @@ export function BridgeCardDivider({ className }: BridgeCardDividerProps) {
         className
       )}
     >
-      <div className="absolute inset-x-0 h-px bg-[rgba(255,255,255,0.1)]" />
-      <div className="relative z-10 flex items-center justify-center size-8 rounded-full bg-[rgba(0,0,0,0.6)] border border-[rgba(255,255,255,0.1)]">
+      <div className="absolute inset-x-0 h-px bg-white/10" />
+      <div className="relative z-10 flex items-center justify-center size-8 rounded-full bg-black/60 border border-white/10">
         <svg
           width="14"
           height="14"
           viewBox="0 0 14 14"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="text-[rgba(255,255,255,0.5)]"
+          className="text-white/50"
           aria-hidden="true"
         >
           <path
