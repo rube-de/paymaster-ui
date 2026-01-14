@@ -146,8 +146,8 @@ export function TokenSelector({
             'rounded-xl overflow-hidden p-0'
           )}
         >
-          {options.map((option, idx) => {
-            const isLast = idx === options.length - 1
+          {options.map((option, index) => {
+            const isLast = index === options.length - 1
             const key = getTokenKey(option)
 
             return (
