@@ -115,14 +115,14 @@ export function App() {
     } catch (error) {
       console.error('Bridge failed:', error)
     }
-  }, [parsedAmount, paymaster])
+  }, [parsedAmount, paymaster.startTopUp])
 
   // Handle token change
   const handleTokenChange = useCallback((key: string, _token: TokenOption) => {
     setSelectedTokenKey(key)
     setAmount('') // Reset amount when changing token
     paymaster.reset()
-  }, [paymaster])
+  }, [paymaster.reset])
 
   // Calculate exchange rate: ROSE per 1 token
   const exchangeRate = useMemo(() => {
@@ -260,8 +260,8 @@ export function App() {
                 sourceAmount={amount || '0'}
                 sourceToken={selectedToken?.symbol ?? 'USDC'}
                 destinationAmount={
-                  paymaster.quote
-                    ? parseFloat(formatUnits(paymaster.quote, 18)).toFixed(2)
+                  estimatedRose
+                    ? parseFloat(formatUnits(estimatedRose, 18)).toFixed(2)
                     : '...'
                 }
                 destinationToken="ROSE"
