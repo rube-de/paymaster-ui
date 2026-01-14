@@ -19,11 +19,20 @@ interface AmountInputProps {
   balanceLabel?: string
   /** Set true for native tokens (ETH, ROSE) to reserve gas when clicking MAX */
   isNativeToken?: boolean
-  /** Gas buffer to subtract from max for native tokens (default: 0.01 in wei equivalent) */
+  /**
+   * Gas buffer to subtract from max for native tokens when clicking MAX.
+   *
+   * NOTE: This value is network-dependent. The default (0.01 native tokens)
+   * may be too low on high-gas chains or too high on L2s. Callers should
+   * set this based on the target network's typical gas costs.
+   */
   gasBuffer?: bigint
 }
 
-/** Default gas buffer: 0.01 native tokens (10^16 wei) */
+/**
+ * Default gas buffer: 0.01 native tokens (10^16 wei).
+ * This is a generic fallback - prefer passing explicit gasBuffer for production.
+ */
 const DEFAULT_GAS_BUFFER = 10_000_000_000_000_000n
 
 export function AmountInput({
@@ -113,13 +122,13 @@ export function AmountInput({
           {label && (
             <label
               htmlFor={inputId}
-              className="text-sm font-medium text-[rgba(255,255,255,0.7)]"
+              className="text-sm font-medium text-white/70"
             >
               {label}
             </label>
           )}
           {formattedBalance !== null && (
-            <span className="text-xs text-[rgba(255,255,255,0.5)]">
+            <span className="text-xs text-white/50">
               {balanceLabel}: {formattedBalance}
             </span>
           )}
@@ -129,11 +138,11 @@ export function AmountInput({
       <div
         className={cn(
           'relative flex items-center',
-          'bg-[rgba(0,0,0,0.2)] border rounded-xl h-14 px-4',
+          'bg-black/20 border rounded-xl h-14 px-4',
           'transition-colors',
           hasError
             ? 'border-red-500/50 focus-within:border-red-500'
-            : 'border-[rgba(255,255,255,0.1)] focus-within:border-[rgba(255,255,255,0.3)]',
+            : 'border-white/10 focus-within:border-white/30',
           disabled && 'opacity-50 pointer-events-none'
         )}
       >
@@ -152,7 +161,7 @@ export function AmountInput({
           aria-describedby={hasError ? `${inputId}-error` : undefined}
           className={cn(
             'flex-1 bg-transparent text-white text-lg font-medium',
-            'placeholder:text-[rgba(255,255,255,0.3)]',
+            'placeholder:text-white/50',
             'outline-none border-none',
             'min-w-0'
           )}
@@ -166,8 +175,8 @@ export function AmountInput({
               disabled={disabled}
               className={cn(
                 'px-2 py-1 text-xs font-medium rounded-md',
-                'bg-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.7)]',
-                'hover:bg-[rgba(255,255,255,0.15)] hover:text-white',
+                'bg-white/10 text-white/70',
+                'hover:bg-white/15 hover:text-white',
                 'transition-colors',
                 'disabled:opacity-50 disabled:pointer-events-none'
               )}
