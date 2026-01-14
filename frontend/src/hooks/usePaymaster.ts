@@ -257,8 +257,6 @@ export function usePaymaster(
             clearTimeout(timeoutId)
             reject(new Error('Payment polling cancelled'))
           }, { once: true })
-        }).catch((err) => {
-          throw err
         })
         attempts++
       }
@@ -332,39 +330,42 @@ export function usePaymaster(
 
   const startTopUp = useCallback(
     async ({ amount }: StartTopUpParams) => {
-      // Guard against concurrent execution
+      // Guard against concurrent execution (atomic check-and-set)
       if (isLoadingRef.current) {
         throw new Error('Operation already in progress')
       }
+      isLoadingRef.current = true
 
       setError('')
 
-      if (!address) throw new Error('Wallet not connected')
+      if (!address) {
+        isLoadingRef.current = false
+        throw new Error('Wallet not connected')
+      }
 
       const sourceChainConfig = ROFL_PAYMASTER_TOKEN_CONFIG[base.id]
 
+      // Abort any lingering operation before creating new controller
+      abortControllerRef.current?.abort()
       abortControllerRef.current = new AbortController()
       const signal = abortControllerRef.current.signal
 
-      isLoadingRef.current = true
       setIsLoading(true)
-      currentStepRef.current = 1
-      setCurrentStep(1)
 
       // Track whether deposit was committed (for error handling)
       let depositCommitted = false
       let paymentId: string | null = null
 
       try {
+        // Step 1: switch to source chain
+        updateStep(1, 'processing')
+
         // Snapshot baseline Sapphire native balance
         const baselineSapphireNative =
           (await refetchSapphireNativeBalance()).data?.value ??
           (() => {
             throw new Error('Failed to read Sapphire native balance')
           })()
-
-        // Step 1: switch to source
-        updateStep(1, 'processing')
         await switchToChain({ targetChainId: base.id, address })
         updateStep(1, 'completed')
 
@@ -389,7 +390,12 @@ export function usePaymaster(
         const depositResult = await createDeposit(targetToken.contractAddress, amount, address, base.id)
 
         if (!depositResult.paymentId) {
-          throw new Error('Deposit succeeded but no payment ID returned. Please contact support with your transaction hash.')
+          const txHash = depositResult.transactionHash ?? depositResult.hash
+          throw new Error(
+            txHash
+              ? `Deposit succeeded but no payment ID returned. Please contact support with tx: ${txHash}`
+              : 'Deposit succeeded but no payment ID returned. Please contact support.'
+          )
         }
         paymentId = depositResult.paymentId
         depositCommitted = true // Funds are now committed on-chain
