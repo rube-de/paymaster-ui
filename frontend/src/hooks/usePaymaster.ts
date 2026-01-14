@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { BaseError, useAccount, useBalance } from 'wagmi'
 import { checkAndSetErc20Allowance, switchToChain } from '../contracts/erc-20'
 import { Address, Chain } from 'viem'
@@ -25,7 +25,7 @@ export type ProgressStep = {
 }
 
 export type ProgressStepWithAction = ProgressStep & {
-  action: () => Promise<void>
+  action: (signal?: AbortSignal) => Promise<void>
 }
 
 export type StartTopUpParams = {
@@ -44,12 +44,17 @@ export type UsePaymasterTopUpFlowReturn = {
   getQuote: (p: StartTopUpParams) => Promise<bigint | null>
   startTopUp: (p: StartTopUpParams) => Promise<{ paymentId: string | null }>
   reset: () => void
+  cancel: () => void
 }
 
 function ceilDiv(n: bigint, d: bigint): bigint {
   if (d === 0n) throw new Error('Division by zero')
   return (n + d - 1n) / d
 }
+
+// Minimum balance increase threshold (0.001 ROSE = 1e15 wei)
+// Prevents false positives from dust transfers or staking rewards
+const MIN_BALANCE_INCREASE_THRESHOLD = 1_000_000_000_000_000n
 
 const progressSteps = [
   {
@@ -93,17 +98,38 @@ export function usePaymaster(
   const [currentStep, setCurrentStep] = useState<number | null>(null)
   const [stepStatuses, setStepStatuses] = useState<Partial<Record<number, PaymasterStepStatus>>>({})
 
+  // P0-1 FIX: Use ref to track current step for error handling (avoids stale closure)
+  const currentStepRef = useRef<number | null>(null)
+
+  // P0-6 FIX: Use ref to guard against concurrent execution
+  const isLoadingRef = useRef(false)
+
+  // P0-3 FIX: AbortController for cancellation support
+  const abortControllerRef = useRef<AbortController | null>(null)
+
   const updateStep = useCallback((step: number, status: PaymasterStepStatus) => {
+    currentStepRef.current = step
     setCurrentStep(step)
     setStepStatuses(prev => ({ ...prev, [step]: status }))
   }, [])
 
   const reset = useCallback(() => {
+    // Cancel any in-flight operations
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = null
+
+    isLoadingRef.current = false
+    currentStepRef.current = null
     setIsLoading(false)
     setError('')
     setQuote(null)
     setCurrentStep(null)
     setStepStatuses({})
+  }, [])
+
+  // P0-3 FIX: Expose cancel function
+  const cancel = useCallback(() => {
+    abortControllerRef.current?.abort()
   }, [])
 
   const { data: roseFeed } = useRosePriceFeed(
@@ -134,7 +160,7 @@ export function usePaymaster(
       if (chain.id !== ROFL_PAYMASTER_DESTINATION_CHAIN.id) {
         throw new Error('Invalid chain!')
       }
-      if (!roseFeed || !tokenFeed || !roseFeedDecimals || !tokenFeedDecimals) {
+      if (!roseFeed || !tokenFeed || roseFeedDecimals === undefined || tokenFeedDecimals === undefined) {
         // Silently fail if the required data is not refreshed yet
         return null
       }
@@ -169,7 +195,8 @@ export function usePaymaster(
     []
   )
 
-  const pollPayment = useCallback(async (paymentId: string, chain: Chain) => {
+  // P0-3 & P0-4 FIX: Add AbortSignal support and throw on timeout
+  const pollPayment = useCallback(async (paymentId: string, chain: Chain, signal?: AbortSignal) => {
     if (chain.id !== ROFL_PAYMASTER_DESTINATION_CHAIN.id) {
       throw new Error('Invalid chain!')
     }
@@ -181,6 +208,11 @@ export function usePaymaster(
     const maxAttempts = 60
 
     while (attempts < maxAttempts) {
+      // P0-3: Check for cancellation
+      if (signal?.aborted) {
+        throw new Error('Payment polling cancelled')
+      }
+
       try {
         const isProcessed = await isPaymentProcessed(
           ROFL_PAYMASTER_SAPPHIRE_CONTRACT_CONFIG[chain.id],
@@ -192,17 +224,26 @@ export function usePaymaster(
           return true
         }
 
-        await new Promise(resolve => setTimeout(resolve, 4000))
+        await new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(resolve, 4000)
+          signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId)
+            reject(new Error('Payment polling cancelled'))
+          })
+        })
         attempts++
       } catch (error) {
+        if (signal?.aborted) {
+          throw new Error('Payment polling cancelled')
+        }
         console.error('Error checking payment processed:', error)
         await new Promise(resolve => setTimeout(resolve, 4000))
         attempts++
       }
     }
 
-    console.warn('Payment processed polling timed out, but payment may still complete')
-    return null
+    // P0-4 FIX: Throw on timeout instead of returning null
+    throw new Error('Payment confirmation timed out. Your funds may still arrive - check your wallet.')
   }, [])
 
   const getQuote = useCallback(
@@ -228,26 +269,40 @@ export function usePaymaster(
     [address, _getQuote]
   )
 
+  // P0-3 FIX: Add AbortSignal support
   const waitForSapphireNativeBalanceIncrease = useCallback(
     async ({
       baseline,
       timeoutMs,
       intervalMs,
       minIncrease,
+      signal,
     }: {
       baseline: bigint
       timeoutMs: number
       intervalMs: number
       minIncrease: bigint
+      signal?: AbortSignal
     }) => {
       const startedAt = Date.now()
       while (Date.now() - startedAt < timeoutMs) {
+        // Check for cancellation
+        if (signal?.aborted) {
+          throw new Error('Balance check cancelled')
+        }
+
         const res = await refetchSapphireNativeBalance()
         const current = res.data?.value
 
         if (typeof current === 'bigint' && current >= baseline + minIncrease) return current
 
-        await new Promise(resolve => setTimeout(resolve, intervalMs))
+        await new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(resolve, intervalMs)
+          signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId)
+            reject(new Error('Balance check cancelled'))
+          })
+        })
       }
 
       throw new Error('Payment likely processed, but Sapphire native balance did not increase in time')
@@ -257,14 +312,30 @@ export function usePaymaster(
 
   const startTopUp = useCallback(
     async ({ amount }: StartTopUpParams) => {
+      // P0-6 FIX: Guard against concurrent execution
+      if (isLoadingRef.current) {
+        return { paymentId: null }
+      }
+
       setError('')
 
       if (!address) throw new Error('Wallet not connected')
 
       const sourceChainConfig = ROFL_PAYMASTER_TOKEN_CONFIG[base.id]
 
+      // P0-3 FIX: Create new AbortController for this operation
+      abortControllerRef.current = new AbortController()
+      const signal = abortControllerRef.current.signal
+
+      isLoadingRef.current = true
       setIsLoading(true)
+      currentStepRef.current = 1
       setCurrentStep(1)
+
+      // Track whether deposit was committed (for error handling)
+      let depositCommitted = false
+      let paymentId: string | null = null
+
       try {
         // Snapshot baseline Sapphire native balance
         const baselineSapphireNative =
@@ -278,6 +349,9 @@ export function usePaymaster(
         await switchToChain({ targetChainId: base.id, address })
         updateStep(1, 'completed')
 
+        // Check for cancellation before user interaction
+        if (signal.aborted) throw new Error('Operation cancelled')
+
         // Step 2: allowance
         updateStep(2, 'processing')
         await checkAndSetErc20Allowance(
@@ -289,20 +363,31 @@ export function usePaymaster(
         )
         updateStep(2, 'completed')
 
+        if (signal.aborted) throw new Error('Operation cancelled')
+
         // Step 3: create a deposit
         updateStep(3, 'processing')
-        const { paymentId } = await createDeposit(targetToken.contractAddress, amount, address, base.id)
+        const depositResult = await createDeposit(targetToken.contractAddress, amount, address, base.id)
+
+        // P0-2 FIX: Validate paymentId before proceeding
+        if (!depositResult.paymentId) {
+          throw new Error('Deposit succeeded but no payment ID returned. Please contact support with your transaction hash.')
+        }
+        paymentId = depositResult.paymentId
+        depositCommitted = true // Funds are now committed on-chain
         updateStep(3, 'completed')
 
-        // Step 4: poll
+        // Step 4: poll (with cancellation support)
         updateStep(4, 'processing')
-        await pollPayment(paymentId!, ROFL_PAYMASTER_DESTINATION_CHAIN)
+        await pollPayment(paymentId, ROFL_PAYMASTER_DESTINATION_CHAIN, signal)
 
+        // P1 FIX: Use meaningful minimum increase threshold
         await waitForSapphireNativeBalanceIncrease({
           baseline: baselineSapphireNative,
           timeoutMs: 3 * 60_000,
           intervalMs: 4_000,
-          minIncrease: 1n,
+          minIncrease: MIN_BALANCE_INCREASE_THRESHOLD,
+          signal,
         })
         updateStep(4, 'completed')
 
@@ -311,43 +396,64 @@ export function usePaymaster(
         await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
         updateStep(5, 'completed')
 
-        // Additional steps
+        // Additional steps (with cancellation support)
         for (let i = 0; i < additionalSteps.length; i++) {
+          if (signal.aborted) throw new Error('Operation cancelled')
           updateStep(i + 6, 'processing')
-          await additionalSteps[i].action()
+          try {
+            await additionalSteps[i].action(signal)
+          } catch (e) {
+            // Provide context about which step failed
+            const stepLabel = additionalSteps[i].label
+            throw new Error(`Step "${stepLabel}" failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
+          }
           updateStep(i + 6, 'completed')
         }
 
-        setCurrentStep(null)
         return { paymentId }
       } catch (e) {
         const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Top up failed'
-        setError(msg)
 
-        if (currentStep) {
-          setStepStatuses(prev => ({ ...prev, [currentStep]: 'error' }))
+        // If deposit was committed, provide different error messaging
+        if (depositCommitted && paymentId) {
+          setError(`${msg}. Your deposit (ID: ${paymentId}) was submitted - funds may still arrive.`)
+        } else {
+          setError(msg)
         }
 
-        setCurrentStep(null)
+        // P0-1 FIX: Use ref to get actual current step (not stale closure value)
+        const failedStep = currentStepRef.current
+        if (failedStep) {
+          setStepStatuses(prev => ({ ...prev, [failedStep]: 'error' }))
+        }
+
         throw e
       } finally {
+        isLoadingRef.current = false
+        currentStepRef.current = null
         setIsLoading(false)
         setCurrentStep(null)
+        abortControllerRef.current = null
 
-        await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
+        // P0-5 FIX: Wrap chain switch in try-catch, never rethrow
+        try {
+          await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
+        } catch {
+          // Best-effort chain switch - don't mask the original error
+          console.warn('Failed to switch back to destination chain')
+        }
       }
     },
     [
       address,
       createDeposit,
-      currentStep,
       pollPayment,
       updateStep,
       targetToken.contractAddress,
       additionalSteps,
       refetchSapphireNativeBalance,
       waitForSapphireNativeBalanceIncrease,
-    ]
+    ] // P0-1 FIX: Removed currentStep from dependency array (using ref instead)
   )
 
   return {
@@ -363,6 +469,7 @@ export function usePaymaster(
     getQuote,
     startTopUp,
     reset,
-    initialLoading: !(!!roseFeed && !!tokenFeed && !!roseFeedDecimals && !!tokenFeedDecimals),
+    cancel,
+    initialLoading: !(!!roseFeed && !!tokenFeed && roseFeedDecimals !== undefined && tokenFeedDecimals !== undefined),
   }
 }
