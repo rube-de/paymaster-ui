@@ -1,0 +1,91 @@
+import { ReactNode } from 'react'
+import { cn } from '../../lib/utils'
+
+interface BridgeCardProps {
+  children: ReactNode
+  className?: string
+  title?: string
+  description?: string
+}
+
+export function BridgeCard({ children, className, title, description }: BridgeCardProps) {
+  return (
+    <div
+      data-slot="bridge-card"
+      className={cn(
+        'w-full max-w-md mx-auto',
+        'bg-[rgba(0,0,0,0.4)] backdrop-blur-xl',
+        'border border-[rgba(255,255,255,0.1)]',
+        'rounded-2xl shadow-2xl',
+        'p-6',
+        className
+      )}
+    >
+      {(title || description) && (
+        <div className="mb-6">
+          {title && (
+            <h2 className="text-xl font-semibold text-white">{title}</h2>
+          )}
+          {description && (
+            <p className="text-sm text-[rgba(255,255,255,0.5)] mt-1">{description}</p>
+          )}
+        </div>
+      )}
+      {children}
+    </div>
+  )
+}
+
+interface BridgeCardSectionProps {
+  children: ReactNode
+  className?: string
+  label?: string
+}
+
+export function BridgeCardSection({ children, className, label }: BridgeCardSectionProps) {
+  return (
+    <div data-slot="bridge-card-section" className={cn('space-y-2', className)}>
+      {label && (
+        <label className="text-sm font-medium text-[rgba(255,255,255,0.7)]">{label}</label>
+      )}
+      {children}
+    </div>
+  )
+}
+
+interface BridgeCardDividerProps {
+  className?: string
+}
+
+export function BridgeCardDivider({ className }: BridgeCardDividerProps) {
+  return (
+    <div
+      data-slot="bridge-card-divider"
+      className={cn(
+        'relative flex items-center justify-center py-4',
+        className
+      )}
+    >
+      <div className="absolute inset-x-0 h-px bg-[rgba(255,255,255,0.1)]" />
+      <div className="relative z-10 flex items-center justify-center size-8 rounded-full bg-[rgba(0,0,0,0.6)] border border-[rgba(255,255,255,0.1)]">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="text-[rgba(255,255,255,0.5)]"
+          aria-hidden="true"
+        >
+          <path
+            d="M7 1V13M7 13L12 8M7 13L2 8"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+  )
+}
