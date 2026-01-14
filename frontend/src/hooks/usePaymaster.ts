@@ -37,11 +37,13 @@ export type UsePaymasterTopUpFlowReturn = {
   initialLoading: boolean
   error: string
   quote: bigint | null
+  roseEstimate: bigint | null
 
   currentStep: ProgressStep | ProgressStepWithAction | null
   stepStatuses: Partial<Record<number, PaymasterStepStatus>>
 
   getQuote: (p: StartTopUpParams) => Promise<bigint | null>
+  getRoseEstimate: (p: StartTopUpParams) => Promise<bigint | null>
   startTopUp: (p: StartTopUpParams) => Promise<{ paymentId: string | null }>
   reset: () => void
   cancel: () => void
@@ -99,6 +101,7 @@ export function usePaymaster(
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [quote, setQuote] = useState<bigint | null>(null)
+  const [roseEstimate, setRoseEstimate] = useState<bigint | null>(null)
 
   const [currentStep, setCurrentStep] = useState<number | null>(null)
   const [stepStatuses, setStepStatuses] = useState<Partial<Record<number, PaymasterStepStatus>>>({})
@@ -202,6 +205,53 @@ export function usePaymaster(
     [roseFeed, tokenFeed, tokenFeedDecimals, roseFeedDecimals, targetToken.decimals]
   )
 
+  /**
+   * Inverse of _getQuote: given token amount, estimate ROSE the user will receive.
+   * Applies slippage by subtracting (user receives less due to slippage).
+   */
+  const _getRoseEstimate = useCallback(
+    async (
+      tokenAmount: bigint,
+      chain: Chain,
+      roseDecimals = ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN.decimals,
+      slippagePercentage = ROFL_PAYMASTER_SLIPPAGE_PERCENTAGE
+    ): Promise<bigint | null> => {
+      if (chain.id !== ROFL_PAYMASTER_DESTINATION_CHAIN.id) {
+        throw new Error('Invalid chain!')
+      }
+      if (
+        roseFeed === undefined ||
+        tokenFeed === undefined ||
+        roseFeedDecimals === undefined ||
+        tokenFeedDecimals === undefined
+      ) {
+        return null
+      }
+
+      const [roseUsdPrice, tokenUsdPrice] = await Promise.all([
+        aggregatorV3LatestRoundData(roseFeed as Address, chain.id),
+        aggregatorV3LatestRoundData(tokenFeed as Address, chain.id),
+      ])
+
+      if (roseUsdPrice <= 0n) throw new Error('Invalid ROSE price')
+      if (tokenUsdPrice <= 0n) throw new Error('Invalid token price')
+
+      const tokenDecimals = BigInt(targetToken.decimals)
+      const roseTokenDecimals = BigInt(roseDecimals)
+
+      // Inverse formula: roseAmount = (tokenAmount * tokenUsdPrice * 10^(roseDecimals + roseFeedDecimals)) /
+      //                               (roseUsdPrice * 10^(tokenDecimals + tokenFeedDecimals))
+      const numerator = tokenAmount * tokenUsdPrice * 10n ** ((roseTokenDecimals + roseFeedDecimals) as bigint)
+      const denominator = roseUsdPrice * 10n ** ((tokenDecimals + tokenFeedDecimals) as bigint)
+
+      const roseAmount = numerator / denominator
+
+      // Apply slippage by subtracting (user receives less)
+      return (roseAmount * (100n - slippagePercentage)) / 100n
+    },
+    [roseFeed, tokenFeed, tokenFeedDecimals, roseFeedDecimals, targetToken.decimals]
+  )
+
   const createDeposit = useCallback(
     (tokenContractAddress: Address, amount: bigint, recipient: Address, chainId: number) => {
       const roflPaymasterVaultContractAddress = ROFL_PAYMASTER_TOKEN_CONFIG[chainId].paymasterContractAddress
@@ -286,6 +336,29 @@ export function usePaymaster(
       }
     },
     [address, _getQuote]
+  )
+
+  const getRoseEstimate = useCallback(
+    async ({ amount }: StartTopUpParams) => {
+      setError('')
+      setRoseEstimate(null)
+
+      if (!address) throw new Error('Wallet not connected')
+
+      setIsLoading(true)
+      try {
+        const estimate = await _getRoseEstimate(amount, ROFL_PAYMASTER_DESTINATION_CHAIN)
+        setRoseEstimate(estimate)
+        return estimate
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Failed to fetch estimate'
+        setError(msg)
+        throw e
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [address, _getRoseEstimate]
   )
 
   const waitForSapphireNativeBalanceIncrease = useCallback(
@@ -481,6 +554,7 @@ export function usePaymaster(
     isLoading,
     error,
     quote,
+    roseEstimate,
     currentStep: currentStep
       ? currentStep <= progressSteps.length
         ? progressSteps[currentStep - 1]
@@ -488,6 +562,7 @@ export function usePaymaster(
       : null,
     stepStatuses,
     getQuote,
+    getRoseEstimate,
     startTopUp,
     reset,
     cancel,

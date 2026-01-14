@@ -62,7 +62,9 @@ export function App() {
   )
 
   const tokenConfig = useMemo(
-    () => ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS.find(t => t.symbol === selectedToken?.symbol),
+    () =>
+      ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS.find(t => t.symbol === selectedToken?.symbol) ??
+      ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS[0],
     [selectedToken]
   )
 
@@ -81,7 +83,7 @@ export function App() {
   })
 
   // Paymaster hook for cross-chain transfer
-  const paymaster = usePaymaster(tokenConfig!, [])
+  const paymaster = usePaymaster(tokenConfig, [])
 
   // Parse input amount
   const parsedAmount = useMemo(() => {
@@ -93,23 +95,17 @@ export function App() {
     }
   }, [amount, selectedToken])
 
-  // Fetch quote when amount changes
+  // Fetch ROSE estimate when amount changes
   useEffect(() => {
     if (parsedAmount > 0n && tokenConfig) {
-      paymaster.getQuote({ amount: parsedAmount }).catch(() => {
-        // Quote fetch failed, error handled in hook
+      paymaster.getRoseEstimate({ amount: parsedAmount }).catch(() => {
+        // Estimate fetch failed, error handled in hook
       })
     }
-  }, [parsedAmount, tokenConfig, paymaster])
+  }, [parsedAmount, tokenConfig, paymaster.getRoseEstimate])
 
-  // Calculate estimated ROSE output
-  const estimatedRose = useMemo(() => {
-    if (!paymaster.quote || paymaster.quote === 0n) return null
-    // Quote is the token amount needed for the ROSE amount
-    // We need to reverse: given token amount, how much ROSE?
-    // For simplicity, show the quote as the expected ROSE (actual implementation may differ)
-    return paymaster.quote
-  }, [paymaster.quote])
+  // Estimated ROSE output from the hook
+  const estimatedRose = paymaster.roseEstimate
 
   // Handle bridge action
   const handleBridge = useCallback(async () => {
@@ -128,14 +124,24 @@ export function App() {
     paymaster.reset()
   }, [paymaster])
 
+  // Calculate exchange rate: ROSE per 1 token
+  const exchangeRate = useMemo(() => {
+    if (!estimatedRose || !parsedAmount || parsedAmount === 0n) return null
+    // Calculate ROSE per 1 unit of token
+    // estimatedRose is in 18 decimals, parsedAmount is in token decimals (6)
+    const oneToken = 10n ** BigInt(selectedToken?.decimals ?? 6)
+    const rosePerToken = (estimatedRose * oneToken) / parsedAmount
+    return formatUnits(rosePerToken, 18)
+  }, [estimatedRose, parsedAmount, selectedToken?.decimals])
+
   // Fee breakdown items
   const feeItems: FeeItem[] = useMemo(() => {
     const items: FeeItem[] = []
 
-    if (estimatedRose) {
+    if (estimatedRose && exchangeRate) {
       items.push({
         label: 'Exchange rate',
-        value: '1 USDC ≈ varies',
+        value: `1 ${selectedToken?.symbol ?? 'USDC'} ≈ ${Number(exchangeRate).toFixed(2)} ROSE`,
         loading: paymaster.initialLoading,
       })
     }
@@ -146,7 +152,7 @@ export function App() {
     })
 
     return items
-  }, [estimatedRose, paymaster.initialLoading])
+  }, [estimatedRose, exchangeRate, selectedToken?.symbol, paymaster.initialLoading])
 
   // Validation
   const maxBalance = sourceBalance.data?.value ?? 0n
