@@ -1,33 +1,25 @@
-# Oasis Xmas Roffle
+# Oasis Bridge
 
-The Oasis Xmas Roffle (raffle + [ROFL]) is an entertaining application where
-users can buy raffle tickets and win a share of the prize pool. Each new
-ticket bought increases the prize pool.
+Oasis Bridge is a cross-chain payment interface powered by the [ROFL Paymaster].
+It enables users to seamlessly transfer assets between different blockchain networks
+using the Oasis Protocol's secure infrastructure.
 
-The production deployment lives at <https://roffle.oasis.io/>.
+The production deployment lives at <https://bridge.oasis.io/>.
 
 [ROFL]: https://docs.oasis.io/build/rofl/
 
 ## How it works?
 
-Everything is governed by a [smart contract] running on [Oasis Sapphire].
-Once the time to purchase tickets has expired, the owner calls the
-`selectWinnersAndDistribute()` method which uses Sapphire's secure random
-number generator to pick the winners and automatically distribute the rewards.
+The bridge integrates the [ROFL Paymaster] which allows users to deposit USDC or
+USDT on Base and get the appropriate amount of ROSE to their Sapphire account.
+All transactions are secured by [Oasis Sapphire]'s confidential computing capabilities.
 
-For more convenient ticket purchasing, Roffle also integrates the
-[ROFL Paymaster] which allows users to deposit USDC or USDT on Base and get the
-appropriate amount of ROSE to their Sapphire account.
-
-[smart contract]: contracts/Roffle.sol
 [Oasis Sapphire]: https://docs.oasis.io/build/sapphire/
 [ROFL Paymaster]: https://github.com/oasisprotocol/rofl-paymaster
 
 ## Features
 
-- Configurable [smart contract] which allows setting ticket price, maximum
-  tickets per account, maximum total tickets, winner count and prize
-  distribution and the duration of the raffle.
-
-- Seamless [ROFL Paymaster] integration which allows buying tickets with USDC
-  or USDT on Base.
+- Seamless [ROFL Paymaster] integration for cross-chain payments
+- Support for USDC and USDT on Base network
+- Secure asset bridging to Oasis Sapphire
+- Modern React frontend with RainbowKit wallet integration

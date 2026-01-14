@@ -69,7 +69,7 @@ jobs:
           # Acquired from Cloudflare dashboard -> Compute > Workers & Pages or dashboard url: https://dash.cloudflare.com/<account-id>/
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # Project created via Cloudflare dashboard or CLI command "npx wrangler pages project create <project-name>"
-          command: pages deploy ./frontend/dist --project-name=xmas-roffle --branch ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
+          command: pages deploy ./frontend/dist --project-name=oasis-bridge --branch ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
       # On a subsequent run the original comment will be updated.
       - name: Update PR comment
         uses: mshick/add-pr-comment@v2

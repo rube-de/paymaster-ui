@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Oasis Xmas Roffle - A raffle dApp where users buy tickets with ROSE to win a share of the prize pool. Integrates ROFL Paymaster for cross-chain payments (USDC/USDT on Base → ROSE on Sapphire).
+Oasis Bridge - A cross-chain payment interface powered by ROFL Paymaster. Enables users to bridge USDC/USDT on Base to ROSE on Sapphire for seamless cross-chain transactions.
 
-Production: https://roffle.oasis.io/
+Production: https://bridge.oasis.io/
 
 ## Commands
 
@@ -37,12 +37,7 @@ yarn storybook           # Component storybook
 ### Contracts
 ```bash
 npx hardhat test                           # Run tests
-npx hardhat test test/Roffle.ts            # Single test file
 npx hardhat compile                        # Compile contracts
-
-# Deploy (uses tasks/deploy.ts)
-npx hardhat deploy:roffle --network sapphire-testnet
-npx hardhat deploy:roffle --network sapphire --verify
 ```
 
 ### Local Development
@@ -55,24 +50,13 @@ docker run -it -p8544-8548:8544-8548 ghcr.io/oasisprotocol/sapphire-localnet
 
 ### Monorepo Structure
 - **Root**: Hardhat config, contract compilation, deployment tasks
-- **contracts/**: Solidity contracts (Roffle.sol)
+- **contracts/**: Solidity contracts
 - **frontend/**: React + Vite + Tailwind + shadcn/ui component library
-
-### Smart Contract (contracts/Roffle.sol)
-Sapphire-native raffle using hardware-backed randomness:
-- Fixed ticket price (250 ROSE), max 10 per wallet, 3600 total
-- 10 winners with tiered prize distribution (50%, 20%, 10%, etc.)
-- Owner can add OPF contribution to prize pool
-- `selectWinnersAndDistribute()` uses `Sapphire.randomBytes()` for fair selection
 
 ### Frontend Architecture
 - **Wallet**: RainbowKit + wagmi + viem (Sapphire mainnet + Base)
 - **State**: React hooks with wagmi contract reads (auto-refresh 60s)
 - **UI**: shadcn/ui components (Radix primitives + Tailwind)
-
-Key flows:
-1. **Direct ROSE purchase**: Buy tickets directly on Sapphire
-2. **Cross-chain purchase**: USDC/USDT on Base → ROFL Paymaster → ROSE on Sapphire → buy tickets
 
 ### ROFL Paymaster Integration
 Cross-chain payment system enabling stablecoin purchases:
@@ -90,17 +74,7 @@ Flow (`usePaymaster` hook):
 3. Deposit to PaymasterVault
 4. Poll for payment confirmation (~60s)
 5. Switch to Sapphire
-6. Execute final action (buy tickets)
-
-### Contract Interaction Patterns
-Contract reads use wagmi hooks with typed ABIs:
-```typescript
-import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json'
-import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
-
-const typedRoffleJson = RoffleJson as Roffle$Type
-// Use typedRoffleJson.abi for type-safe contract calls
-```
+6. Execute final action
 
 ### Networks
 | Network | Chain ID | RPC |
@@ -113,8 +87,7 @@ const typedRoffleJson = RoffleJson as Roffle$Type
 ## Key Files
 
 - `hardhat.config.ts` - Network configs, Solidity 0.8.24, Paris EVM
-- `tasks/deploy.ts` - Deployment task with OPF contribution
-- `frontend/src/App.tsx` - Main UI with all raffle logic
+- `frontend/src/App.tsx` - Main UI with bridge logic
 - `frontend/src/wagmi.ts` - Wallet config (MetaMask, WalletConnect, Rabby)
 - `frontend/src/hooks/usePaymaster.ts` - Cross-chain payment flow
 - `frontend/src/constants/rofl-paymaster-config.ts` - Paymaster addresses
