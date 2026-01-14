@@ -390,7 +390,7 @@ export function usePaymaster(
         const depositResult = await createDeposit(targetToken.contractAddress, amount, address, base.id)
 
         if (!depositResult.paymentId) {
-          const txHash = depositResult.transactionHash ?? depositResult.hash
+          const txHash = depositResult.hash
           throw new Error(
             txHash
               ? `Deposit succeeded but no payment ID returned. Please contact support with tx: ${txHash}`
