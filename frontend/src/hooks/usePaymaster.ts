@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { BaseError, useAccount, useBalance } from 'wagmi'
 import { checkAndSetErc20Allowance, switchToChain } from '../contracts/erc-20'
 import { Address, Chain } from 'viem'
@@ -132,6 +132,13 @@ export function usePaymaster(
     abortControllerRef.current?.abort()
   }, [])
 
+  // Cleanup on unmount - abort any in-flight operations
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort()
+    }
+  }, [])
+
   const { data: roseFeed } = useRosePriceFeed(
     ROFL_PAYMASTER_SAPPHIRE_CONTRACT_CONFIG[ROFL_PAYMASTER_DESTINATION_CHAIN.id],
     ROFL_PAYMASTER_DESTINATION_CHAIN.id
@@ -229,7 +236,7 @@ export function usePaymaster(
           signal?.addEventListener('abort', () => {
             clearTimeout(timeoutId)
             reject(new Error('Payment polling cancelled'))
-          })
+          }, { once: true }) // Prevent memory leak
         })
         attempts++
       } catch (error) {
@@ -237,7 +244,17 @@ export function usePaymaster(
           throw new Error('Payment polling cancelled')
         }
         console.error('Error checking payment processed:', error)
-        await new Promise(resolve => setTimeout(resolve, 4000))
+        // Cancellable delay in catch block
+        await new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(resolve, 4000)
+          signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId)
+            reject(new Error('Payment polling cancelled'))
+          }, { once: true })
+        }).catch(() => {
+          // Re-check abort after delay
+          if (signal?.aborted) throw new Error('Payment polling cancelled')
+        })
         attempts++
       }
     }
@@ -301,7 +318,7 @@ export function usePaymaster(
           signal?.addEventListener('abort', () => {
             clearTimeout(timeoutId)
             reject(new Error('Balance check cancelled'))
-          })
+          }, { once: true }) // Prevent memory leak
         })
       }
 
