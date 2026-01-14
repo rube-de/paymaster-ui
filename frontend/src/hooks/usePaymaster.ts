@@ -52,6 +52,11 @@ function ceilDiv(n: bigint, d: bigint): bigint {
   return (n + d - 1n) / d
 }
 
+// Polling configuration
+const POLL_INTERVAL_MS = 4_000
+const POLL_MAX_ATTEMPTS = 60
+const BALANCE_CHECK_TIMEOUT_MS = 3 * 60_000
+
 // Minimum balance increase threshold (0.001 ROSE = 1e15 wei)
 // Prevents false positives from dust transfers or staking rewards
 const MIN_BALANCE_INCREASE_THRESHOLD = 1_000_000_000_000_000n
@@ -98,13 +103,13 @@ export function usePaymaster(
   const [currentStep, setCurrentStep] = useState<number | null>(null)
   const [stepStatuses, setStepStatuses] = useState<Partial<Record<number, PaymasterStepStatus>>>({})
 
-  // P0-1 FIX: Use ref to track current step for error handling (avoids stale closure)
+  // Track current step synchronously for error handling (avoids stale closure in callbacks)
   const currentStepRef = useRef<number | null>(null)
 
-  // P0-6 FIX: Use ref to guard against concurrent execution
+  // Guard against concurrent execution (double-click protection)
   const isLoadingRef = useRef(false)
 
-  // P0-3 FIX: AbortController for cancellation support
+  // AbortController for cancellation support
   const abortControllerRef = useRef<AbortController | null>(null)
 
   const updateStep = useCallback((step: number, status: PaymasterStepStatus) => {
@@ -127,7 +132,6 @@ export function usePaymaster(
     setStepStatuses({})
   }, [])
 
-  // P0-3 FIX: Expose cancel function
   const cancel = useCallback(() => {
     abortControllerRef.current?.abort()
   }, [])
@@ -202,7 +206,6 @@ export function usePaymaster(
     []
   )
 
-  // P0-3 & P0-4 FIX: Add AbortSignal support and throw on timeout
   const pollPayment = useCallback(async (paymentId: string, chain: Chain, signal?: AbortSignal) => {
     if (chain.id !== ROFL_PAYMASTER_DESTINATION_CHAIN.id) {
       throw new Error('Invalid chain!')
@@ -212,10 +215,8 @@ export function usePaymaster(
     }
 
     let attempts = 0
-    const maxAttempts = 60
 
-    while (attempts < maxAttempts) {
-      // P0-3: Check for cancellation
+    while (attempts < POLL_MAX_ATTEMPTS) {
       if (signal?.aborted) {
         throw new Error('Payment polling cancelled')
       }
@@ -232,7 +233,7 @@ export function usePaymaster(
         }
 
         await new Promise((resolve, reject) => {
-          const timeoutId = setTimeout(resolve, 4000)
+          const timeoutId = setTimeout(resolve, POLL_INTERVAL_MS)
           signal?.addEventListener('abort', () => {
             clearTimeout(timeoutId)
             reject(new Error('Payment polling cancelled'))
@@ -246,7 +247,7 @@ export function usePaymaster(
         console.error('Error checking payment processed:', error)
         // Cancellable delay in catch block
         await new Promise((resolve, reject) => {
-          const timeoutId = setTimeout(resolve, 4000)
+          const timeoutId = setTimeout(resolve, POLL_INTERVAL_MS)
           signal?.addEventListener('abort', () => {
             clearTimeout(timeoutId)
             reject(new Error('Payment polling cancelled'))
@@ -259,7 +260,6 @@ export function usePaymaster(
       }
     }
 
-    // P0-4 FIX: Throw on timeout instead of returning null
     throw new Error('Payment confirmation timed out. Your funds may still arrive - check your wallet.')
   }, [])
 
@@ -286,7 +286,6 @@ export function usePaymaster(
     [address, _getQuote]
   )
 
-  // P0-3 FIX: Add AbortSignal support
   const waitForSapphireNativeBalanceIncrease = useCallback(
     async ({
       baseline,
@@ -329,9 +328,9 @@ export function usePaymaster(
 
   const startTopUp = useCallback(
     async ({ amount }: StartTopUpParams) => {
-      // P0-6 FIX: Guard against concurrent execution
+      // Guard against concurrent execution
       if (isLoadingRef.current) {
-        return { paymentId: null }
+        throw new Error('Operation already in progress')
       }
 
       setError('')
@@ -340,7 +339,6 @@ export function usePaymaster(
 
       const sourceChainConfig = ROFL_PAYMASTER_TOKEN_CONFIG[base.id]
 
-      // P0-3 FIX: Create new AbortController for this operation
       abortControllerRef.current = new AbortController()
       const signal = abortControllerRef.current.signal
 
@@ -386,7 +384,6 @@ export function usePaymaster(
         updateStep(3, 'processing')
         const depositResult = await createDeposit(targetToken.contractAddress, amount, address, base.id)
 
-        // P0-2 FIX: Validate paymentId before proceeding
         if (!depositResult.paymentId) {
           throw new Error('Deposit succeeded but no payment ID returned. Please contact support with your transaction hash.')
         }
@@ -398,11 +395,10 @@ export function usePaymaster(
         updateStep(4, 'processing')
         await pollPayment(paymentId, ROFL_PAYMASTER_DESTINATION_CHAIN, signal)
 
-        // P1 FIX: Use meaningful minimum increase threshold
         await waitForSapphireNativeBalanceIncrease({
           baseline: baselineSapphireNative,
-          timeoutMs: 3 * 60_000,
-          intervalMs: 4_000,
+          timeoutMs: BALANCE_CHECK_TIMEOUT_MS,
+          intervalMs: POLL_INTERVAL_MS,
           minIncrease: MIN_BALANCE_INCREASE_THRESHOLD,
           signal,
         })
@@ -438,7 +434,6 @@ export function usePaymaster(
           setError(msg)
         }
 
-        // P0-1 FIX: Use ref to get actual current step (not stale closure value)
         const failedStep = currentStepRef.current
         if (failedStep) {
           setStepStatuses(prev => ({ ...prev, [failedStep]: 'error' }))
@@ -452,7 +447,6 @@ export function usePaymaster(
         setCurrentStep(null)
         abortControllerRef.current = null
 
-        // P0-5 FIX: Wrap chain switch in try-catch, never rethrow
         try {
           await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
         } catch {
@@ -470,7 +464,7 @@ export function usePaymaster(
       additionalSteps,
       refetchSapphireNativeBalance,
       waitForSapphireNativeBalanceIncrease,
-    ] // P0-1 FIX: Removed currentStep from dependency array (using ref instead)
+    ]
   )
 
   return {
