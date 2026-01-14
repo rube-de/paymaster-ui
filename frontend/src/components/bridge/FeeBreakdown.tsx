@@ -1,0 +1,232 @@
+import { ReactNode } from 'react'
+import { cn } from '../../lib/utils'
+
+export interface FeeItem {
+  label: string
+  value: string
+  subValue?: string
+  highlight?: boolean
+  loading?: boolean
+}
+
+interface FeeBreakdownProps {
+  items: FeeItem[]
+  className?: string
+  title?: string
+  expanded?: boolean
+  estimatedTime?: string
+  slippage?: string
+}
+
+export function FeeBreakdown({
+  items,
+  className,
+  title = 'Transaction Details',
+  expanded = true,
+  estimatedTime,
+  slippage,
+}: FeeBreakdownProps) {
+  if (items.length === 0 && !estimatedTime && !slippage) {
+    return null
+  }
+
+  return (
+    <div
+      data-slot="fee-breakdown"
+      className={cn(
+        'rounded-xl border border-[rgba(255,255,255,0.1)]',
+        'bg-[rgba(0,0,0,0.15)]',
+        'overflow-hidden',
+        className
+      )}
+    >
+      {title && (
+        <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.05)]">
+          <span className="text-sm font-medium text-[rgba(255,255,255,0.7)]">{title}</span>
+        </div>
+      )}
+
+      {expanded && (
+        <div className="p-4 space-y-3">
+          {items.map((item) => (
+            <FeeRow key={item.label} {...item} />
+          ))}
+
+          {(estimatedTime || slippage) && items.length > 0 && (
+            <div className="h-px bg-[rgba(255,255,255,0.05)] my-2" aria-hidden="true" />
+          )}
+
+          {estimatedTime && (
+            <FeeRow
+              label="Estimated time"
+              value={estimatedTime}
+              icon={
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-[rgba(255,255,255,0.5)]"
+                  aria-hidden="true"
+                >
+                  <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M7 4V7L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              }
+            />
+          )}
+
+          {slippage && (
+            <FeeRow
+              label="Max slippage"
+              value={slippage}
+              icon={
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-[rgba(255,255,255,0.5)]"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M7 1V13M1 7H13"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              }
+            />
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface FeeRowProps extends FeeItem {
+  icon?: ReactNode
+}
+
+function FeeRow({ label, value, subValue, highlight, loading, icon }: FeeRowProps) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="flex items-center gap-2 text-sm text-[rgba(255,255,255,0.5)]">
+        {icon}
+        {label}
+      </span>
+
+      <div className="flex items-center gap-2">
+        {loading ? (
+          <LoadingDots />
+        ) : (
+          <>
+            <span
+              className={cn(
+                'text-sm font-medium',
+                highlight ? 'text-green-400' : 'text-white'
+              )}
+            >
+              {value}
+            </span>
+            {subValue && (
+              <span className="text-xs text-[rgba(255,255,255,0.5)]">{subValue}</span>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function LoadingDots() {
+  return (
+    <div className="flex items-center gap-1" aria-label="Loading">
+      <span className="size-1.5 rounded-full bg-[rgba(255,255,255,0.3)] animate-pulse" />
+      <span className="size-1.5 rounded-full bg-[rgba(255,255,255,0.3)] animate-pulse [animation-delay:150ms]" />
+      <span className="size-1.5 rounded-full bg-[rgba(255,255,255,0.3)] animate-pulse [animation-delay:300ms]" />
+    </div>
+  )
+}
+
+interface FeeEstimateProps {
+  sourceAmount: string
+  sourceToken: string
+  destinationAmount: string
+  destinationToken: string
+  rate?: string
+  loading?: boolean
+  className?: string
+}
+
+export function FeeEstimate({
+  sourceAmount,
+  sourceToken,
+  destinationAmount,
+  destinationToken,
+  rate,
+  loading = false,
+  className,
+}: FeeEstimateProps) {
+  return (
+    <div data-slot="fee-estimate" className={cn('space-y-2', className)}>
+      <div
+        className={cn(
+          'flex items-center justify-between',
+          'px-4 py-3',
+          'bg-[rgba(0,0,0,0.15)] border border-[rgba(255,255,255,0.1)]',
+          'rounded-xl'
+        )}
+      >
+        <div className="flex flex-col">
+          <span className="text-xs text-[rgba(255,255,255,0.5)]">You pay</span>
+          {loading ? (
+            <LoadingDots />
+          ) : (
+            <span className="text-sm font-medium text-white">
+              {sourceAmount} {sourceToken}
+            </span>
+          )}
+        </div>
+
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="text-[rgba(255,255,255,0.3)]"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 8H13M13 8L9 4M13 8L9 12"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        <div className="flex flex-col items-end">
+          <span className="text-xs text-[rgba(255,255,255,0.5)]">You receive</span>
+          {loading ? (
+            <LoadingDots />
+          ) : (
+            <span className="text-sm font-medium text-green-400">
+              ~{destinationAmount} {destinationToken}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {rate && !loading && (
+        <div className="text-center">
+          <span className="text-xs text-[rgba(255,255,255,0.4)]">{rate}</span>
+        </div>
+      )}
+    </div>
+  )
+}
