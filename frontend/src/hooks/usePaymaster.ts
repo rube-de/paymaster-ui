@@ -171,7 +171,12 @@ export function usePaymaster(
       if (chain.id !== ROFL_PAYMASTER_DESTINATION_CHAIN.id) {
         throw new Error('Invalid chain!')
       }
-      if (!roseFeed || !tokenFeed || roseFeedDecimals === undefined || tokenFeedDecimals === undefined) {
+      if (
+        roseFeed === undefined ||
+        tokenFeed === undefined ||
+        roseFeedDecimals === undefined ||
+        tokenFeedDecimals === undefined
+      ) {
         // Silently fail if the required data is not refreshed yet
         return null
       }
@@ -252,9 +257,8 @@ export function usePaymaster(
             clearTimeout(timeoutId)
             reject(new Error('Payment polling cancelled'))
           }, { once: true })
-        }).catch(() => {
-          // Re-check abort after delay
-          if (signal?.aborted) throw new Error('Payment polling cancelled')
+        }).catch((err) => {
+          throw err
         })
         attempts++
       }
@@ -481,6 +485,10 @@ export function usePaymaster(
     startTopUp,
     reset,
     cancel,
-    initialLoading: !(!!roseFeed && !!tokenFeed && roseFeedDecimals !== undefined && tokenFeedDecimals !== undefined),
+    initialLoading:
+      roseFeed === undefined ||
+      tokenFeed === undefined ||
+      roseFeedDecimals === undefined ||
+      tokenFeedDecimals === undefined,
   }
 }
