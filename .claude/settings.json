@@ -5,7 +5,10 @@
     "context7@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true
   },
-  "enableSandbox": true,
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": false
+  },
   "allowedCommands": [
     "git status",
     "git diff",
@@ -28,6 +31,7 @@
     "git show *",
     "git remote *",
     "git rev-parse *",
+    "git worktree *",
 
     "yarn install",
     "yarn add *",
@@ -40,6 +44,8 @@
     "yarn lint",
     "yarn lint:*",
     "yarn checkTs",
+    "yarn tsc *",
+    "yarn eslint *",
     "yarn prettier",
     "yarn prettier-check",
     "yarn storybook",
@@ -112,6 +118,15 @@
     "gh run view *",
     "gh release list",
     "gh release list *",
-    "gh release view *"
-  ]
+    "gh release view *",
+
+    "codex *",
+    "gemini *"
+  ],
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Skill(council)"
+    ]
+  }
 }
