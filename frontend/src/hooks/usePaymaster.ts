@@ -175,16 +175,20 @@ export function usePaymaster(
     const pending = getPendingTransaction()
     if (!pending) return
 
-    // Only show pending transaction if:
-    // 1. It belongs to this user
-    // 2. It's for this token
-    // 3. It's not expired (10 minute default)
+    // Clear if different user or expired
     if (
       pending.userAddress.toLowerCase() !== address.toLowerCase() ||
-      pending.tokenAddress.toLowerCase() !== targetToken.contractAddress.toLowerCase() ||
       isPendingTransactionExpired(pending)
     ) {
       clearPendingTransaction()
+      setPendingTransaction(null)
+      return
+    }
+
+    // If it's for a different token, don't show but keep in storage
+    // User can recover when they select the correct token
+    if (pending.tokenAddress.toLowerCase() !== targetToken.contractAddress.toLowerCase()) {
+      setPendingTransaction(null)
       return
     }
 
