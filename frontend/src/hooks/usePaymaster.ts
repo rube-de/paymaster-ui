@@ -11,6 +11,7 @@ import {
   PendingTransaction,
   savePendingTransaction,
 } from '../lib/pendingTransaction.ts'
+import { saveTransaction, updateTransactionStatus } from '../lib/transactionHistory.ts'
 import {
   ROFL_PAYMASTER_DESTINATION_CHAIN,
   ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN,
@@ -500,6 +501,7 @@ export function usePaymaster(
 
       // Resume from step 4: poll for payment confirmation
       updateStep(4, 'processing')
+      updateTransactionStatus(paymentId, 'processing')
       await pollPayment(paymentId, ROFL_PAYMASTER_DESTINATION_CHAIN, signal)
 
       await waitForSapphireNativeBalanceIncrease({
@@ -533,10 +535,14 @@ export function usePaymaster(
       clearPendingTransaction()
       setPendingTransaction(null)
 
+      updateTransactionStatus(paymentId, 'completed')
+
       return { paymentId }
     } catch (e) {
       const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Recovery failed'
       setError(`${msg}. Your deposit (ID: ${paymentId}) was submitted - funds may still arrive.`)
+
+      updateTransactionStatus(paymentId, 'failed')
 
       const failedStep = currentStepRef.current
       if (failedStep) {
@@ -632,6 +638,18 @@ export function usePaymaster(
         paymentId = depositResult.paymentId
         depositCommitted = true // Funds are now committed on-chain
 
+        saveTransaction({
+          paymentId,
+          timestamp: Date.now(),
+          amount: amount.toString(),
+          decimals: targetToken.decimals,
+          tokenSymbol: targetToken.symbol,
+          tokenAddress: targetToken.contractAddress,
+          userAddress: address,
+          status: 'processing',
+          txHash: depositResult.hash,
+        })
+
         // Save pending transaction for recovery if user closes tab during polling
         savePendingTransaction({
           paymentId,
@@ -681,12 +699,15 @@ export function usePaymaster(
         clearPendingTransaction()
         setPendingTransaction(null)
 
+        if (paymentId) updateTransactionStatus(paymentId, 'completed')
+
         return { paymentId }
       } catch (e) {
         const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Top up failed'
 
         // If deposit was committed, provide different error messaging
         if (depositCommitted && paymentId) {
+          updateTransactionStatus(paymentId, 'failed')
           setError(`${msg}. Your deposit (ID: ${paymentId}) was submitted - funds may still arrive.`)
         } else {
           setError(msg)
@@ -721,6 +742,7 @@ export function usePaymaster(
       updateStep,
       targetToken.contractAddress,
       targetToken.symbol,
+      targetToken.decimals,
       additionalSteps,
       refetchSapphireNativeBalance,
       waitForSapphireNativeBalanceIncrease,
