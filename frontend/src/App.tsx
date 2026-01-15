@@ -8,7 +8,7 @@ import { BridgeCard, BridgeCardSection, BridgeCardDivider } from './components/b
 import { AmountInput } from './components/bridge'
 import { TokenSelector, getTokenKey, type TokenOption } from './components/bridge'
 import { FeeBreakdown, FeeEstimate, type FeeItem } from './components/bridge'
-import { PendingTransactionBanner } from './components/bridge'
+import { PendingTransactionBanner, TransactionHistory } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
 import {
@@ -215,7 +215,8 @@ export function App() {
         </div>
 
         {/* Wallet */}
-        <div className="styledConnect shrink-0">
+        <div className="styledConnect shrink-0 flex items-center gap-2">
+          {isConnected && address && <TransactionHistory userAddress={address} />}
           <CustomConnectButton />
         </div>
       </header>
