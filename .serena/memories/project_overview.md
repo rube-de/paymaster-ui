@@ -1,9 +1,9 @@
 # Project Overview: paymaster-ui
 
 ## Purpose
-Oasis Xmas Roffle - A raffle dApp where users buy tickets with ROSE to win a share of the prize pool. Integrates ROFL Paymaster for cross-chain payments (USDC/USDT on Base → ROSE on Sapphire).
+Oasis Bridge - A cross-chain payment interface powered by ROFL Paymaster. Enables users to bridge USDC/USDT on Base to ROSE on Sapphire for seamless cross-chain transactions.
 
-**Production**: https://roffle.oasis.io/
+**Production**: https://bridge.oasis.io/
 
 ## Tech Stack
 

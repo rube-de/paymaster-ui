@@ -58,10 +58,10 @@ npx hardhat compile
 ### Deployment
 ```bash
 # Testnet
-npx hardhat deploy:roffle --network sapphire-testnet
+npx hardhat deploy --network sapphire-testnet
 
 # Mainnet with verification
-npx hardhat deploy:roffle --network sapphire --verify
+npx hardhat deploy --network sapphire --verify
 ```
 
 ## Git & Utilities (Darwin/macOS)
