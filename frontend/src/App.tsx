@@ -325,8 +325,8 @@ export function App() {
                   <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
                     <p className="text-amber-400 text-sm font-medium mb-2">Pending transaction found</p>
                     <p className="text-white/70 text-xs mb-3">
-                      A deposit of {formatUnits(BigInt(pending.amount), pendingDecimals)} {pending.tokenSymbol} is
-                      waiting for confirmation.
+                      A deposit of {formatUnits(BigInt(pending.amount), pendingDecimals)}{' '}
+                      {pending.tokenSymbol} is waiting for confirmation.
                     </p>
                     <div className="flex gap-2">
                       <button
