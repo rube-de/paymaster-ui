@@ -35,8 +35,17 @@ export function getPendingTransaction(): PendingTransaction | null {
 
     const parsed = JSON.parse(stored) as PendingTransaction
 
-    // Validate required fields
-    if (!parsed.paymentId || !parsed.timestamp || !parsed.userAddress) {
+    // Validate all required fields to ensure data integrity
+    if (
+      !parsed ||
+      typeof parsed.paymentId !== 'string' ||
+      typeof parsed.timestamp !== 'number' ||
+      typeof parsed.userAddress !== 'string' ||
+      typeof parsed.amount !== 'string' ||
+      typeof parsed.tokenSymbol !== 'string' ||
+      typeof parsed.tokenAddress !== 'string' ||
+      typeof parsed.roseAmount !== 'string'
+    ) {
       clearPendingTransaction()
       return null
     }

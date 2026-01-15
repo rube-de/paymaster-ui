@@ -304,13 +304,19 @@ export function App() {
             )}
 
             {/* Pending Transaction Recovery */}
-            {paymaster.pendingTransaction && !paymaster.isLoading && (
+            {paymaster.pendingTransaction && !paymaster.isLoading && (() => {
+              // Look up the correct token decimals from the pending transaction's token address
+              const pendingToken = SOURCE_TOKENS.find(
+                t => t.address?.toLowerCase() === paymaster.pendingTransaction?.tokenAddress.toLowerCase()
+              )
+              const pendingDecimals = pendingToken?.decimals ?? 6
+              return (
               <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
                 <p className="text-amber-400 text-sm font-medium mb-2">
                   Pending transaction found
                 </p>
                 <p className="text-white/70 text-xs mb-3">
-                  A deposit of {formatUnits(BigInt(paymaster.pendingTransaction.amount), selectedToken?.decimals ?? 6)} {paymaster.pendingTransaction.tokenSymbol} is waiting for confirmation.
+                  A deposit of {formatUnits(BigInt(paymaster.pendingTransaction.amount), pendingDecimals)} {paymaster.pendingTransaction.tokenSymbol} is waiting for confirmation.
                 </p>
                 <div className="flex gap-2">
                   <button
@@ -329,7 +335,8 @@ export function App() {
                   </button>
                 </div>
               </div>
-            )}
+              )
+            })()}
 
             {/* Bridge Button */}
             <button
