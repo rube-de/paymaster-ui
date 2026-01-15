@@ -5,6 +5,13 @@ import { Address, Chain } from 'viem'
 import { base } from 'wagmi/chains'
 import { deposit } from '../contracts/paymasterVault.ts'
 import {
+  clearPendingTransaction,
+  getPendingTransaction,
+  isPendingTransactionExpired,
+  PendingTransaction,
+  savePendingTransaction,
+} from '../lib/pendingTransaction.ts'
+import {
   ROFL_PAYMASTER_DESTINATION_CHAIN,
   ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN,
   ROFL_PAYMASTER_EXPECTED_TIME,
@@ -42,6 +49,11 @@ export type UsePaymasterTopUpFlowReturn = {
   currentStep: ProgressStep | ProgressStepWithAction | null
   stepStatuses: Partial<Record<number, PaymasterStepStatus>>
 
+  // Recovery support
+  pendingTransaction: PendingTransaction | null
+  resumeFromPending: () => Promise<{ paymentId: string | null }>
+  dismissPending: () => void
+
   getQuote: (p: StartTopUpParams) => Promise<bigint | null>
   getRoseEstimate: (p: StartTopUpParams) => Promise<bigint | null>
   startTopUp: (p: StartTopUpParams) => Promise<{ paymentId: string | null }>
@@ -66,7 +78,7 @@ const MIN_BALANCE_INCREASE_THRESHOLD = 1_000_000_000_000_000n
 const progressSteps = [
   {
     id: 1,
-    label: 'Validating chain connection',
+    label: 'Connecting to Base',
   },
   {
     id: 2,
@@ -83,9 +95,12 @@ const progressSteps = [
   },
   {
     id: 5,
-    label: 'Validating chain connection',
+    label: 'Connecting to Sapphire',
   },
 ]
+
+/** Number of built-in progress steps in the paymaster flow */
+export const PROGRESS_STEP_COUNT = progressSteps.length
 
 export function usePaymaster(
   targetToken: RoflPaymasterTokenConfig,
@@ -105,6 +120,9 @@ export function usePaymaster(
 
   const [currentStep, setCurrentStep] = useState<number | null>(null)
   const [stepStatuses, setStepStatuses] = useState<Partial<Record<number, PaymasterStepStatus>>>({})
+
+  // Recovery state for interrupted transactions
+  const [pendingTransaction, setPendingTransaction] = useState<PendingTransaction | null>(null)
 
   // Track current step synchronously for error handling (avoids stale closure in callbacks)
   const currentStepRef = useRef<number | null>(null)
@@ -134,6 +152,9 @@ export function usePaymaster(
     setRoseEstimate(null)
     setCurrentStep(null)
     setStepStatuses({})
+    // Also clear any pending transaction
+    clearPendingTransaction()
+    setPendingTransaction(null)
   }, [])
 
   const cancel = useCallback(() => {
@@ -145,6 +166,34 @@ export function usePaymaster(
     return () => {
       abortControllerRef.current?.abort()
     }
+  }, [])
+
+  // Check for pending transaction on mount (recovery support)
+  useEffect(() => {
+    if (!address) return
+
+    const pending = getPendingTransaction()
+    if (!pending) return
+
+    // Only show pending transaction if:
+    // 1. It belongs to this user
+    // 2. It's for this token
+    // 3. It's not expired (10 minute default)
+    if (
+      pending.userAddress.toLowerCase() !== address.toLowerCase() ||
+      pending.tokenAddress.toLowerCase() !== targetToken.contractAddress.toLowerCase() ||
+      isPendingTransactionExpired(pending)
+    ) {
+      clearPendingTransaction()
+      return
+    }
+
+    setPendingTransaction(pending)
+  }, [address, targetToken.contractAddress])
+
+  const dismissPending = useCallback(() => {
+    clearPendingTransaction()
+    setPendingTransaction(null)
   }, [])
 
   const { data: roseFeed } = useRosePriceFeed(
@@ -402,6 +451,101 @@ export function usePaymaster(
     [refetchSapphireNativeBalance]
   )
 
+  /**
+   * Resume a pending transaction from step 4 (polling for payment confirmation).
+   * Used for recovery after user closes tab during the bridge flow.
+   */
+  const resumeFromPending = useCallback(async () => {
+    if (!pendingTransaction) {
+      throw new Error('No pending transaction to resume')
+    }
+    if (!address) {
+      throw new Error('Wallet not connected')
+    }
+    if (isLoadingRef.current) {
+      throw new Error('Operation already in progress')
+    }
+
+    isLoadingRef.current = true
+    setIsLoading(true)
+    setError('')
+
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = new AbortController()
+    const signal = abortControllerRef.current.signal
+
+    const paymentId = pendingTransaction.paymentId
+
+    try {
+      // Snapshot baseline Sapphire native balance
+      const baselineSapphireNative =
+        (await refetchSapphireNativeBalance()).data?.value ??
+        (() => {
+          throw new Error('Failed to read Sapphire native balance')
+        })()
+
+      // Resume from step 4: poll for payment confirmation
+      updateStep(4, 'processing')
+      await pollPayment(paymentId, ROFL_PAYMASTER_DESTINATION_CHAIN, signal)
+
+      await waitForSapphireNativeBalanceIncrease({
+        baseline: baselineSapphireNative,
+        timeoutMs: BALANCE_CHECK_TIMEOUT_MS,
+        intervalMs: POLL_INTERVAL_MS,
+        minIncrease: MIN_BALANCE_INCREASE_THRESHOLD,
+        signal,
+      })
+      updateStep(4, 'completed')
+
+      // Step 5: switch to destination
+      updateStep(5, 'processing')
+      await switchToChain({ targetChainId: ROFL_PAYMASTER_DESTINATION_CHAIN.id, address })
+      updateStep(5, 'completed')
+
+      // Execute additional steps
+      for (let i = 0; i < additionalSteps.length; i++) {
+        if (signal.aborted) throw new Error('Operation cancelled')
+        updateStep(i + 6, 'processing')
+        try {
+          await additionalSteps[i].action(signal)
+        } catch (e) {
+          const stepLabel = additionalSteps[i].label
+          throw new Error(`Step "${stepLabel}" failed: ${e instanceof Error ? e.message : 'Unknown error'}`)
+        }
+        updateStep(i + 6, 'completed')
+      }
+
+      // Clear pending transaction on success
+      clearPendingTransaction()
+      setPendingTransaction(null)
+
+      return { paymentId }
+    } catch (e) {
+      const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Recovery failed'
+      setError(`${msg}. Your deposit (ID: ${paymentId}) was submitted - funds may still arrive.`)
+
+      const failedStep = currentStepRef.current
+      if (failedStep) {
+        setStepStatuses(prev => ({ ...prev, [failedStep]: 'error' }))
+      }
+
+      throw e
+    } finally {
+      isLoadingRef.current = false
+      currentStepRef.current = null
+      setIsLoading(false)
+      abortControllerRef.current = null
+    }
+  }, [
+    pendingTransaction,
+    address,
+    updateStep,
+    pollPayment,
+    refetchSapphireNativeBalance,
+    waitForSapphireNativeBalanceIncrease,
+    additionalSteps,
+  ])
+
   const startTopUp = useCallback(
     async ({ amount }: StartTopUpParams) => {
       // Guard against concurrent execution (atomic check-and-set)
@@ -473,6 +617,18 @@ export function usePaymaster(
         }
         paymentId = depositResult.paymentId
         depositCommitted = true // Funds are now committed on-chain
+
+        // Save pending transaction for recovery if user closes tab during polling
+        savePendingTransaction({
+          paymentId,
+          timestamp: Date.now(),
+          amount: amount.toString(),
+          tokenSymbol: targetToken.symbol,
+          tokenAddress: targetToken.contractAddress,
+          userAddress: address,
+          roseAmount: '0', // We don't know exact ROSE amount until processed
+        })
+
         updateStep(3, 'completed')
 
         // Step 4: poll (with cancellation support)
@@ -507,6 +663,10 @@ export function usePaymaster(
           updateStep(i + 6, 'completed')
         }
 
+        // Clear pending transaction on success
+        clearPendingTransaction()
+        setPendingTransaction(null)
+
         return { paymentId }
       } catch (e) {
         const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Top up failed'
@@ -528,7 +688,8 @@ export function usePaymaster(
         isLoadingRef.current = false
         currentStepRef.current = null
         setIsLoading(false)
-        setCurrentStep(null)
+        // Don't reset currentStep here - let the error handler keep it visible
+        // so users can see which step failed. Reset only happens via reset() or success.
         abortControllerRef.current = null
 
         try {
@@ -545,6 +706,7 @@ export function usePaymaster(
       pollPayment,
       updateStep,
       targetToken.contractAddress,
+      targetToken.symbol,
       additionalSteps,
       refetchSapphireNativeBalance,
       waitForSapphireNativeBalanceIncrease,
@@ -562,6 +724,10 @@ export function usePaymaster(
         : additionalSteps[currentStep - 1 - progressSteps.length]
       : null,
     stepStatuses,
+    // Recovery support
+    pendingTransaction,
+    resumeFromPending,
+    dismissPending,
     getQuote,
     getRoseEstimate,
     startTopUp,

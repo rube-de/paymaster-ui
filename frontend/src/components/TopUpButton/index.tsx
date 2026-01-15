@@ -1,5 +1,5 @@
 import { FC, ReactNode, useEffect, useState } from 'react'
-import { ProgressStepWithAction, usePaymaster } from '../../hooks/usePaymaster.ts'
+import { PROGRESS_STEP_COUNT, ProgressStepWithAction, usePaymaster } from '../../hooks/usePaymaster.ts'
 import { formatUnits } from 'viem'
 import { RoflPaymasterTokenConfig } from '../../constants/rofl-paymaster-config.ts'
 import { LucideLoader } from 'lucide-react'
@@ -33,6 +33,7 @@ export const TopUpButton: FC<Props> = ({
   })
 
   const [quote, setQuote] = useState<bigint | null>(null)
+  const [showFullError, setShowFullError] = useState(false)
   const { isLoading, initialLoading, error, currentStep, getQuote, startTopUp } = usePaymaster(
     targetToken,
     additionalSteps
@@ -60,6 +61,11 @@ export const TopUpButton: FC<Props> = ({
   useEffect(() => {
     onLoadingChange?.(isLoading)
   }, [onLoadingChange, isLoading])
+
+  // Reset error expansion when error changes
+  useEffect(() => {
+    setShowFullError(false)
+  }, [error])
 
   useEffect(() => {
     const expected = currentStep?.expectedTimeInSeconds ?? 0
@@ -110,7 +116,7 @@ export const TopUpButton: FC<Props> = ({
       {isLoading && !!quote && currentStep && (
         <div className="text-center break-words">
           <p className="text-teal-300">
-            ({currentStep?.id}/{5 + (additionalSteps.length ?? 0)}) {currentStep?.label}
+            ({currentStep?.id}/{PROGRESS_STEP_COUNT + additionalSteps.length}) {currentStep?.label}
           </p>
 
           {!!currentStep.expectedTimeInSeconds && currentStep.expectedTimeInSeconds > 0 && (
@@ -124,10 +130,25 @@ export const TopUpButton: FC<Props> = ({
       )}
 
       {((!isLoading && error) || insufficientBalance) && (
-        <p className="text-warning text-center break-words">
-          {insufficientBalance && `Insufficient $${targetToken.symbol} balance`}
-          {error && error.length > 150 ? `${error.slice(0, 150)}...` : error}
-        </p>
+        <div className="text-warning text-center break-words">
+          {insufficientBalance && <p>Insufficient ${targetToken.symbol} balance</p>}
+          {error && (
+            <div>
+              <p>
+                {showFullError || error.length <= 150 ? error : `${error.slice(0, 150)}...`}
+              </p>
+              {error.length > 150 && (
+                <button
+                  type="button"
+                  onClick={() => setShowFullError(prev => !prev)}
+                  className="text-teal-300 underline text-sm mt-1"
+                >
+                  {showFullError ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </>
   )
