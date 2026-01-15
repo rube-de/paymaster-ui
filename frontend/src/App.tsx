@@ -124,6 +124,15 @@ export function App() {
     paymaster.reset()
   }, [paymaster.reset])
 
+  // Handle pending transaction recovery
+  const handleResume = useCallback(async () => {
+    try {
+      await paymaster.resumeFromPending()
+    } catch (error) {
+      console.error('Resume failed:', error)
+    }
+  }, [paymaster.resumeFromPending])
+
   // Calculate exchange rate: ROSE per 1 token
   const exchangeRate = useMemo(() => {
     if (!estimatedRose || !parsedAmount || parsedAmount === 0n) return null
@@ -153,7 +162,7 @@ export function App() {
   // Validation
   const maxBalance = sourceBalance.data?.value ?? 0n
   const isInsufficientBalance = parsedAmount > maxBalance
-  const canBridge = parsedAmount > 0n && !isInsufficientBalance && !paymaster.isLoading
+  const canBridge = parsedAmount > 0n && !isInsufficientBalance && !paymaster.isLoading && !paymaster.pendingTransaction
 
   // Button state
   const getButtonText = () => {
@@ -292,6 +301,34 @@ export function App() {
             {/* Error Display */}
             {paymaster.error && (
               <p className="text-sm text-red-400 text-center mt-4">{paymaster.error}</p>
+            )}
+
+            {/* Pending Transaction Recovery */}
+            {paymaster.pendingTransaction && !paymaster.isLoading && (
+              <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
+                <p className="text-amber-400 text-sm font-medium mb-2">
+                  Pending transaction found
+                </p>
+                <p className="text-white/70 text-xs mb-3">
+                  A deposit of {formatUnits(BigInt(paymaster.pendingTransaction.amount), selectedToken?.decimals ?? 6)} {paymaster.pendingTransaction.tokenSymbol} is waiting for confirmation.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                    onClick={handleResume}
+                  >
+                    Resume
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 bg-white/10 hover:bg-white/15 text-white/70 px-3 py-2 rounded-lg text-sm transition-colors"
+                    onClick={paymaster.dismissPending}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
             )}
 
             {/* Bridge Button */}
