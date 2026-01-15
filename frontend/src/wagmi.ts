@@ -72,7 +72,7 @@ const connectors = connectorsForWallets(
     },
   ],
   {
-    appName: 'Oasis Bridge',
+    appName: 'Xmas Roffle',
     projectId: '5c76ff8764ea097205fffc221f056c98',
   }
 )
