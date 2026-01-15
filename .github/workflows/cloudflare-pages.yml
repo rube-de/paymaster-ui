@@ -1,18 +1,20 @@
 # NOTE: This name appears in GitHub's Checks API and in workflow's status badge.
 name: cloudflare-pages
 
+# TODO: Re-enable once Cloudflare Pages project "oasis-bridge" is created
+# and secrets (CLOUDFLARE_PAGES_API_TOKEN, CLOUDFLARE_ACCOUNT_ID) are configured.
+# See: https://github.com/rube-de/paymaster-ui/issues/13
+
 # Trigger the workflow when:
 on:
-  # A push occurs to one of the matched branches.
-  push:
-    branches:
-      - master
-  # Or when a pull request event occurs for a pull request against one of the
-  # matched branches.
-  pull_request:
-    branches:
-      - master
-      - stable/*
+  workflow_dispatch: # Manual trigger only for now
+  # push:
+  #   branches:
+  #     - master
+  # pull_request:
+  #   branches:
+  #     - master
+  #     - stable/*
 
 jobs:
   cloudflare-pages:
@@ -55,8 +57,6 @@ jobs:
           cache: yarn
       - name: Install dependencies
         run: yarn install --frozen-lockfile && cd frontend && yarn install --frozen-lockfile
-      - name: Build contracts
-        run: yarn build:contracts
       - name: Build app
         run: yarn build:frontend
       - name: Publish to Cloudflare Pages
@@ -69,7 +69,7 @@ jobs:
           # Acquired from Cloudflare dashboard -> Compute > Workers & Pages or dashboard url: https://dash.cloudflare.com/<account-id>/
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           # Project created via Cloudflare dashboard or CLI command "npx wrangler pages project create <project-name>"
-          command: pages deploy ./frontend/dist --project-name=xmas-roffle --branch ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
+          command: pages deploy ./frontend/dist --project-name=oasis-bridge --branch ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
       # On a subsequent run the original comment will be updated.
       - name: Update PR comment
         uses: mshick/add-pr-comment@v2
