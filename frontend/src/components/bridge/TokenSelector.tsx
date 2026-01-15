@@ -48,10 +48,7 @@ export function TokenSelector({
   const labelId = useId()
   const buttonId = useId()
 
-  const selected = useMemo(
-    () => options.find(o => getTokenKey(o) === value),
-    [options, value]
-  )
+  const selected = useMemo(() => options.find(o => getTokenKey(o) === value), [options, value])
 
   // If single token mode, just display it without dropdown
   if (singleToken && selected) {

@@ -176,10 +176,7 @@ export function usePaymaster(
     if (!pending) return
 
     // Clear if different user or expired
-    if (
-      pending.userAddress.toLowerCase() !== address.toLowerCase() ||
-      isPendingTransactionExpired(pending)
-    ) {
+    if (pending.userAddress.toLowerCase() !== address.toLowerCase() || isPendingTransactionExpired(pending)) {
       clearPendingTransaction()
       setPendingTransaction(null)
       return
@@ -295,7 +292,8 @@ export function usePaymaster(
 
       // Inverse formula: roseAmount = (tokenAmount * tokenUsdPrice * 10^(roseDecimals + roseFeedDecimals)) /
       //                               (roseUsdPrice * 10^(tokenDecimals + tokenFeedDecimals))
-      const numerator = tokenAmount * tokenUsdPrice * 10n ** ((roseTokenDecimals + roseFeedDecimals) as bigint)
+      const numerator =
+        tokenAmount * tokenUsdPrice * 10n ** ((roseTokenDecimals + roseFeedDecimals) as bigint)
       const denominator = roseUsdPrice * 10n ** ((tokenDecimals + tokenFeedDecimals) as bigint)
 
       const roseAmount = numerator / denominator
@@ -343,10 +341,14 @@ export function usePaymaster(
 
         await new Promise((resolve, reject) => {
           const timeoutId = setTimeout(resolve, POLL_INTERVAL_MS)
-          signal?.addEventListener('abort', () => {
-            clearTimeout(timeoutId)
-            reject(new Error('Payment polling cancelled'))
-          }, { once: true }) // Prevent memory leak
+          signal?.addEventListener(
+            'abort',
+            () => {
+              clearTimeout(timeoutId)
+              reject(new Error('Payment polling cancelled'))
+            },
+            { once: true }
+          ) // Prevent memory leak
         })
         attempts++
       } catch (error) {
@@ -357,10 +359,14 @@ export function usePaymaster(
         // Cancellable delay in catch block
         await new Promise((resolve, reject) => {
           const timeoutId = setTimeout(resolve, POLL_INTERVAL_MS)
-          signal?.addEventListener('abort', () => {
-            clearTimeout(timeoutId)
-            reject(new Error('Payment polling cancelled'))
-          }, { once: true })
+          signal?.addEventListener(
+            'abort',
+            () => {
+              clearTimeout(timeoutId)
+              reject(new Error('Payment polling cancelled'))
+            },
+            { once: true }
+          )
         })
         attempts++
       }
@@ -443,10 +449,14 @@ export function usePaymaster(
 
         await new Promise((resolve, reject) => {
           const timeoutId = setTimeout(resolve, intervalMs)
-          signal?.addEventListener('abort', () => {
-            clearTimeout(timeoutId)
-            reject(new Error('Balance check cancelled'))
-          }, { once: true }) // Prevent memory leak
+          signal?.addEventListener(
+            'abort',
+            () => {
+              clearTimeout(timeoutId)
+              reject(new Error('Balance check cancelled'))
+            },
+            { once: true }
+          ) // Prevent memory leak
         })
       }
 
