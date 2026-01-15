@@ -702,8 +702,8 @@ export function usePaymaster(
         isLoadingRef.current = false
         currentStepRef.current = null
         setIsLoading(false)
-        // Don't reset currentStep here - let the error handler keep it visible
-        // so users can see which step failed. Reset only happens via reset() or success.
+        // Note: currentStepRef (ref) is cleared above, but currentStep (state) is preserved
+        // so users can see which step failed. State resets only via reset() or on success.
         abortControllerRef.current = null
 
         try {
