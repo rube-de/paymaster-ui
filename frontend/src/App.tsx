@@ -314,7 +314,7 @@ export function App() {
               (() => {
                 // Look up the correct token decimals from the pending transaction's token address
                 const pendingToken = SOURCE_TOKENS.find(
-                  t => t.address?.toLowerCase() === paymaster.pendingTransaction?.tokenAddress.toLowerCase()
+                  t => t.address?.toLowerCase() === paymaster.pendingTransaction.tokenAddress.toLowerCase()
                 )
                 const pendingDecimals = pendingToken?.decimals ?? 6
                 return (
