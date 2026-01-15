@@ -1,6 +1,5 @@
 {
-  "name": "@oasisprotocol/oasis-bridge",
-  "description": "Oasis Bridge - Cross-chain payment solution powered by ROFL Paymaster",
+  "name": "@oasisprotocol/ui-library",
   "private": true,
   "version": "0.0.0",
   "module": "dist/index.es.js",
