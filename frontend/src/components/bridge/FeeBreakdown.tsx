@@ -33,12 +33,7 @@ export function FeeBreakdown({
   return (
     <div
       data-slot="fee-breakdown"
-      className={cn(
-        'rounded-xl border border-white/10',
-        'bg-black/15',
-        'overflow-hidden',
-        className
-      )}
+      className={cn('rounded-xl border border-white/10', 'bg-black/15', 'overflow-hidden', className)}
     >
       {title && (
         <div className="px-4 py-3 border-b border-white/5">
@@ -48,7 +43,7 @@ export function FeeBreakdown({
 
       {expanded && (
         <div className="p-4 space-y-3">
-          {items.map((item) => (
+          {items.map(item => (
             <FeeRow key={item.label} {...item} />
           ))}
 
@@ -91,12 +86,7 @@ export function FeeBreakdown({
                   className="text-white/50"
                   aria-hidden="true"
                 >
-                  <path
-                    d="M7 1V13M1 7H13"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
+                  <path d="M7 1V13M1 7H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               }
             />
@@ -124,17 +114,10 @@ function FeeRow({ label, value, subValue, highlight, loading, icon }: FeeRowProp
           <LoadingDots />
         ) : (
           <>
-            <span
-              className={cn(
-                'text-sm font-medium',
-                highlight ? 'text-green-400' : 'text-white'
-              )}
-            >
+            <span className={cn('text-sm font-medium', highlight ? 'text-green-400' : 'text-white')}>
               {value}
             </span>
-            {subValue && (
-              <span className="text-xs text-white/50">{subValue}</span>
-            )}
+            {subValue && <span className="text-xs text-white/50">{subValue}</span>}
           </>
         )}
       </div>

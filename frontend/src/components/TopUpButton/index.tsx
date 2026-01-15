@@ -134,9 +134,7 @@ export const TopUpButton: FC<Props> = ({
           {insufficientBalance && <p>Insufficient ${targetToken.symbol} balance</p>}
           {error && (
             <div>
-              <p>
-                {showFullError || error.length <= 150 ? error : `${error.slice(0, 150)}...`}
-              </p>
+              <p>{showFullError || error.length <= 150 ? error : `${error.slice(0, 150)}...`}</p>
               {error.length > 150 && (
                 <button
                   type="button"

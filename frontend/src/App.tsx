@@ -10,6 +10,7 @@ import { TokenSelector, getTokenKey, type TokenOption } from './components/bridg
 import { FeeBreakdown, FeeEstimate, type FeeItem } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
+import { type PendingTransaction } from './lib/pendingTransaction'
 import {
   ROFL_PAYMASTER_TOKEN_CONFIG,
   ROFL_PAYMASTER_EXPECTED_TIME,
@@ -42,6 +43,48 @@ const DESTINATION_TOKEN: TokenOption = {
   icon: <ROSEIcon />,
 }
 
+function PendingRecoveryBanner({
+  pendingTransaction,
+  onResume,
+  onDismiss,
+}: {
+  pendingTransaction: PendingTransaction
+  onResume: () => void
+  onDismiss: () => void
+}) {
+  // Look up the correct token decimals from the pending transaction's token address
+  const pendingToken = SOURCE_TOKENS.find(
+    t => t.address?.toLowerCase() === pendingTransaction?.tokenAddress.toLowerCase()
+  )
+  const pendingDecimals = pendingToken?.decimals ?? 6
+
+  return (
+    <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
+      <p className="text-amber-400 text-sm font-medium mb-2">Pending transaction found</p>
+      <p className="text-white/70 text-xs mb-3">
+        A deposit of {formatUnits(BigInt(pendingTransaction.amount), pendingDecimals)}{' '}
+        {pendingTransaction.tokenSymbol} is waiting for confirmation.
+      </p>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+          onClick={onResume}
+        >
+          Resume
+        </button>
+        <button
+          type="button"
+          className="flex-1 bg-white/10 hover:bg-white/15 text-white/70 px-3 py-2 rounded-lg text-sm transition-colors"
+          onClick={onDismiss}
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function App() {
   const { address, isConnected, chainId } = useAccount()
   const { chains: wagmiChains } = useConfig()
@@ -55,6 +98,7 @@ export function App() {
   const [selectedTokenKey, setSelectedTokenKey] = useState<string | null>(
     SOURCE_TOKENS.length > 0 ? getTokenKey(SOURCE_TOKENS[0]) : null
   )
+  const [showFullError, setShowFullError] = useState(false)
 
   const selectedToken = useMemo(
     () => SOURCE_TOKENS.find(t => getTokenKey(t) === selectedTokenKey) ?? SOURCE_TOKENS[0],
@@ -83,7 +127,19 @@ export function App() {
   })
 
   // Paymaster hook for cross-chain transfer
-  const paymaster = usePaymaster(tokenConfig, [])
+  const {
+    getRoseEstimate,
+    startTopUp,
+    reset,
+    resumeFromPending,
+    dismissPending,
+    isLoading,
+    initialLoading,
+    roseEstimate: estimatedRose,
+    currentStep,
+    error,
+    pendingTransaction,
+  } = usePaymaster(tokenConfig, [])
 
   // Parse input amount
   const parsedAmount = useMemo(() => {
@@ -98,40 +154,45 @@ export function App() {
   // Fetch ROSE estimate when amount changes
   useEffect(() => {
     if (parsedAmount > 0n && tokenConfig) {
-      paymaster.getRoseEstimate({ amount: parsedAmount }).catch(err => {
+      getRoseEstimate({ amount: parsedAmount }).catch(err => {
         console.warn('Estimate fetch failed:', err)
       })
     }
-  }, [parsedAmount, tokenConfig, paymaster.getRoseEstimate])
+  }, [parsedAmount, tokenConfig, getRoseEstimate])
 
-  // Estimated ROSE output from the hook
-  const estimatedRose = paymaster.roseEstimate
+  // Reset error expansion when error changes
+  useEffect(() => {
+    setShowFullError(false)
+  }, [error])
 
   // Handle bridge action
   const handleBridge = useCallback(async () => {
     if (!parsedAmount || parsedAmount === 0n) return
     try {
-      await paymaster.startTopUp({ amount: parsedAmount })
+      await startTopUp({ amount: parsedAmount })
     } catch (error) {
       console.error('Bridge failed:', error)
     }
-  }, [parsedAmount, paymaster.startTopUp])
+  }, [parsedAmount, startTopUp])
 
   // Handle token change
-  const handleTokenChange = useCallback((key: string, _token: TokenOption) => {
-    setSelectedTokenKey(key)
-    setAmount('') // Reset amount when changing token
-    paymaster.reset()
-  }, [paymaster.reset])
+  const handleTokenChange = useCallback(
+    (key: string) => {
+      setSelectedTokenKey(key)
+      setAmount('') // Reset amount when changing token
+      reset()
+    },
+    [reset]
+  )
 
   // Handle pending transaction recovery
   const handleResume = useCallback(async () => {
     try {
-      await paymaster.resumeFromPending()
+      await resumeFromPending()
     } catch (error) {
       console.error('Resume failed:', error)
     }
-  }, [paymaster.resumeFromPending])
+  }, [resumeFromPending])
 
   // Calculate exchange rate: ROSE per 1 token
   const exchangeRate = useMemo(() => {
@@ -151,23 +212,23 @@ export function App() {
       items.push({
         label: 'Exchange rate',
         value: `1 ${selectedToken?.symbol ?? 'USDC'} ≈ ${Number(exchangeRate).toFixed(2)} ROSE`,
-        loading: paymaster.initialLoading,
+        loading: initialLoading,
       })
     }
 
     // Note: Slippage is passed separately via the `slippage` prop to FeeBreakdown
     return items
-  }, [estimatedRose, exchangeRate, selectedToken?.symbol, paymaster.initialLoading])
+  }, [estimatedRose, exchangeRate, selectedToken?.symbol, initialLoading])
 
   // Validation
   const maxBalance = sourceBalance.data?.value ?? 0n
   const isInsufficientBalance = parsedAmount > maxBalance
-  const canBridge = parsedAmount > 0n && !isInsufficientBalance && !paymaster.isLoading && !paymaster.pendingTransaction
+  const canBridge = parsedAmount > 0n && !isInsufficientBalance && !isLoading && !pendingTransaction
 
   // Button state
   const getButtonText = () => {
     if (!isValidConnection) return 'Connect Wallet'
-    if (paymaster.isLoading) return 'Processing...'
+    if (isLoading) return 'Processing...'
     if (!amount || parsedAmount === 0n) return 'Enter amount'
     if (isInsufficientBalance) return 'Insufficient balance'
     return 'Bridge to Sapphire'
@@ -225,7 +286,7 @@ export function App() {
                   options={SOURCE_TOKENS}
                   onChange={handleTokenChange}
                   showChainName
-                  disabled={paymaster.isLoading}
+                  disabled={isLoading}
                 />
                 <AmountInput
                   value={amount}
@@ -234,7 +295,7 @@ export function App() {
                   maxValue={maxBalance}
                   balance={sourceBalance.data?.value}
                   balanceLabel="Balance"
-                  disabled={paymaster.isLoading || !isValidConnection}
+                  disabled={isLoading || !isValidConnection}
                   error={isInsufficientBalance ? 'Insufficient balance' : undefined}
                   placeholder="0.00"
                 />
@@ -265,12 +326,10 @@ export function App() {
                 sourceAmount={amount || '0'}
                 sourceToken={selectedToken?.symbol ?? 'USDC'}
                 destinationAmount={
-                  estimatedRose
-                    ? parseFloat(formatUnits(estimatedRose, 18)).toFixed(2)
-                    : '...'
+                  estimatedRose ? parseFloat(formatUnits(estimatedRose, 18)).toFixed(2) : '...'
                 }
                 destinationToken="ROSE"
-                loading={paymaster.initialLoading}
+                loading={initialLoading}
                 className="mt-4"
               />
             )}
@@ -284,76 +343,57 @@ export function App() {
             />
 
             {/* Progress Steps */}
-            {paymaster.currentStep && (
+            {currentStep && (
               <div className="mt-4 p-4 rounded-xl bg-black/20 border border-white/10">
                 <div className="flex items-center gap-3">
                   <LucideLoader className="size-5 animate-spin text-white/70" />
-                  <span className="text-sm text-white">{paymaster.currentStep.label}</span>
+                  <span className="text-sm text-white">{currentStep.label}</span>
                 </div>
-                {paymaster.currentStep.expectedTimeInSeconds && (
+                {currentStep.expectedTimeInSeconds && (
                   <p className="text-xs text-white/50 mt-2 ml-8">
-                    This may take ~{paymaster.currentStep.expectedTimeInSeconds}s
+                    This may take ~{currentStep.expectedTimeInSeconds}s
                   </p>
                 )}
               </div>
             )}
 
             {/* Error Display */}
-            {paymaster.error && (
-              <p className="text-sm text-red-400 text-center mt-4">{paymaster.error}</p>
+            {error && (
+              <div className="text-red-400 text-sm text-center mt-4 break-words">
+                <p>{showFullError || error.length <= 150 ? error : `${error.slice(0, 150)}...`}</p>
+                {error.length > 150 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowFullError(prev => !prev)}
+                    className="text-red-300 underline text-xs mt-1 hover:text-red-200"
+                  >
+                    {showFullError ? 'Show less' : 'Show more'}
+                  </button>
+                )}
+              </div>
             )}
 
             {/* Pending Transaction Recovery */}
-            {paymaster.pendingTransaction && !paymaster.isLoading && (() => {
-              // Look up the correct token decimals from the pending transaction's token address
-              const pendingToken = SOURCE_TOKENS.find(
-                t => t.address?.toLowerCase() === paymaster.pendingTransaction?.tokenAddress.toLowerCase()
-              )
-              const pendingDecimals = pendingToken?.decimals ?? 6
-              return (
-              <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
-                <p className="text-amber-400 text-sm font-medium mb-2">
-                  Pending transaction found
-                </p>
-                <p className="text-white/70 text-xs mb-3">
-                  A deposit of {formatUnits(BigInt(paymaster.pendingTransaction.amount), pendingDecimals)} {paymaster.pendingTransaction.tokenSymbol} is waiting for confirmation.
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                    onClick={handleResume}
-                  >
-                    Resume
-                  </button>
-                  <button
-                    type="button"
-                    className="flex-1 bg-white/10 hover:bg-white/15 text-white/70 px-3 py-2 rounded-lg text-sm transition-colors"
-                    onClick={paymaster.dismissPending}
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-              )
-            })()}
+            {pendingTransaction && !isLoading && (
+              <PendingRecoveryBanner
+                pendingTransaction={pendingTransaction}
+                onResume={handleResume}
+                onDismiss={dismissPending}
+              />
+            )}
 
             {/* Bridge Button */}
             <button
               onClick={isValidConnection ? handleBridge : undefined}
-              disabled={!canBridge || paymaster.isLoading}
+              disabled={!canBridge || isLoading}
               className={cn(
                 'w-full h-14 rounded-xl font-medium text-base transition-colors mt-6',
-                canBridge && !paymaster.isLoading
+                canBridge && !isLoading
                   ? 'bg-white text-black hover:bg-gray-100'
                   : 'bg-white/20 text-white/50 cursor-not-allowed'
               )}
             >
-              {paymaster.isLoading ? (
-                <LucideLoader className="size-5 animate-spin mx-auto" />
-              ) : (
-                getButtonText()
-              )}
+              {isLoading ? <LucideLoader className="size-5 animate-spin mx-auto" /> : getButtonText()}
             </button>
           </div>
         </BridgeCard>
