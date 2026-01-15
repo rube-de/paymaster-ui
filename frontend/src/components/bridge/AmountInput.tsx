@@ -56,10 +56,7 @@ export function AmountInput({
   const inputId = useId()
 
   // Memoize regex to avoid recreating on each keystroke
-  const decimalRegex = useMemo(
-    () => new RegExp(`^\\d*\\.?\\d{0,${decimals}}$`),
-    [decimals]
-  )
+  const decimalRegex = useMemo(() => new RegExp(`^\\d*\\.?\\d{0,${decimals}}$`), [decimals])
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -89,9 +86,8 @@ export function AmountInput({
 
     if (maxValue !== undefined) {
       // For native tokens, subtract gas buffer to leave room for transaction fees
-      const effectiveMax = isNativeToken && gasBuffer > 0n
-        ? (maxValue > gasBuffer ? maxValue - gasBuffer : 0n)
-        : maxValue
+      const effectiveMax =
+        isNativeToken && gasBuffer > 0n ? (maxValue > gasBuffer ? maxValue - gasBuffer : 0n) : maxValue
       const formatted = formatUnits(effectiveMax, decimals)
       onChange(formatted)
     }
@@ -120,10 +116,7 @@ export function AmountInput({
       {(label || formattedBalance !== null) && (
         <div className="flex items-center justify-between">
           {label && (
-            <label
-              htmlFor={inputId}
-              className="text-sm font-medium text-white/70"
-            >
+            <label htmlFor={inputId} className="text-sm font-medium text-white/70">
               {label}
             </label>
           )}

@@ -102,6 +102,7 @@ export function App() {
         console.warn('Estimate fetch failed:', err)
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parsedAmount, tokenConfig, paymaster.getRoseEstimate])
 
   // Estimated ROSE output from the hook
@@ -115,14 +116,19 @@ export function App() {
     } catch (error) {
       console.error('Bridge failed:', error)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parsedAmount, paymaster.startTopUp])
 
   // Handle token change
-  const handleTokenChange = useCallback((key: string, _token: TokenOption) => {
-    setSelectedTokenKey(key)
-    setAmount('') // Reset amount when changing token
-    paymaster.reset()
-  }, [paymaster.reset])
+  const handleTokenChange = useCallback(
+    (key: string) => {
+      setSelectedTokenKey(key)
+      setAmount('') // Reset amount when changing token
+      paymaster.reset()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [paymaster.reset]
+  )
 
   // Handle pending transaction recovery
   const handleResume = useCallback(async () => {
@@ -131,6 +137,7 @@ export function App() {
     } catch (error) {
       console.error('Resume failed:', error)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymaster.resumeFromPending])
 
   // Calculate exchange rate: ROSE per 1 token
@@ -162,7 +169,8 @@ export function App() {
   // Validation
   const maxBalance = sourceBalance.data?.value ?? 0n
   const isInsufficientBalance = parsedAmount > maxBalance
-  const canBridge = parsedAmount > 0n && !isInsufficientBalance && !paymaster.isLoading && !paymaster.pendingTransaction
+  const canBridge =
+    parsedAmount > 0n && !isInsufficientBalance && !paymaster.isLoading && !paymaster.pendingTransaction
 
   // Button state
   const getButtonText = () => {
@@ -265,9 +273,7 @@ export function App() {
                 sourceAmount={amount || '0'}
                 sourceToken={selectedToken?.symbol ?? 'USDC'}
                 destinationAmount={
-                  estimatedRose
-                    ? parseFloat(formatUnits(estimatedRose, 18)).toFixed(2)
-                    : '...'
+                  estimatedRose ? parseFloat(formatUnits(estimatedRose, 18)).toFixed(2) : '...'
                 }
                 destinationToken="ROSE"
                 loading={paymaster.initialLoading}
@@ -299,44 +305,43 @@ export function App() {
             )}
 
             {/* Error Display */}
-            {paymaster.error && (
-              <p className="text-sm text-red-400 text-center mt-4">{paymaster.error}</p>
-            )}
+            {paymaster.error && <p className="text-sm text-red-400 text-center mt-4">{paymaster.error}</p>}
 
             {/* Pending Transaction Recovery */}
-            {paymaster.pendingTransaction && !paymaster.isLoading && (() => {
-              // Look up the correct token decimals from the pending transaction's token address
-              const pendingToken = SOURCE_TOKENS.find(
-                t => t.address?.toLowerCase() === paymaster.pendingTransaction?.tokenAddress.toLowerCase()
-              )
-              const pendingDecimals = pendingToken?.decimals ?? 6
-              return (
-              <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
-                <p className="text-amber-400 text-sm font-medium mb-2">
-                  Pending transaction found
-                </p>
-                <p className="text-white/70 text-xs mb-3">
-                  A deposit of {formatUnits(BigInt(paymaster.pendingTransaction.amount), pendingDecimals)} {paymaster.pendingTransaction.tokenSymbol} is waiting for confirmation.
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                    onClick={handleResume}
-                  >
-                    Resume
-                  </button>
-                  <button
-                    type="button"
-                    className="flex-1 bg-white/10 hover:bg-white/15 text-white/70 px-3 py-2 rounded-lg text-sm transition-colors"
-                    onClick={paymaster.dismissPending}
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-              )
-            })()}
+            {paymaster.pendingTransaction &&
+              !paymaster.isLoading &&
+              (() => {
+                // Look up the correct token decimals from the pending transaction's token address
+                const pendingToken = SOURCE_TOKENS.find(
+                  t => t.address?.toLowerCase() === paymaster.pendingTransaction?.tokenAddress.toLowerCase()
+                )
+                const pendingDecimals = pendingToken?.decimals ?? 6
+                return (
+                  <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
+                    <p className="text-amber-400 text-sm font-medium mb-2">Pending transaction found</p>
+                    <p className="text-white/70 text-xs mb-3">
+                      A deposit of {formatUnits(BigInt(paymaster.pendingTransaction.amount), pendingDecimals)}{' '}
+                      {paymaster.pendingTransaction.tokenSymbol} is waiting for confirmation.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                        onClick={handleResume}
+                      >
+                        Resume
+                      </button>
+                      <button
+                        type="button"
+                        className="flex-1 bg-white/10 hover:bg-white/15 text-white/70 px-3 py-2 rounded-lg text-sm transition-colors"
+                        onClick={paymaster.dismissPending}
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                )
+              })()}
 
             {/* Bridge Button */}
             <button

@@ -23,12 +23,8 @@ export function BridgeCard({ children, className, title, description }: BridgeCa
     >
       {(title || description) && (
         <div className="mb-6">
-          {title && (
-            <h2 className="text-xl font-semibold text-white">{title}</h2>
-          )}
-          {description && (
-            <p className="text-sm text-white/50 mt-1">{description}</p>
-          )}
+          {title && <h2 className="text-xl font-semibold text-white">{title}</h2>}
+          {description && <p className="text-sm text-white/50 mt-1">{description}</p>}
         </div>
       )}
       {children}
@@ -45,9 +41,7 @@ interface BridgeCardSectionProps {
 export function BridgeCardSection({ children, className, label }: BridgeCardSectionProps) {
   return (
     <div data-slot="bridge-card-section" className={cn('space-y-2', className)}>
-      {label && (
-        <span className="text-sm font-medium text-white/70">{label}</span>
-      )}
+      {label && <span className="text-sm font-medium text-white/70">{label}</span>}
       {children}
     </div>
   )
@@ -61,10 +55,7 @@ export function BridgeCardDivider({ className }: BridgeCardDividerProps) {
   return (
     <div
       data-slot="bridge-card-divider"
-      className={cn(
-        'relative flex items-center justify-center py-4',
-        className
-      )}
+      className={cn('relative flex items-center justify-center py-4', className)}
     >
       <div className="absolute inset-x-0 h-px bg-white/10" />
       <div className="relative z-10 flex items-center justify-center size-8 rounded-full bg-black/60 border border-white/10">
