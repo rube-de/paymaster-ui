@@ -11,7 +11,7 @@ export const deposit = async (
   amount: bigint,
   recipient: Address,
   chainId: number
-): Promise<{ paymentId: string | null }> => {
+): Promise<{ paymentId: string | null; transactionHash: string }> => {
   const hash = await writeContract(config, {
     address: roflPaymasterVaultContractAddress,
     abi: PaymasterVault_ABI,
@@ -76,5 +76,5 @@ export const deposit = async (
     )
   }
 
-  return { paymentId }
+  return { paymentId, transactionHash: hash }
 }

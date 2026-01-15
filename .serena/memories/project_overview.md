@@ -1,9 +1,9 @@
 # Project Overview: paymaster-ui
 
 ## Purpose
-Oasis Xmas Roffle - A raffle dApp where users buy tickets with ROSE to win a share of the prize pool. Integrates ROFL Paymaster for cross-chain payments (USDC/USDT on Base → ROSE on Sapphire).
+Oasis Bridge - A cross-chain payment interface powered by ROFL Paymaster. Enables users to bridge USDC/USDT on Base to ROSE on Sapphire for seamless cross-chain transactions.
 
-**Production**: https://roffle.oasis.io/
+**Production**: https://bridge.oasis.io/
 
 ## Tech Stack
 
@@ -26,10 +26,7 @@ Oasis Xmas Roffle - A raffle dApp where users buy tickets with ROSE to win a sha
 ```
 paymaster-ui/
 ├── contracts/           # Solidity contracts
-│   ├── Roffle.sol       # Main raffle contract
-│   └── interfaces/      # Contract interfaces
 ├── tasks/               # Hardhat tasks
-│   └── deploy.ts        # Deployment script
 ├── frontend/            # React application
 │   └── src/
 │       ├── components/  # shadcn/ui components
@@ -55,10 +52,10 @@ paymaster-ui/
 1. User on Base: USDC/USDT → PaymasterVault
 2. ROFL relayer detects deposit
 3. CrossChainPaymaster on Sapphire mints equivalent ROSE
-4. User can now buy raffle tickets on Sapphire
+4. User receives ROSE on Sapphire
 
 ## Key Files
-- `frontend/src/App.tsx` - Main UI with raffle logic
+- `frontend/src/App.tsx` - Main UI with bridge logic
 - `frontend/src/wagmi.ts` - Wallet configuration
 - `frontend/src/hooks/usePaymaster.ts` - Cross-chain payment flow
 - `frontend/src/constants/rofl-paymaster-config.ts` - Paymaster addresses
