@@ -8,6 +8,7 @@ import { BridgeCard, BridgeCardSection, BridgeCardDivider } from './components/b
 import { AmountInput } from './components/bridge'
 import { TokenSelector, getTokenKey, type TokenOption } from './components/bridge'
 import { FeeBreakdown, FeeEstimate, type FeeItem } from './components/bridge'
+import { PendingTransactionBanner } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
 import {
@@ -309,44 +310,18 @@ export function App() {
             {paymaster.error && <p className="text-sm text-red-400 text-center mt-4">{paymaster.error}</p>}
 
             {/* Pending Transaction Recovery */}
-            {paymaster.pendingTransaction &&
-              !paymaster.isLoading &&
-              (() => {
-                // Extract to local const for TypeScript type narrowing in IIFE
-                const pending = paymaster.pendingTransaction
-                if (!pending) return null
-
-                // Look up the correct token decimals from the pending transaction's token address
-                const pendingToken = SOURCE_TOKENS.find(
-                  t => t.address?.toLowerCase() === pending.tokenAddress.toLowerCase()
-                )
-                const pendingDecimals = pendingToken?.decimals ?? 6
-                return (
-                  <div className="mt-4 p-4 rounded-xl bg-amber-500/15 border border-amber-500/30">
-                    <p className="text-amber-400 text-sm font-medium mb-2">Pending transaction found</p>
-                    <p className="text-white/70 text-xs mb-3">
-                      A deposit of {formatUnits(BigInt(pending.amount), pendingDecimals)}{' '}
-                      {pending.tokenSymbol} is waiting for confirmation.
-                    </p>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        className="flex-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                        onClick={handleResume}
-                      >
-                        Resume
-                      </button>
-                      <button
-                        type="button"
-                        className="flex-1 bg-white/10 hover:bg-white/15 text-white/70 px-3 py-2 rounded-lg text-sm transition-colors"
-                        onClick={paymaster.dismissPending}
-                      >
-                        Dismiss
-                      </button>
-                    </div>
-                  </div>
-                )
-              })()}
+            {paymaster.pendingTransaction && !paymaster.isLoading && (
+              <PendingTransactionBanner
+                pending={paymaster.pendingTransaction}
+                decimals={
+                  SOURCE_TOKENS.find(
+                    t => t.address?.toLowerCase() === paymaster.pendingTransaction!.tokenAddress.toLowerCase()
+                  )?.decimals ?? 6
+                }
+                onResume={handleResume}
+                onDismiss={paymaster.dismissPending}
+              />
+            )}
 
             {/* Bridge Button */}
             <button
