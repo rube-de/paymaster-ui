@@ -14,11 +14,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 
-import {
-  getTransactions,
-  clearHistory,
-  TransactionRecord
-} from '../../lib/transactionHistory'
+import { getTransactions, clearHistory, TransactionRecord } from '../../lib/transactionHistory'
 
 // Helper to format date
 const formatDate = (timestamp: number) => {
@@ -56,10 +52,14 @@ export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
   // Status badge color mapping
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20'
-      case 'failed': return 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20'
-      case 'processing': return 'bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20'
-      default: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20'
+      case 'completed':
+        return 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20'
+      case 'failed':
+        return 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20'
+      case 'processing':
+        return 'bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500/20'
+      default:
+        return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500/20'
     }
   }
 
@@ -76,13 +76,11 @@ export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
       <DialogContent className="bg-[#19323C] border-white/10 text-white sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Transaction History</DialogTitle>
-          <DialogDescription className="text-white/50">
-            Your recent bridge transactions
-          </DialogDescription>
+          <DialogDescription className="text-white/50">Your recent bridge transactions</DialogDescription>
         </DialogHeader>
 
         <div className="flex justify-end mb-2">
-           {transactions.length > 0 && (
+          {transactions.length > 0 && (
             <Button
               variant="ghost"
               size="sm"
@@ -96,13 +94,11 @@ export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
         </div>
 
         {transactions.length === 0 ? (
-          <div className="py-8 text-center text-white/30 text-sm">
-            No transactions found
-          </div>
+          <div className="py-8 text-center text-white/30 text-sm">No transactions found</div>
         ) : (
           <ScrollArea className="h-[300px] pr-4">
             <div className="space-y-3">
-              {transactions.map((tx) => (
+              {transactions.map(tx => (
                 <div
                   key={tx.paymentId}
                   className="p-3 rounded-lg bg-black/20 border border-white/5 flex flex-col gap-2"
@@ -112,9 +108,7 @@ export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
                       <div className="font-medium text-sm">
                         Bridge {formatUnits(BigInt(tx.amount), tx.decimals)} {tx.tokenSymbol}
                       </div>
-                      <div className="text-xs text-white/40 mt-1">
-                        {formatDate(tx.timestamp)}
-                      </div>
+                      <div className="text-xs text-white/40 mt-1">{formatDate(tx.timestamp)}</div>
                     </div>
                     <Badge variant="outline" className={`${getStatusColor(tx.status)} border capitalize`}>
                       {tx.status}
