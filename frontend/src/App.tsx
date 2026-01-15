@@ -146,11 +146,7 @@ export function App() {
       })
     }
 
-    items.push({
-      label: 'Slippage tolerance',
-      value: `${ROFL_PAYMASTER_SLIPPAGE_PERCENTAGE}%`,
-    })
-
+    // Note: Slippage is passed separately via the `slippage` prop to FeeBreakdown
     return items
   }, [estimatedRose, exchangeRate, selectedToken?.symbol, paymaster.initialLoading])
 
