@@ -151,7 +151,7 @@ export function App() {
     } else if (!paymaster.error) {
       prevErrorRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- We want to call handleBridge with latest values
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-run when error changes; paymaster object is not memoized, reset is stable
   }, [paymaster.error])
 
   // Handle token change
