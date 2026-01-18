@@ -1,7 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useAccount, useBalance, useConfig } from 'wagmi'
 import { formatUnits, parseUnits } from 'viem'
 import { base, sapphire } from 'wagmi/chains'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { toast } from 'sonner'
 import { LucideLoader } from 'lucide-react'
 
 import { BridgeCard, BridgeCardSection, BridgeCardDivider } from './components/bridge'
@@ -46,6 +48,7 @@ const DESTINATION_TOKEN: TokenOption = {
 export function App() {
   const { address, isConnected, chainId } = useAccount()
   const { chains: wagmiChains } = useConfig()
+  const { openConnectModal } = useConnectModal()
 
   // Treat wrong chain as unconnected to prevent sending to wrong network
   const isValidConnection =
@@ -109,6 +112,12 @@ export function App() {
   // Estimated ROSE output from the hook
   const estimatedRose = paymaster.roseEstimate
 
+  // Track previous error to avoid duplicate toasts
+  const prevErrorRef = useRef<string | null>(null)
+
+  // Ref to hold latest handleBridge function (avoids stale closure in toast retry)
+  const handleBridgeRef = useRef<() => Promise<void>>(() => Promise.resolve())
+
   // Handle bridge action
   const handleBridge = useCallback(async () => {
     if (!parsedAmount || parsedAmount === 0n) return
@@ -119,6 +128,31 @@ export function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
   }, [parsedAmount, paymaster.startTopUp])
+
+  // Keep ref updated with latest handleBridge
+  useEffect(() => {
+    handleBridgeRef.current = handleBridge
+  }, [handleBridge])
+
+  // Show error toast with retry action
+  useEffect(() => {
+    if (paymaster.error && paymaster.error !== prevErrorRef.current) {
+      prevErrorRef.current = paymaster.error
+      toast.error(paymaster.error, {
+        action: {
+          label: 'Retry',
+          onClick: () => {
+            paymaster.reset()
+            handleBridgeRef.current()
+          },
+        },
+        duration: 6000,
+      })
+    } else if (!paymaster.error) {
+      prevErrorRef.current = null
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- We want to call handleBridge with latest values
+  }, [paymaster.error])
 
   // Handle token change
   const handleTokenChange = useCallback(
@@ -307,8 +341,7 @@ export function App() {
               </div>
             )}
 
-            {/* Error Display */}
-            {paymaster.error && <p className="text-sm text-red-400 text-center mt-4">{paymaster.error}</p>}
+            {/* Errors are shown via toast notifications */}
 
             {/* Pending Transaction Recovery */}
             {paymaster.pendingTransaction && !paymaster.isLoading && (
@@ -326,11 +359,11 @@ export function App() {
 
             {/* Bridge Button */}
             <button
-              onClick={isValidConnection ? handleBridge : undefined}
-              disabled={!canBridge || paymaster.isLoading}
+              onClick={isValidConnection ? handleBridge : openConnectModal}
+              disabled={isValidConnection && (!canBridge || paymaster.isLoading)}
               className={cn(
                 'w-full h-14 rounded-xl font-medium text-base transition-colors mt-6',
-                canBridge && !paymaster.isLoading
+                !isValidConnection || (canBridge && !paymaster.isLoading)
                   ? 'bg-white text-black hover:bg-gray-100'
                   : 'bg-white/20 text-white/50 cursor-not-allowed'
               )}
