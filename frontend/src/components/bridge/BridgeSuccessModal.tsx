@@ -3,13 +3,7 @@ import { base, sapphire } from 'wagmi/chains'
 import { CheckCircle, ExternalLink, Copy, Check } from 'lucide-react'
 import { useState } from 'react'
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { getExplorerTxUrl, getExplorerAddressUrl } from '../../lib/blockExplorers'
 import type { BridgeSuccessData } from '../../hooks/usePaymaster'
@@ -122,10 +116,7 @@ export function BridgeSuccessModal({
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-2 mt-6">
-          <Button
-            onClick={onClose}
-            className="w-full bg-white text-black hover:bg-gray-100"
-          >
+          <Button onClick={onClose} className="w-full bg-white text-black hover:bg-gray-100">
             Bridge More
           </Button>
           <Button

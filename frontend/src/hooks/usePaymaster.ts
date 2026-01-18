@@ -567,6 +567,8 @@ export function usePaymaster(
           amount: pendingTransaction.amount,
           tokenSymbol: pendingTransaction.tokenSymbol,
         })
+      } else if (txRecord) {
+        console.warn('[usePaymaster] Transaction record missing txHash:', paymentId)
       }
 
       return { paymentId }

@@ -260,11 +260,7 @@ export function App() {
         {/* Wallet */}
         <div className="styledConnect shrink-0 flex items-center gap-2">
           {isConnected && address && (
-            <TransactionHistory
-              userAddress={address}
-              open={historyOpen}
-              onOpenChange={setHistoryOpen}
-            />
+            <TransactionHistory userAddress={address} open={historyOpen} onOpenChange={setHistoryOpen} />
           )}
           <CustomConnectButton />
         </div>

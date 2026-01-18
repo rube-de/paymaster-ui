@@ -36,7 +36,11 @@ interface TransactionHistoryProps {
   onOpenChange?: (open: boolean) => void
 }
 
-export function TransactionHistory({ userAddress, open: controlledOpen, onOpenChange }: TransactionHistoryProps) {
+export function TransactionHistory({
+  userAddress,
+  open: controlledOpen,
+  onOpenChange,
+}: TransactionHistoryProps) {
   const [internalOpen, setInternalOpen] = useState(false)
 
   // Support both controlled and uncontrolled modes
@@ -109,39 +113,43 @@ export function TransactionHistory({ userAddress, open: controlledOpen, onOpenCh
         ) : (
           <ScrollArea className="h-[300px] pr-4">
             <div className="space-y-3">
-              {transactions.map(tx => (
-                <div
-                  key={tx.paymentId}
-                  className="p-3 rounded-lg bg-black/20 border border-white/5 flex flex-col gap-2"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-medium text-sm">
-                        Bridge {formatUnits(BigInt(tx.amount), tx.decimals)} {tx.tokenSymbol}
-                      </div>
-                      <div className="text-xs text-white/40 mt-1">{formatDate(tx.timestamp)}</div>
-                    </div>
-                    <Badge variant="outline" className={`${getStatusColor(tx.status)} border capitalize`}>
-                      {tx.status}
-                    </Badge>
-                  </div>
+              {transactions.map(tx => {
+                const explorerUrl = tx.txHash ? getExplorerTxUrl(base.id, tx.txHash) : null
 
-                  {tx.txHash && getExplorerTxUrl(base.id, tx.txHash) && (
-                    <div className="pt-2 mt-2 border-t border-white/5 flex justify-between items-center text-xs">
-                      <span className="text-white/40">Tx Hash</span>
-                      <a
-                        href={getExplorerTxUrl(base.id, tx.txHash)!}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
-                      >
-                        {shortenAddress(tx.txHash)}
-                        <ExternalLink className="size-3" />
-                      </a>
+                return (
+                  <div
+                    key={tx.paymentId}
+                    className="p-3 rounded-lg bg-black/20 border border-white/5 flex flex-col gap-2"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-medium text-sm">
+                          Bridge {formatUnits(BigInt(tx.amount), tx.decimals)} {tx.tokenSymbol}
+                        </div>
+                        <div className="text-xs text-white/40 mt-1">{formatDate(tx.timestamp)}</div>
+                      </div>
+                      <Badge variant="outline" className={`${getStatusColor(tx.status)} border capitalize`}>
+                        {tx.status}
+                      </Badge>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {explorerUrl && (
+                      <div className="pt-2 mt-2 border-t border-white/5 flex justify-between items-center text-xs">
+                        <span className="text-white/40">Tx Hash</span>
+                        <a
+                          href={explorerUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
+                        >
+                          {shortenAddress(tx.txHash!)}
+                          <ExternalLink className="size-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           </ScrollArea>
         )}
