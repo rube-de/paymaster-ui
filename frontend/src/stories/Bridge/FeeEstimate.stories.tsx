@@ -125,8 +125,7 @@ export const Responsive: Story = {
     },
     docs: {
       description: {
-        story:
-          'On mobile viewports, layout stacks vertically with a down arrow instead of horizontal arrow',
+        story: 'On mobile viewports, layout stacks vertically with a down arrow instead of horizontal arrow',
       },
     },
   },
@@ -138,17 +137,12 @@ export const InContext: Story = {
     sourceToken: 'USDC',
     destinationAmount: '1,050',
     destinationToken: 'ROSE',
+    rate: '1 USDC ≈ 10.5 ROSE',
   },
-  render: () => (
+  render: args => (
     <div className="space-y-4 p-6 bg-black/40 rounded-2xl border border-white/10">
       <h3 className="text-lg font-semibold text-white">Bridge Summary</h3>
-      <FeeEstimate
-        sourceAmount="100"
-        sourceToken="USDC"
-        destinationAmount="1,050"
-        destinationToken="ROSE"
-        rate="1 USDC ≈ 10.5 ROSE"
-      />
+      <FeeEstimate {...args} />
       <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors">
         Confirm Bridge
       </button>
