@@ -11,7 +11,7 @@ import {
   PendingTransaction,
   savePendingTransaction,
 } from '../lib/pendingTransaction.ts'
-import { saveTransaction, updateTransactionStatus } from '../lib/transactionHistory.ts'
+import { getTransactions, saveTransaction, updateTransactionStatus } from '../lib/transactionHistory.ts'
 import {
   ROFL_PAYMASTER_DESTINATION_CHAIN,
   ROFL_PAYMASTER_DESTINATION_CHAIN_TOKEN,
@@ -40,6 +40,14 @@ export type StartTopUpParams = {
   amount: bigint
 }
 
+/** Data populated on successful bridge completion for the success modal */
+export type BridgeSuccessData = {
+  paymentId: string
+  baseTxHash: string
+  amount: string
+  tokenSymbol: string
+}
+
 export type UsePaymasterTopUpFlowReturn = {
   isLoading: boolean
   initialLoading: boolean
@@ -54,6 +62,10 @@ export type UsePaymasterTopUpFlowReturn = {
   pendingTransaction: PendingTransaction | null
   resumeFromPending: () => Promise<{ paymentId: string | null }>
   dismissPending: () => void
+
+  // Success state for modal display
+  successData: BridgeSuccessData | null
+  clearSuccess: () => void
 
   getQuote: (p: StartTopUpParams) => Promise<bigint | null>
   getRoseEstimate: (p: StartTopUpParams) => Promise<bigint | null>
@@ -125,6 +137,9 @@ export function usePaymaster(
   // Recovery state for interrupted transactions
   const [pendingTransaction, setPendingTransaction] = useState<PendingTransaction | null>(null)
 
+  // Success state for displaying the success modal after bridge completion
+  const [successData, setSuccessData] = useState<BridgeSuccessData | null>(null)
+
   // Track current step synchronously for error handling (avoids stale closure in callbacks)
   const currentStepRef = useRef<number | null>(null)
 
@@ -160,6 +175,10 @@ export function usePaymaster(
 
   const cancel = useCallback(() => {
     abortControllerRef.current?.abort()
+  }, [])
+
+  const clearSuccess = useCallback(() => {
+    setSuccessData(null)
   }, [])
 
   // Cleanup on unmount - abort any in-flight operations
@@ -537,6 +556,19 @@ export function usePaymaster(
 
       updateTransactionStatus(paymentId, 'completed')
 
+      // Set success data for the success modal
+      // Look up baseTxHash from transaction history (saved when deposit was created)
+      const transactions = getTransactions(address)
+      const txRecord = transactions.find(tx => tx.paymentId === paymentId)
+      if (txRecord?.txHash) {
+        setSuccessData({
+          paymentId,
+          baseTxHash: txRecord.txHash,
+          amount: pendingTransaction.amount,
+          tokenSymbol: pendingTransaction.tokenSymbol,
+        })
+      }
+
       return { paymentId }
     } catch (e) {
       const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Recovery failed'
@@ -575,6 +607,8 @@ export function usePaymaster(
       isLoadingRef.current = true
 
       setError('')
+      // Clear any previous success state before starting new bridge
+      setSuccessData(null)
 
       if (!address) {
         isLoadingRef.current = false
@@ -593,6 +627,7 @@ export function usePaymaster(
       // Track whether deposit was committed (for error handling)
       let depositCommitted = false
       let paymentId: string | null = null
+      let baseTxHash: string | null = null
 
       try {
         // Step 1: switch to source chain
@@ -636,6 +671,7 @@ export function usePaymaster(
           )
         }
         paymentId = depositResult.paymentId
+        baseTxHash = depositResult.hash
         depositCommitted = true // Funds are now committed on-chain
 
         saveTransaction({
@@ -701,6 +737,16 @@ export function usePaymaster(
 
         if (paymentId) updateTransactionStatus(paymentId, 'completed')
 
+        // Set success data for the success modal
+        if (paymentId && baseTxHash) {
+          setSuccessData({
+            paymentId,
+            baseTxHash,
+            amount: amount.toString(),
+            tokenSymbol: targetToken.symbol,
+          })
+        }
+
         return { paymentId }
       } catch (e) {
         const msg = e instanceof Error ? (e as BaseError).shortMessage || e.message : 'Top up failed'
@@ -764,6 +810,9 @@ export function usePaymaster(
     pendingTransaction,
     resumeFromPending,
     dismissPending,
+    // Success state
+    successData,
+    clearSuccess,
     getQuote,
     getRoseEstimate,
     startTopUp,

@@ -10,7 +10,7 @@ import { BridgeCard, BridgeCardSection, BridgeCardDivider } from './components/b
 import { AmountInput } from './components/bridge'
 import { TokenSelector, getTokenKey, type TokenOption } from './components/bridge'
 import { FeeBreakdown, FeeEstimate, type FeeItem } from './components/bridge'
-import { PendingTransactionBanner, TransactionHistory } from './components/bridge'
+import { PendingTransactionBanner, TransactionHistory, BridgeSuccessModal } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
 import {
@@ -59,6 +59,7 @@ export function App() {
   const [selectedTokenKey, setSelectedTokenKey] = useState<string | null>(
     SOURCE_TOKENS.length > 0 ? getTokenKey(SOURCE_TOKENS[0]) : null
   )
+  const [historyOpen, setHistoryOpen] = useState(false)
 
   const selectedToken = useMemo(
     () => SOURCE_TOKENS.find(t => getTokenKey(t) === selectedTokenKey) ?? SOURCE_TOKENS[0],
@@ -176,6 +177,14 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
   }, [paymaster.resumeFromPending])
 
+  // Handle success modal close - clear success state and reset form
+  const handleSuccessClose = useCallback(() => {
+    paymaster.clearSuccess()
+    paymaster.reset()
+    setAmount('') // Also reset the amount input for fresh start
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific methods, not whole object
+  }, [paymaster.clearSuccess, paymaster.reset])
+
   // Calculate exchange rate: ROSE per 1 token
   const exchangeRate = useMemo(() => {
     if (!estimatedRose || !parsedAmount || parsedAmount === 0n) return null
@@ -250,7 +259,13 @@ export function App() {
 
         {/* Wallet */}
         <div className="styledConnect shrink-0 flex items-center gap-2">
-          {isConnected && address && <TransactionHistory userAddress={address} />}
+          {isConnected && address && (
+            <TransactionHistory
+              userAddress={address}
+              open={historyOpen}
+              onOpenChange={setHistoryOpen}
+            />
+          )}
           <CustomConnectButton />
         </div>
       </header>
@@ -403,6 +418,15 @@ export function App() {
           </div>
         </div>
       </footer>
+
+      {/* Success Modal */}
+      <BridgeSuccessModal
+        successData={paymaster.successData}
+        userAddress={address}
+        tokenDecimals={selectedToken?.decimals ?? 6}
+        onClose={handleSuccessClose}
+        onViewHistory={() => setHistoryOpen(true)}
+      />
     </div>
   )
 }

@@ -15,6 +15,8 @@ import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 
 import { getTransactions, clearHistory, TransactionRecord } from '../../lib/transactionHistory'
+import { getExplorerTxUrl } from '../../lib/blockExplorers'
+import { base } from 'wagmi/chains'
 
 // Helper to format date
 const formatDate = (timestamp: number) => {
@@ -28,10 +30,19 @@ const shortenAddress = (address: string) => {
 
 interface TransactionHistoryProps {
   userAddress?: Address
+  /** External control for dialog open state */
+  open?: boolean
+  /** Callback when dialog open state changes */
+  onOpenChange?: (open: boolean) => void
 }
 
-export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
-  const [open, setOpen] = useState(false)
+export function TransactionHistory({ userAddress, open: controlledOpen, onOpenChange }: TransactionHistoryProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+
+  // Support both controlled and uncontrolled modes
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : internalOpen
+  const setOpen = isControlled ? (onOpenChange ?? (() => {})) : setInternalOpen
   const [transactions, setTransactions] = useState<TransactionRecord[]>([])
 
   // Load transactions when dialog opens or address changes
@@ -115,11 +126,11 @@ export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
                     </Badge>
                   </div>
 
-                  {tx.txHash && (
+                  {tx.txHash && getExplorerTxUrl(base.id, tx.txHash) && (
                     <div className="pt-2 mt-2 border-t border-white/5 flex justify-between items-center text-xs">
                       <span className="text-white/40">Tx Hash</span>
                       <a
-                        href={`https://basescan.org/tx/${tx.txHash}`}
+                        href={getExplorerTxUrl(base.id, tx.txHash)!}
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
