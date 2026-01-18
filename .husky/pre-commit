@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Run lint-staged and TypeScript check in frontend directory
+cd frontend
+
+# Run lint-staged on staged files (ESLint + Prettier)
+npx lint-staged
+
+# Run full TypeScript check (cannot be file-scoped)
+yarn checkTs

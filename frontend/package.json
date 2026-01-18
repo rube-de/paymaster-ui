@@ -18,6 +18,15 @@
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook"
   },
+  "lint-staged": {
+    "*.{ts,tsx,js}": [
+      "eslint --max-warnings 0",
+      "prettier --check"
+    ],
+    "*.{json,md,css}": [
+      "prettier --check"
+    ]
+  },
   "license": "Apache-2.0",
   "packageManager": "yarn@1.22.22",
   "devDependencies": {
@@ -40,6 +49,8 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "eslint-plugin-storybook": "^9.0.0-rc.2",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "markdownlint-cli": "^0.45.0",
     "minimatch": "^10.1.1",
     "playwright": "^1.56.1",
