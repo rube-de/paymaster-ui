@@ -51,6 +51,12 @@ npx hardhat deploy:roffle --network sapphire --verify
 docker run -it -p8544-8548:8544-8548 ghcr.io/oasisprotocol/sapphire-localnet
 ```
 
+### Worktree Setup
+For each new git worktree, run:
+```bash
+npx husky install        # Enable pre-commit hooks
+```
+
 ## Architecture
 
 ### Monorepo Structure
