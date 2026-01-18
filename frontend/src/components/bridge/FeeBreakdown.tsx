@@ -158,13 +158,13 @@ export function FeeEstimate({
     <div data-slot="fee-estimate" className={cn('space-y-2', className)}>
       <div
         className={cn(
-          'flex items-center justify-between',
+          'flex flex-col sm:flex-row items-center justify-between gap-3',
           'px-4 py-3',
           'bg-black/15 border border-white/10',
           'rounded-xl'
         )}
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col items-center sm:items-start w-full sm:w-auto">
           <span className="text-xs text-white/50">You pay</span>
           {loading ? (
             <LoadingDots />
@@ -175,13 +175,14 @@ export function FeeEstimate({
           )}
         </div>
 
+        {/* Horizontal arrow - hidden on mobile */}
         <svg
           width="16"
           height="16"
           viewBox="0 0 16 16"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="text-white/50"
+          className="hidden sm:block text-white/50 shrink-0"
           aria-hidden="true"
         >
           <path
@@ -193,7 +194,26 @@ export function FeeEstimate({
           />
         </svg>
 
-        <div className="flex flex-col items-end">
+        {/* Vertical arrow - shown on mobile only */}
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="sm:hidden text-white/50"
+          aria-hidden="true"
+        >
+          <path
+            d="M8 3V13M8 13L4 9M8 13L12 9"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        <div className="flex flex-col items-center sm:items-end w-full sm:w-auto">
           <span className="text-xs text-white/50">You receive</span>
           {loading ? (
             <LoadingDots />
