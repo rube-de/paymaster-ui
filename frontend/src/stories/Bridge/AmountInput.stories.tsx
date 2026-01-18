@@ -93,6 +93,7 @@ export const Disabled: Story = {
     label: 'Amount',
     disabled: true,
     balance: parseUnits('500', 18),
+    maxValue: parseUnits('500', 18),
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -143,8 +144,7 @@ export const MaxBelowGasBuffer: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Edge case: When maxValue < gasBuffer for native tokens, MAX should set to 0 (not negative)',
+        story: 'Edge case: When maxValue < gasBuffer for native tokens, MAX should set to 0 (not negative)',
       },
     },
   },
