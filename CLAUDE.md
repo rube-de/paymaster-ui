@@ -131,6 +131,10 @@ const typedRoffleJson = RoffleJson as Roffle$Type
 PRIVATE_KEY=0x...  # Deployer private key (or uses test mnemonic)
 ```
 
+## Git Commit Messages
+
+Uses `gitlint` - keep all lines under **80 characters** (subject under 50).
+
 ## Task Tracking (Beads)
 
 Use `bd` for persistent task tracking across sessions.
