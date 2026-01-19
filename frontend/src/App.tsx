@@ -91,12 +91,13 @@ export function App() {
 
   // Reset token selection when chain changes
   useEffect(() => {
-    const newTokens = buildSourceTokens(selectedSourceChainId)
-    if (newTokens.length > 0) {
-      setSelectedTokenKey(getTokenKey(newTokens[0]))
+    if (sourceTokens.length > 0) {
+      setSelectedTokenKey(getTokenKey(sourceTokens[0]))
+    } else {
+      setSelectedTokenKey(null)
     }
     setAmount('') // Clear amount when chain changes
-  }, [selectedSourceChainId])
+  }, [sourceTokens])
 
   const selectedToken = useMemo(
     () => sourceTokens.find(t => getTokenKey(t) === selectedTokenKey) ?? sourceTokens[0],
@@ -109,6 +110,9 @@ export function App() {
       // Defensive: fall back to first supported chain's first token
       // This prevents crashes if chain config is somehow missing
       const fallbackChain = SUPPORTED_SOURCE_CHAINS[0]
+      if (!fallbackChain) {
+        throw new Error('No supported source chains configured')
+      }
       const fallbackConfig = ROFL_PAYMASTER_TOKEN_CONFIG[fallbackChain.id]
       if (!fallbackConfig?.TOKENS.length) {
         throw new Error('No token configuration available for any supported chain')

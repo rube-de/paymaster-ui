@@ -135,6 +135,13 @@ PRIVATE_KEY=0x...  # Deployer private key (or uses test mnemonic)
 
 Uses `gitlint` - keep all lines under **80 characters** (subject under 50).
 
+## GitHub PR Comments
+
+Reply to PR review comments using the gh CLI:
+```bash
+gh api repos/{owner}/{repo}/pulls/{pr}/comments/{comment_id}/replies -X POST -f body="Your reply"
+```
+
 ## Task Tracking (Beads)
 
 Use `bd` for persistent task tracking across sessions.
