@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Oasis Xmas Roffle - A raffle dApp where users buy tickets with ROSE to win a share of the prize pool. Integrates ROFL Paymaster for cross-chain payments (USDC/USDT on Base → ROSE on Sapphire).
+Oasis Bridge - A cross-chain bridge dApp that enables users to bridge stablecoins from Base, Arbitrum, and Ethereum to receive ROSE on Oasis Sapphire. Powered by ROFL Paymaster for secure cross-chain payments.
 
 Production: https://roffle.oasis.io/
 
