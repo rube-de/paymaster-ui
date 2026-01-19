@@ -4,7 +4,7 @@ import { FC } from 'react'
 export const ROSEIcon: FC<{ className?: string }> = ({ className }) => {
   return (
     <svg
-      className={className ?? 'block size-full'}
+      className={className ?? 'block size-6'}
       fill="none"
       preserveAspectRatio="none"
       viewBox="0 0 24 24"
