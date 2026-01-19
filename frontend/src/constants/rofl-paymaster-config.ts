@@ -21,7 +21,7 @@ export type RoflPaymasterChainConfig = {
 
 export const ROFL_PAYMASTER_TOKEN_CONFIG: Record<string, RoflPaymasterChainConfig> = {
   [base.id]: {
-    paymasterContractAddress: '0x7D3B4dd07bd523E519e0A91afD8e3B325586fb5b',
+    paymasterContractAddress: '0x4A390256055264787F1d7d9b75bDBe78F6b7f49C',
     TOKENS: [
       {
         contractAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
