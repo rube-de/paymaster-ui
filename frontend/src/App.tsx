@@ -127,7 +127,13 @@ export function App() {
       }
       return fallbackConfig.TOKENS[0]
     }
-    return chainConfig.TOKENS.find(t => t.symbol === selectedToken?.symbol) ?? chainConfig.TOKENS[0]
+    const matchedToken = chainConfig.TOKENS.find(t => t.symbol === selectedToken?.symbol)
+    if (!matchedToken) {
+      console.warn(
+        `[tokenConfig] Token "${selectedToken?.symbol}" not found for chain ${selectedSourceChainId}, falling back to ${chainConfig.TOKENS[0].symbol}`
+      )
+    }
+    return matchedToken ?? chainConfig.TOKENS[0]
   }, [selectedToken, selectedSourceChainId])
 
   // Balances - fetch from the selected source chain
@@ -223,6 +229,7 @@ export function App() {
           await switchToChain({ targetChainId: chainId, address })
         } catch (error) {
           console.warn('Failed to switch chain:', error)
+          toast.error('Failed to switch network. Please switch manually in your wallet.')
         }
       }
     },

@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Package Manager
+
+**IMPORTANT**: This project uses **yarn** as the package manager. Do NOT use npm or npx for frontend commands.
+
+- Use `yarn` for installing dependencies
+- Use `yarn <script>` for running scripts (e.g., `yarn checkTs`, `yarn lint`)
+- The only exception is Hardhat commands which use `npx hardhat`
+
 ## Project Overview
 
 Oasis Bridge - A cross-chain bridge dApp that enables users to bridge stablecoins from Base, Arbitrum, and Ethereum to receive ROSE on Oasis Sapphire. Powered by ROFL Paymaster for secure cross-chain payments.
