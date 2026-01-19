@@ -9,14 +9,18 @@ import { LucideLoader } from 'lucide-react'
 import { BridgeCard, BridgeCardSection, BridgeCardDivider } from './components/bridge'
 import { AmountInput } from './components/bridge'
 import { TokenSelector, getTokenKey, type TokenOption } from './components/bridge'
+import { ChainSelector } from './components/bridge'
 import { FeeBreakdown, FeeEstimate, type FeeItem } from './components/bridge'
 import { PendingTransactionBanner, TransactionHistory, BridgeSuccessModal } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
+import { switchToChain } from './contracts/erc-20'
 import {
   ROFL_PAYMASTER_TOKEN_CONFIG,
   ROFL_PAYMASTER_EXPECTED_TIME,
   ROFL_PAYMASTER_SLIPPAGE_PERCENTAGE,
+  SUPPORTED_SOURCE_CHAINS,
+  getChainName,
 } from './constants/rofl-paymaster-config'
 import { ROSEIcon } from './components/icons/RoseIcon'
 import { USDCIcon } from './components/icons/USDCIcon'
@@ -24,16 +28,33 @@ import { USDTIcon } from './components/icons/USDTIcon'
 import { cn } from './lib/utils'
 import svgPaths from './imports/svg-tho7mppomn'
 
-/** Source tokens available on Base */
-const SOURCE_TOKENS: TokenOption[] = ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS.map(token => ({
-  symbol: token.symbol,
-  name: token.name,
-  address: token.contractAddress,
-  decimals: token.decimals,
-  chainId: base.id,
-  chainName: 'Base',
-  icon: token.symbol === 'USDC' ? <USDCIcon /> : <USDTIcon />,
-}))
+/** Token icon mapping - extensible for new tokens */
+function getTokenIcon(symbol: string): React.ReactNode {
+  const icons: Record<string, React.ReactNode> = {
+    USDC: <USDCIcon />,
+    USDT: <USDTIcon />,
+    ROSE: <ROSEIcon />,
+  }
+  // Default to first available icon if token not found (defensive)
+  return icons[symbol] ?? icons.USDC
+}
+
+/** Build source tokens for a given chain ID */
+function buildSourceTokens(chainId: number): TokenOption[] {
+  const chainConfig = ROFL_PAYMASTER_TOKEN_CONFIG[chainId]
+  if (!chainConfig) return []
+
+  const chainName = getChainName(chainId)
+  return chainConfig.TOKENS.map(token => ({
+    symbol: token.symbol,
+    name: token.name,
+    address: token.contractAddress,
+    decimals: token.decimals,
+    chainId,
+    chainName,
+    icon: getTokenIcon(token.symbol),
+  }))
+}
 
 /** Destination token (ROSE on Sapphire) */
 const DESTINATION_TOKEN: TokenOption = {
@@ -54,30 +75,72 @@ export function App() {
   const isValidConnection =
     isConnected && chainId !== undefined && wagmiChains.some(chain => chain.id === chainId)
 
-  // Bridge state
+  // Bridge state - chain selection
+  const [selectedSourceChainId, setSelectedSourceChainId] = useState(
+    SUPPORTED_SOURCE_CHAINS[0]?.id ?? base.id
+  )
+
+  // Sync dropdown when wallet chain changes to a supported source chain
+  useEffect(() => {
+    if (chainId && SUPPORTED_SOURCE_CHAINS.some(c => c.id === chainId)) {
+      setSelectedSourceChainId(chainId)
+    }
+  }, [chainId])
+
+  // Build source tokens based on selected chain
+  const sourceTokens = useMemo(() => buildSourceTokens(selectedSourceChainId), [selectedSourceChainId])
+
+  // Token selection state
   const [amount, setAmount] = useState('')
   const [selectedTokenKey, setSelectedTokenKey] = useState<string | null>(
-    SOURCE_TOKENS.length > 0 ? getTokenKey(SOURCE_TOKENS[0]) : null
+    sourceTokens.length > 0 ? getTokenKey(sourceTokens[0]) : null
   )
   const [historyOpen, setHistoryOpen] = useState(false)
 
+  // Reset token selection when chain changes
+  useEffect(() => {
+    if (sourceTokens.length > 0) {
+      setSelectedTokenKey(getTokenKey(sourceTokens[0]))
+    } else {
+      setSelectedTokenKey(null)
+    }
+    setAmount('') // Clear amount when chain changes
+  }, [sourceTokens])
+
   const selectedToken = useMemo(
-    () => SOURCE_TOKENS.find(t => getTokenKey(t) === selectedTokenKey) ?? SOURCE_TOKENS[0],
-    [selectedTokenKey]
+    () => sourceTokens.find(t => getTokenKey(t) === selectedTokenKey) ?? sourceTokens[0],
+    [selectedTokenKey, sourceTokens]
   )
 
-  const tokenConfig = useMemo(
-    () =>
-      ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS.find(t => t.symbol === selectedToken?.symbol) ??
-      ROFL_PAYMASTER_TOKEN_CONFIG[base.id].TOKENS[0],
-    [selectedToken]
-  )
+  const tokenConfig = useMemo(() => {
+    const chainConfig = ROFL_PAYMASTER_TOKEN_CONFIG[selectedSourceChainId]
+    if (!chainConfig?.TOKENS.length) {
+      // Defensive: fall back to first supported chain's first token
+      // This prevents crashes if chain config is somehow missing
+      const fallbackChain = SUPPORTED_SOURCE_CHAINS[0]
+      if (!fallbackChain) {
+        throw new Error('No supported source chains configured')
+      }
+      const fallbackConfig = ROFL_PAYMASTER_TOKEN_CONFIG[fallbackChain.id]
+      if (!fallbackConfig?.TOKENS.length) {
+        throw new Error('No token configuration available for any supported chain')
+      }
+      return fallbackConfig.TOKENS[0]
+    }
+    const matchedToken = chainConfig.TOKENS.find(t => t.symbol === selectedToken?.symbol)
+    if (!matchedToken) {
+      console.warn(
+        `[tokenConfig] Token "${selectedToken?.symbol}" not found for chain ${selectedSourceChainId}, falling back to ${chainConfig.TOKENS[0].symbol}`
+      )
+    }
+    return matchedToken ?? chainConfig.TOKENS[0]
+  }, [selectedToken, selectedSourceChainId])
 
-  // Balances
+  // Balances - fetch from the selected source chain
   const sourceBalance = useBalance({
     address,
     token: selectedToken?.address as `0x${string}` | undefined,
-    chainId: base.id,
+    chainId: selectedSourceChainId,
     query: { enabled: !!address && !!selectedToken?.address, refetchInterval: 30_000 },
   })
 
@@ -88,7 +151,7 @@ export function App() {
   })
 
   // Paymaster hook for cross-chain transfer
-  const paymaster = usePaymaster(tokenConfig, [])
+  const paymaster = usePaymaster(tokenConfig, selectedSourceChainId, [])
 
   // Parse input amount
   const parsedAmount = useMemo(() => {
@@ -154,6 +217,25 @@ export function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-run when error changes; paymaster object is not memoized, reset is stable
   }, [paymaster.error])
+
+  // Handle chain change - update UI state and switch wallet
+  const handleChainChange = useCallback(
+    async (chainId: number) => {
+      setSelectedSourceChainId(chainId)
+      paymaster.reset()
+      // Switch wallet to the selected chain
+      if (address) {
+        try {
+          await switchToChain({ targetChainId: chainId, address })
+        } catch (error) {
+          console.warn('Failed to switch chain:', error)
+          toast.error('Failed to switch network. Please switch manually in your wallet.')
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
+    [paymaster.reset, address]
+  )
 
   // Handle token change
   const handleTokenChange = useCallback(
@@ -270,17 +352,21 @@ export function App() {
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 md:py-0">
         <BridgeCard
           title="Bridge to Sapphire"
-          description="Transfer stablecoins from Base to receive ROSE on Sapphire"
+          description="Transfer stablecoins from Base, Arbitrum, or Ethereum to receive ROSE on Sapphire"
         >
           <div className="space-y-4">
             {/* Source Section */}
             <BridgeCardSection label="From">
               <div className="space-y-3">
+                <ChainSelector
+                  value={selectedSourceChainId}
+                  onChange={handleChainChange}
+                  disabled={paymaster.isLoading}
+                />
                 <TokenSelector
                   value={selectedTokenKey}
-                  options={SOURCE_TOKENS}
+                  options={sourceTokens}
                   onChange={handleTokenChange}
-                  showChainName
                   disabled={paymaster.isLoading}
                 />
                 <AmountInput
@@ -359,7 +445,7 @@ export function App() {
               <PendingTransactionBanner
                 pending={paymaster.pendingTransaction}
                 decimals={
-                  SOURCE_TOKENS.find(
+                  sourceTokens.find(
                     t => t.address?.toLowerCase() === paymaster.pendingTransaction!.tokenAddress.toLowerCase()
                   )?.decimals ?? 6
                 }
