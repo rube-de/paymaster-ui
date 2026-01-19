@@ -1,0 +1,57 @@
+# Dependencies
+node_modules
+
+# Secrets and environment files
+.env*
+*.secret
+*.key
+credentials*
+
+# Build output
+dist
+dist-ssr
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Development tooling
+.storybook
+storybook-static
+coverage
+*.log
+*.local
+
+# IDE and OS
+.vscode
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Documentation
+*.md
+LICENSE
+NOTICE
+
+# CI/CD
+.github
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+vitest.workspace.ts
+
+# Config files not needed in build
+.prettierrc.cjs
+.markdownlint.yml
+.gitlint
+.eslintcache
+eslint.config.mjs
+components.json
