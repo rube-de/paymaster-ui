@@ -14,6 +14,7 @@ import { FeeBreakdown, FeeEstimate, type FeeItem } from './components/bridge'
 import { PendingTransactionBanner, TransactionHistory, BridgeSuccessModal } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
+import { switchToChain } from './contracts/erc-20'
 import {
   ROFL_PAYMASTER_TOKEN_CONFIG,
   ROFL_PAYMASTER_EXPECTED_TIME,
@@ -78,6 +79,13 @@ export function App() {
   const [selectedSourceChainId, setSelectedSourceChainId] = useState(
     SUPPORTED_SOURCE_CHAINS[0]?.id ?? base.id
   )
+
+  // Sync dropdown when wallet chain changes to a supported source chain
+  useEffect(() => {
+    if (chainId && SUPPORTED_SOURCE_CHAINS.some(c => c.id === chainId)) {
+      setSelectedSourceChainId(chainId)
+    }
+  }, [chainId])
 
   // Build source tokens based on selected chain
   const sourceTokens = useMemo(() => buildSourceTokens(selectedSourceChainId), [selectedSourceChainId])
@@ -204,14 +212,22 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-run when error changes; paymaster object is not memoized, reset is stable
   }, [paymaster.error])
 
-  // Handle chain change
+  // Handle chain change - update UI state and switch wallet
   const handleChainChange = useCallback(
-    (chainId: number) => {
+    async (chainId: number) => {
       setSelectedSourceChainId(chainId)
       paymaster.reset()
+      // Switch wallet to the selected chain
+      if (address) {
+        try {
+          await switchToChain({ targetChainId: chainId, address })
+        } catch (error) {
+          console.warn('Failed to switch chain:', error)
+        }
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
-    [paymaster.reset]
+    [paymaster.reset, address]
   )
 
   // Handle token change
