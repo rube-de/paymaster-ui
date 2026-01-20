@@ -13,11 +13,11 @@ export function BridgeCard({ children, className, title, description }: BridgeCa
     <div
       data-slot="bridge-card"
       className={cn(
-        'w-full max-w-md mx-auto',
-        'bg-black/40 backdrop-blur-xl',
+        'w-full max-w-[400px] mx-auto',
+        'bg-card',
         'border border-white/10',
-        'rounded-2xl shadow-2xl',
-        'p-4', // Reduced from p-6 for compact layout
+        'rounded-xl shadow-2xl',
+        'p-6',
         className
       )}
     >

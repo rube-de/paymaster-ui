@@ -361,7 +361,7 @@ export function App() {
       {/* Main Content */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 md:py-0">
         <BridgeCard>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* Compact Source Section: Amount input with inline ChainToken badge */}
             <AmountInput
               label="From"
@@ -453,9 +453,9 @@ export function App() {
               onClick={isValidConnection ? handleBridge : openConnectModal}
               disabled={isValidConnection && (!canBridge || paymaster.isLoading)}
               className={cn(
-                'w-full h-12 rounded-xl font-medium text-base transition-colors mt-3',
+                'w-full h-10 rounded-lg font-medium text-base transition-colors mt-4',
                 !isValidConnection || (canBridge && !paymaster.isLoading)
-                  ? 'bg-white text-black hover:bg-gray-100'
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                   : 'bg-white/20 text-white/50 cursor-not-allowed'
               )}
             >
