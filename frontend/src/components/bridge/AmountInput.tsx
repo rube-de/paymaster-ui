@@ -93,6 +93,19 @@ export function AmountInput({
     }
   }, [maxValue, decimals, onChange, onMaxClick, isNativeToken, gasBuffer])
 
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      if (maxValue !== undefined) {
+        const effectiveMax =
+          isNativeToken && gasBuffer > 0n ? (maxValue > gasBuffer ? maxValue - gasBuffer : 0n) : maxValue
+        const percentValue = (effectiveMax * BigInt(percent)) / 100n
+        const formatted = formatUnits(percentValue, decimals)
+        onChange(formatted)
+      }
+    },
+    [maxValue, decimals, onChange, isNativeToken, gasBuffer]
+  )
+
   const parsedValue = useMemo(() => {
     if (!value || value === '.') return 0n
     try {
@@ -157,7 +170,7 @@ export function AmountInput({
         <div className="shrink-0">{trailing}</div>
       </div>
 
-      {/* Balance + MAX row (below input, like Bungee/Across) */}
+      {/* Balance + Percentage buttons row (below input, like Bungee/Across) */}
       {(formattedBalance !== null || showMaxButton) && (
         <div className="flex items-center justify-between px-1">
           {/* Left: Balance info */}
@@ -169,22 +182,41 @@ export function AmountInput({
             <span />
           )}
 
-          {/* Right: MAX button */}
+          {/* Right: Percentage + MAX buttons */}
           {showMaxButton && (maxValue !== undefined || onMaxClick) && (
-            <button
-              type="button"
-              onClick={handleMaxClick}
-              disabled={disabled}
-              className={cn(
-                'px-2 py-0.5 text-xs font-medium rounded',
-                'text-white/60 hover:text-white',
-                'hover:bg-white/10',
-                'transition-colors',
-                'disabled:opacity-50 disabled:pointer-events-none'
-              )}
-            >
-              MAX
-            </button>
+            <div className="flex items-center gap-1">
+              {[25, 50, 75].map(percent => (
+                <button
+                  key={percent}
+                  type="button"
+                  onClick={() => handlePercentClick(percent)}
+                  disabled={disabled}
+                  className={cn(
+                    'px-1.5 py-0.5 text-xs font-medium rounded',
+                    'text-white/40 hover:text-white/70',
+                    'hover:bg-white/10',
+                    'transition-colors',
+                    'disabled:opacity-50 disabled:pointer-events-none'
+                  )}
+                >
+                  {percent}%
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={handleMaxClick}
+                disabled={disabled}
+                className={cn(
+                  'px-1.5 py-0.5 text-xs font-medium rounded',
+                  'text-white/60 hover:text-white',
+                  'hover:bg-white/10',
+                  'transition-colors',
+                  'disabled:opacity-50 disabled:pointer-events-none'
+                )}
+              >
+                MAX
+              </button>
+            </div>
           )}
         </div>
       )}
