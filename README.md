@@ -3,7 +3,7 @@
 Bridge stablecoins from Base, Arbitrum, and Ethereum to receive ROSE on
 Oasis Sapphire.
 
-The production deployment lives at <https://roffle.oasis.io/>.
+The production deployment lives at <https://oasis-bridge-seven.vercel.app/>.
 
 ## How it works?
 
