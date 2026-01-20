@@ -4,11 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Package Manager
 
-**IMPORTANT**: This project uses **yarn** as the package manager. Do NOT use npm or npx for frontend commands.
+**IMPORTANT**: This project uses **yarn** as the package manager. Do NOT use npm or npx.
 
 - Use `yarn` for installing dependencies
 - Use `yarn <script>` for running scripts (e.g., `yarn checkTs`, `yarn lint`)
-- The only exception is Hardhat commands which use `npx hardhat`
 
 ## Project Overview
 
@@ -20,15 +19,8 @@ Production: https://roffle.oasis.io/
 
 ### Development
 ```bash
-# Start frontend dev server (compiles contracts first)
-yarn dev
-
-# Build everything
-yarn build
-
-# Build separately
-yarn build:contracts      # Hardhat compile
-yarn build:frontend       # Vite build
+yarn dev      # Start frontend dev server
+yarn build    # Production build
 ```
 
 ### Frontend (in frontend/)
@@ -42,102 +34,57 @@ yarn prettier            # Auto-format
 yarn storybook           # Component storybook
 ```
 
-### Contracts
-```bash
-npx hardhat test                           # Run tests
-npx hardhat test test/Roffle.ts            # Single test file
-npx hardhat compile                        # Compile contracts
-
-# Deploy (uses tasks/deploy.ts)
-npx hardhat deploy:roffle --network sapphire-testnet
-npx hardhat deploy:roffle --network sapphire --verify
-```
-
-### Local Development
-```bash
-# Run Sapphire localnet
-docker run -it -p8544-8548:8544-8548 ghcr.io/oasisprotocol/sapphire-localnet
-```
-
 ### Worktree Setup
 For each new git worktree, run:
 ```bash
+yarn                     # Install dependencies
 npx husky install        # Enable pre-commit hooks
 ```
 
 ## Architecture
 
-### Monorepo Structure
-- **Root**: Hardhat config, contract compilation, deployment tasks
-- **contracts/**: Solidity contracts (Roffle.sol)
+### Project Structure
+- **Root**: Workspace config, husky hooks
 - **frontend/**: React + Vite + Tailwind + shadcn/ui component library
 
-### Smart Contract (contracts/Roffle.sol)
-Sapphire-native raffle using hardware-backed randomness:
-- Fixed ticket price (250 ROSE), max 10 per wallet, 3600 total
-- 10 winners with tiered prize distribution (50%, 20%, 10%, etc.)
-- Owner can add OPF contribution to prize pool
-- `selectWinnersAndDistribute()` uses `Sapphire.randomBytes()` for fair selection
-
 ### Frontend Architecture
-- **Wallet**: RainbowKit + wagmi + viem (Sapphire mainnet + Base)
-- **State**: React hooks with wagmi contract reads (auto-refresh 60s)
+- **Wallet**: RainbowKit + wagmi + viem (Sapphire mainnet + Base + Arbitrum + Ethereum)
+- **State**: React hooks with wagmi contract reads
 - **UI**: shadcn/ui components (Radix primitives + Tailwind)
 
-Key flows:
-1. **Direct ROSE purchase**: Buy tickets directly on Sapphire
-2. **Cross-chain purchase**: USDC/USDT on Base → ROFL Paymaster → ROSE on Sapphire → buy tickets
+Key flow:
+- **Cross-chain bridge**: USDC/USDT on source chain → ROFL Paymaster → ROSE on Sapphire
 
 ### ROFL Paymaster Integration
 Cross-chain payment system enabling stablecoin purchases:
 
-- **Source**: Base (USDC/USDT) → PaymasterVault contract
+- **Source chains**: Base, Arbitrum, Ethereum (USDC/USDT) → PaymasterVault contract
 - **Destination**: Sapphire (ROSE) via CrossChainPaymaster
 
-Config in `frontend/src/constants/rofl-paymaster-config.ts`:
-- PaymasterVault on Base: `0x7D3B4dd07bd523E519e0A91afD8e3B325586fb5b`
-- CrossChainPaymaster on Sapphire: `0x6997953a4458F019506370110e84eefF52d375ad`
+Config in `frontend/src/constants/rofl-paymaster-config.ts`
 
 Flow (`usePaymaster` hook):
-1. Switch to Base
+1. Switch to source chain
 2. Approve ERC20 spend
 3. Deposit to PaymasterVault
 4. Poll for payment confirmation (~60s)
 5. Switch to Sapphire
-6. Execute final action (buy tickets)
-
-### Contract Interaction Patterns
-Contract reads use wagmi hooks with typed ABIs:
-```typescript
-import RoffleJson from '../../artifacts/contracts/Roffle.sol/Roffle.json'
-import { Roffle$Type } from '../../artifacts/contracts/Roffle.sol/Roffle.ts'
-
-const typedRoffleJson = RoffleJson as Roffle$Type
-// Use typedRoffleJson.abi for type-safe contract calls
-```
+6. Execute final action
 
 ### Networks
 | Network | Chain ID | RPC |
 |---------|----------|-----|
 | Sapphire Mainnet | 0x5afe (23294) | https://sapphire.oasis.io |
-| Sapphire Testnet | 0x5aff (23295) | https://testnet.sapphire.oasis.io |
-| Sapphire Localnet | 0x5afd (23293) | http://localhost:8545 |
 | Base | 8453 | (default) |
+| Arbitrum | 42161 | (default) |
+| Ethereum | 1 | (default) |
 
 ## Key Files
 
-- `hardhat.config.ts` - Network configs, Solidity 0.8.24, Paris EVM
-- `tasks/deploy.ts` - Deployment task with OPF contribution
-- `frontend/src/App.tsx` - Main UI with all raffle logic
+- `frontend/src/App.tsx` - Main UI
 - `frontend/src/wagmi.ts` - Wallet config (MetaMask, WalletConnect, Rabby)
 - `frontend/src/hooks/usePaymaster.ts` - Cross-chain payment flow
 - `frontend/src/constants/rofl-paymaster-config.ts` - Paymaster addresses
-
-## Environment Variables
-
-```bash
-PRIVATE_KEY=0x...  # Deployer private key (or uses test mnemonic)
-```
 
 ## Git Commit Messages
 
