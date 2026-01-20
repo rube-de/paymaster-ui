@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, cloneElement, isValidElement } from 'react'
 import { cn } from '../../lib/utils'
 
 interface ChainTokenBadgeProps {
@@ -24,15 +24,15 @@ interface ChainTokenBadgeProps {
 }
 
 /**
- * Combined chain+token selector badge for compact display.
- * Designed to fit inline with AmountInput via the `trailing` prop.
+ * Combined chain+token selector badge following Across/Bungee pattern.
  *
- * Visual: [TokenIcon][ChainIcon] USDC ▼
- *         on Base    Bal: 0.05
+ * Visual: [TokenIcon with ChainBadge] USDC  ▼
+ *                                     Base
  *
  * Features:
- * - Overlapping chain/token icons
- * - 44px min height for WCAG touch targets
+ * - Large token icon (32px) with small chain badge overlay (14px)
+ * - Chain badge positioned at bottom-right of token icon
+ * - 48px min height for excellent touch targets
  * - Accessible button with descriptive aria-label
  */
 export function ChainTokenBadge({
@@ -43,6 +43,13 @@ export function ChainTokenBadge({
   disabled = false,
   className,
 }: ChainTokenBadgeProps) {
+  // Clone chain icon with smaller size for badge overlay
+  const chainBadge = isValidElement(chain.icon)
+    ? cloneElement(chain.icon as React.ReactElement<{ className?: string }>, {
+        className: 'size-3.5',
+      })
+    : chain.icon
+
   return (
     <button
       type="button"
@@ -50,38 +57,40 @@ export function ChainTokenBadge({
       disabled={disabled}
       aria-label={`Select chain and token. Current: ${token.symbol} on ${chain.name}${balance ? `. Balance: ${balance}` : ''}`}
       className={cn(
-        'flex items-center gap-2',
-        'px-2 py-1 min-h-[44px]',
-        'rounded-lg',
-        'bg-white/[0.06] hover:bg-white/[0.10]',
-        'border border-white/10 hover:border-white/20',
+        'flex items-center gap-2.5',
+        'pl-2 pr-3 py-1.5 min-h-[48px]',
+        'rounded-xl',
+        'bg-white/[0.08] hover:bg-white/[0.12]',
+        'border border-white/10 hover:border-white/25',
         'transition-colors',
         'disabled:opacity-50 disabled:pointer-events-none',
         className
       )}
     >
-      {/* Stacked icons: token in front, chain behind */}
-      <div className="relative flex items-center">
-        {/* Token icon (front) */}
-        <span className="relative z-10 shrink-0">{token.icon}</span>
-        {/* Chain icon (behind, offset) */}
-        <span className="relative -ml-2 z-0 shrink-0 opacity-80">{chain.icon}</span>
+      {/* Token icon with chain badge overlay */}
+      <div className="relative shrink-0">
+        {/* Token icon (large, 32px) */}
+        <span className="block [&>*]:size-8">{token.icon}</span>
+        {/* Chain badge (small, bottom-right) */}
+        <span className="absolute -bottom-0.5 -right-0.5 block rounded-full bg-[#0d1f2d] ring-2 ring-[#0d1f2d]">
+          {chainBadge}
+        </span>
       </div>
 
       {/* Token symbol and chain name */}
       <div className="flex flex-col items-start min-w-0">
-        <span className="text-sm font-medium text-white leading-tight">{token.symbol}</span>
-        <span className="text-[11px] text-white/60 leading-tight">on {chain.name}</span>
+        <span className="text-base font-semibold text-white leading-tight">{token.symbol}</span>
+        <span className="text-xs text-white/50 leading-tight">{chain.name}</span>
       </div>
 
       {/* Chevron */}
       <svg
-        width="12"
-        height="12"
+        width="14"
+        height="14"
         viewBox="0 0 12 12"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="shrink-0 text-white/50 ml-0.5"
+        className="shrink-0 text-white/40 ml-0.5"
         aria-hidden="true"
       >
         <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
