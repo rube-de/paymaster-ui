@@ -1,7 +1,11 @@
 {
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "dev": "yarn --cwd frontend dev",
-    "build": "yarn --cwd frontend build",
+    "dev": "yarn workspace @oasisprotocol/ui-library dev",
+    "build": "yarn workspace @oasisprotocol/ui-library build",
     "prepare": "husky"
   },
   "devDependencies": {

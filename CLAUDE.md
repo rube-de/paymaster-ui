@@ -37,8 +37,7 @@ yarn storybook           # Component storybook
 ### Worktree Setup
 For each new git worktree, run:
 ```bash
-yarn                     # Install dependencies
-npx husky install        # Enable pre-commit hooks
+yarn                     # Install dependencies (also sets up husky hooks)
 ```
 
 ## Architecture
