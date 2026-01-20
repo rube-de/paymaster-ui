@@ -371,7 +371,7 @@ export function App() {
               maxValue={maxBalance}
               balance={sourceBalance.data?.value}
               balanceLabel="Balance"
-              disabled={paymaster.isLoading || !isValidConnection}
+              disabled={!!paymaster.currentStep || !isValidConnection}
               error={isInsufficientBalance ? 'Insufficient balance' : undefined}
               placeholder="0.00"
               trailing={
@@ -382,7 +382,7 @@ export function App() {
                     icon: selectedToken?.icon ?? getTokenIcon('USDC'),
                   }}
                   onClick={() => setChainTokenModalOpen(true)}
-                  disabled={paymaster.isLoading}
+                  disabled={!!paymaster.currentStep}
                 />
               }
             />
@@ -513,7 +513,7 @@ export function App() {
         selectedChainId={selectedSourceChainId}
         selectedTokenKey={selectedTokenKey}
         onSelect={handleChainTokenSelect}
-        disabled={paymaster.isLoading}
+        disabled={!!paymaster.currentStep}
       />
     </div>
   )
