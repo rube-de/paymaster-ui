@@ -1,43 +1,14 @@
 {
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "dev": "npx hardhat compile && cd frontend && vite",
-    "build:contracts": "NODE_OPTIONS=--max-old-space-size=4096 hardhat compile",
-    "build:frontend": "cd frontend && NODE_OPTIONS=--max-old-space-size=4096 yarn build",
-    "build": "yarn build:contracts && yarn build:frontend",
+    "dev": "yarn workspace @oasisprotocol/ui-library dev",
+    "build": "yarn workspace @oasisprotocol/ui-library build",
     "prepare": "husky"
   },
-  "dependencies": {
-    "@oasisprotocol/sapphire-contracts": "^0.2.15",
-    "@rainbow-me/rainbowkit": "^2.2.9",
-    "@tanstack/react-query": "^5.90.12",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "viem": "^2.41.2",
-    "wagmi": "2"
-  },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "@nomicfoundation/hardhat-ignition": "^0.15.0",
-    "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
-    "@nomicfoundation/hardhat-toolbox-viem": "^4.0.0",
-    "@nomicfoundation/hardhat-verify": "^2.0.0",
-    "@nomicfoundation/hardhat-viem": "^2.0.0",
-    "@types/chai": "^4.2.0",
-    "@types/chai-as-promised": "^7.1.6",
-    "@types/mocha": ">=9.1.0",
-    "@types/node": ">=20.0.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@vitejs/plugin-react": "^4.2.0",
-    "@wagmi/cli": "^2.8.0",
-    "chai": "^4.2.0",
-    "dotenv": "^17.2.3",
-    "hardhat": "^2.27.1",
-    "hardhat-gas-reporter": "^2.3.0",
-    "solidity-coverage": "^0.8.0",
-    "ts-node": ">=8.0.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.2.6"
+    "husky": "^9.1.7"
   }
 }
