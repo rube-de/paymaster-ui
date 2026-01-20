@@ -22,8 +22,9 @@ interface FeeBreakdownProps {
    * Display variant:
    * - 'expanded': Full breakdown with all details (default, backwards compatible)
    * - 'summary': Compact single-line with expand trigger (~32px height)
+   * - 'static': Simple static display, no interaction (for read-only values)
    */
-  variant?: 'expanded' | 'summary'
+  variant?: 'expanded' | 'summary' | 'static'
 }
 
 export function FeeBreakdown({
@@ -39,6 +40,30 @@ export function FeeBreakdown({
 
   if (items.length === 0 && !estimatedTime && !slippage) {
     return null
+  }
+
+  // Static variant: simple display, no interaction
+  if (variant === 'static') {
+    return (
+      <div
+        data-slot="fee-breakdown"
+        className={cn(
+          'flex items-center justify-between gap-4',
+          'px-4 py-2.5',
+          'rounded-xl border border-white/10 bg-black/15',
+          'text-sm text-white/50',
+          className
+        )}
+      >
+        {estimatedTime && (
+          <span className="flex items-center gap-1.5">
+            <ClockIcon />
+            {estimatedTime}
+          </span>
+        )}
+        {slippage && <span>{slippage} slippage</span>}
+      </div>
+    )
   }
 
   // Summary variant: compact single-line with expand

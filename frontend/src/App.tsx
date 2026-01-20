@@ -409,12 +409,12 @@ export function App() {
               </p>
             )}
 
-            {/* Compact Fee Breakdown */}
+            {/* Static Fee Info (read-only, no dropdown) */}
             <FeeBreakdown
               items={feeItems}
               estimatedTime={`~${ROFL_PAYMASTER_EXPECTED_TIME}s`}
               slippage={`${ROFL_PAYMASTER_SLIPPAGE_PERCENTAGE}%`}
-              variant="summary"
+              variant="static"
             />
 
             {/* Progress Steps */}
