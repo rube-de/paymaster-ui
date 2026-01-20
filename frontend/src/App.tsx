@@ -6,12 +6,13 @@ import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { toast } from 'sonner'
 import { LucideLoader } from 'lucide-react'
 
-import { BridgeCard, BridgeCardSection, BridgeCardDivider } from './components/bridge'
+import { BridgeCard, BridgeCardDivider } from './components/bridge'
 import { AmountInput } from './components/bridge'
-import { TokenSelector, getTokenKey, type TokenOption } from './components/bridge'
-import { ChainSelector } from './components/bridge'
-import { FeeBreakdown, FeeEstimate, type FeeItem } from './components/bridge'
+import { getTokenKey, type TokenOption } from './components/bridge'
+import { DEFAULT_CHAIN_OPTIONS } from './components/bridge'
+import { FeeBreakdown, type FeeItem } from './components/bridge'
 import { PendingTransactionBanner, TransactionHistory, BridgeSuccessModal } from './components/bridge'
+import { ChainTokenBadge, ChainTokenModal } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
 import { switchToChain } from './contracts/erc-20'
@@ -56,16 +57,6 @@ function buildSourceTokens(chainId: number): TokenOption[] {
   }))
 }
 
-/** Destination token (ROSE on Sapphire) */
-const DESTINATION_TOKEN: TokenOption = {
-  symbol: 'ROSE',
-  name: 'ROSE',
-  chainId: sapphire.id,
-  chainName: 'Sapphire',
-  decimals: 18,
-  icon: <ROSEIcon />,
-}
-
 export function App() {
   const { address, isConnected, chainId } = useAccount()
   const { chains: wagmiChains } = useConfig()
@@ -96,20 +87,41 @@ export function App() {
     sourceTokens.length > 0 ? getTokenKey(sourceTokens[0]) : null
   )
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [chainTokenModalOpen, setChainTokenModalOpen] = useState(false)
 
-  // Reset token selection when chain changes
+  // Reset token selection when chain changes (only if current token doesn't exist on new chain)
   useEffect(() => {
-    if (sourceTokens.length > 0) {
-      setSelectedTokenKey(getTokenKey(sourceTokens[0]))
-    } else {
+    if (sourceTokens.length === 0) {
       setSelectedTokenKey(null)
+      setAmount('')
+      return
     }
-    setAmount('') // Clear amount when chain changes
-  }, [sourceTokens])
+
+    // Check if current token exists on the new chain
+    const currentTokenExists = sourceTokens.some(t => getTokenKey(t) === selectedTokenKey)
+    if (!currentTokenExists) {
+      // Current token not available on new chain - reset to first available
+      setSelectedTokenKey(getTokenKey(sourceTokens[0]))
+      setAmount('') // Clear amount when token auto-changes
+    }
+    // If current token exists, preserve selection (user may have intentionally selected it)
+  }, [sourceTokens, selectedTokenKey])
 
   const selectedToken = useMemo(
     () => sourceTokens.find(t => getTokenKey(t) === selectedTokenKey) ?? sourceTokens[0],
     [selectedTokenKey, sourceTokens]
+  )
+
+  // Get selected chain object for badge display
+  const selectedChain = useMemo(
+    () => DEFAULT_CHAIN_OPTIONS.find(c => c.id === selectedSourceChainId) ?? DEFAULT_CHAIN_OPTIONS[0],
+    [selectedSourceChainId]
+  )
+
+  // Build all tokens across all chains for the modal
+  const allSourceTokens = useMemo(
+    () => SUPPORTED_SOURCE_CHAINS.flatMap(chain => buildSourceTokens(chain.id)),
+    []
   )
 
   const tokenConfig = useMemo(() => {
@@ -218,35 +230,33 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only re-run when error changes; paymaster object is not memoized, reset is stable
   }, [paymaster.error])
 
-  // Handle chain change - update UI state and switch wallet
-  const handleChainChange = useCallback(
-    async (chainId: number) => {
-      setSelectedSourceChainId(chainId)
-      paymaster.reset()
-      // Switch wallet to the selected chain
-      if (address) {
-        try {
-          await switchToChain({ targetChainId: chainId, address })
-        } catch (error) {
-          console.warn('Failed to switch chain:', error)
-          toast.error('Failed to switch network. Please switch manually in your wallet.')
+  // Handle combined chain+token selection from modal
+  const handleChainTokenSelect = useCallback(
+    async (chainId: number, token: TokenOption) => {
+      // If chain changed, switch wallet first
+      if (chainId !== selectedSourceChainId) {
+        const previousChainId = selectedSourceChainId
+        setSelectedSourceChainId(chainId)
+        paymaster.reset()
+
+        if (address) {
+          try {
+            await switchToChain({ targetChainId: chainId, address })
+          } catch (error) {
+            console.warn('Failed to switch chain:', error)
+            setSelectedSourceChainId(previousChainId)
+            toast.error('Failed to switch network. Please switch manually in your wallet.')
+            return
+          }
         }
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
-    [paymaster.reset, address]
-  )
 
-  // Handle token change
-  const handleTokenChange = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Required by TokenSelector onChange signature
-    (key: string, _token: TokenOption) => {
-      setSelectedTokenKey(key)
-      setAmount('') // Reset amount when changing token
-      paymaster.reset()
+      // Update token selection
+      setSelectedTokenKey(getTokenKey(token))
+      setAmount('') // Reset amount when changing selection
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
-    [paymaster.reset]
+    [selectedSourceChainId, paymaster.reset, address]
   )
 
   // Handle pending transaction recovery
@@ -350,77 +360,61 @@ export function App() {
 
       {/* Main Content */}
       <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 md:py-0">
-        <BridgeCard
-          title="Bridge to Sapphire"
-          description="Transfer stablecoins from Base, Arbitrum, or Ethereum to receive ROSE on Sapphire"
-        >
-          <div className="space-y-4">
-            {/* Source Section */}
-            <BridgeCardSection label="From">
-              <div className="space-y-3">
-                <ChainSelector
-                  value={selectedSourceChainId}
-                  onChange={handleChainChange}
+        <BridgeCard>
+          <div className="space-y-3">
+            {/* Compact Source Section: Amount input with inline ChainToken badge */}
+            <AmountInput
+              label="From"
+              value={amount}
+              onChange={setAmount}
+              decimals={selectedToken?.decimals ?? 6}
+              maxValue={maxBalance}
+              balance={sourceBalance.data?.value}
+              balanceLabel="Balance"
+              disabled={paymaster.isLoading || !isValidConnection}
+              error={isInsufficientBalance ? 'Insufficient balance' : undefined}
+              placeholder="0.00"
+              trailing={
+                <ChainTokenBadge
+                  chain={selectedChain}
+                  token={{
+                    symbol: selectedToken?.symbol ?? 'USDC',
+                    icon: selectedToken?.icon ?? getTokenIcon('USDC'),
+                  }}
+                  onClick={() => setChainTokenModalOpen(true)}
                   disabled={paymaster.isLoading}
                 />
-                <TokenSelector
-                  value={selectedTokenKey}
-                  options={sourceTokens}
-                  onChange={handleTokenChange}
-                  disabled={paymaster.isLoading}
-                />
-                <AmountInput
-                  value={amount}
-                  onChange={setAmount}
-                  decimals={selectedToken?.decimals ?? 6}
-                  maxValue={maxBalance}
-                  balance={sourceBalance.data?.value}
-                  balanceLabel="Balance"
-                  disabled={paymaster.isLoading || !isValidConnection}
-                  error={isInsufficientBalance ? 'Insufficient balance' : undefined}
-                  placeholder="0.00"
-                />
+              }
+            />
+
+            {/* Compact Divider */}
+            <BridgeCardDivider className="py-2" />
+
+            {/* Compact Destination: Single line */}
+            <div className="flex items-center justify-between px-4 py-3 bg-black/10 rounded-xl border border-white/5">
+              <span className="text-sm text-white/50">You receive</span>
+              <div className="flex items-center gap-2">
+                <ROSEIcon className="size-5" />
+                <span className="text-white font-medium">
+                  {parsedAmount > 0n && estimatedRose
+                    ? `~${parseFloat(formatUnits(estimatedRose, 18)).toFixed(2)}`
+                    : '—'}{' '}
+                  ROSE
+                </span>
               </div>
-            </BridgeCardSection>
-
-            {/* Divider with arrow */}
-            <BridgeCardDivider />
-
-            {/* Destination Section */}
-            <BridgeCardSection label="To">
-              <TokenSelector
-                value={getTokenKey(DESTINATION_TOKEN)}
-                options={[DESTINATION_TOKEN]}
-                showChainName
-                singleToken
-              />
-              {destinationBalance.data && (
-                <p className="text-xs text-white/50 mt-2">
-                  Current balance: {formatUnits(destinationBalance.data.value, 18)} ROSE
-                </p>
-              )}
-            </BridgeCardSection>
-
-            {/* Fee Estimate */}
-            {parsedAmount > 0n && (
-              <FeeEstimate
-                sourceAmount={amount || '0'}
-                sourceToken={selectedToken?.symbol ?? 'USDC'}
-                destinationAmount={
-                  estimatedRose ? parseFloat(formatUnits(estimatedRose, 18)).toFixed(2) : '...'
-                }
-                destinationToken="ROSE"
-                loading={paymaster.initialLoading}
-                className="mt-4"
-              />
+            </div>
+            {destinationBalance.data && (
+              <p className="text-xs text-white/40 text-right px-1">
+                Balance: {parseFloat(formatUnits(destinationBalance.data.value, 18)).toFixed(4)} ROSE
+              </p>
             )}
 
-            {/* Fee Breakdown */}
+            {/* Compact Fee Breakdown */}
             <FeeBreakdown
               items={feeItems}
               estimatedTime={`~${ROFL_PAYMASTER_EXPECTED_TIME}s`}
               slippage={`${ROFL_PAYMASTER_SLIPPAGE_PERCENTAGE}%`}
-              className="mt-4"
+              variant="summary"
             />
 
             {/* Progress Steps */}
@@ -459,7 +453,7 @@ export function App() {
               onClick={isValidConnection ? handleBridge : openConnectModal}
               disabled={isValidConnection && (!canBridge || paymaster.isLoading)}
               className={cn(
-                'w-full h-14 rounded-xl font-medium text-base transition-colors mt-6',
+                'w-full h-12 rounded-xl font-medium text-base transition-colors mt-3',
                 !isValidConnection || (canBridge && !paymaster.isLoading)
                   ? 'bg-white text-black hover:bg-gray-100'
                   : 'bg-white/20 text-white/50 cursor-not-allowed'
@@ -508,6 +502,18 @@ export function App() {
         tokenDecimals={selectedToken?.decimals ?? 6}
         onClose={handleSuccessClose}
         onViewHistory={() => setHistoryOpen(true)}
+      />
+
+      {/* Chain+Token Selection Modal */}
+      <ChainTokenModal
+        open={chainTokenModalOpen}
+        onOpenChange={setChainTokenModalOpen}
+        chains={DEFAULT_CHAIN_OPTIONS}
+        tokens={allSourceTokens}
+        selectedChainId={selectedSourceChainId}
+        selectedTokenKey={selectedTokenKey}
+        onSelect={handleChainTokenSelect}
+        disabled={paymaster.isLoading}
       />
     </div>
   )
