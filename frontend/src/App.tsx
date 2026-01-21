@@ -15,6 +15,7 @@ import { PendingTransactionBanner, TransactionHistory, BridgeSuccessModal } from
 import { ChainTokenBadge, ChainTokenModal } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
+import { useDebounce } from './hooks/useDebounce'
 import { switchToChain } from './contracts/erc-20'
 import {
   ROFL_PAYMASTER_TOKEN_CONFIG,
@@ -175,15 +176,18 @@ export function App() {
     }
   }, [amount, selectedToken])
 
-  // Fetch ROSE estimate when amount changes
+  // Debounce amount to avoid excessive API calls during typing
+  const debouncedAmount = useDebounce(parsedAmount, 300)
+
+  // Fetch ROSE estimate when debounced amount changes
   useEffect(() => {
-    if (parsedAmount > 0n && tokenConfig) {
-      paymaster.getRoseEstimate({ amount: parsedAmount }).catch(err => {
+    if (debouncedAmount > 0n && tokenConfig) {
+      paymaster.getRoseEstimate({ amount: debouncedAmount }).catch(err => {
         console.warn('Estimate fetch failed:', err)
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
-  }, [parsedAmount, tokenConfig, paymaster.getRoseEstimate])
+  }, [debouncedAmount, tokenConfig, paymaster.getRoseEstimate])
 
   // Estimated ROSE output from the hook
   const estimatedRose = paymaster.roseEstimate
@@ -314,7 +318,7 @@ export function App() {
     if (!isValidConnection) return 'Connect Wallet'
     if (paymaster.isLoading) return 'Processing...'
     if (!amount || parsedAmount === 0n) return 'Enter amount'
-    if (isInsufficientBalance) return 'Insufficient balance'
+    if (isInsufficientBalance) return `Insufficient ${selectedToken?.symbol ?? 'Token'} Balance`
     return 'Bridge to Sapphire'
   }
 
@@ -372,7 +376,7 @@ export function App() {
               balance={sourceBalance.data?.value}
               balanceLabel="Balance"
               disabled={!!paymaster.currentStep || !isValidConnection}
-              error={isInsufficientBalance ? 'Insufficient balance' : undefined}
+              insufficientBalance={isInsufficientBalance}
               placeholder="0.00"
               trailing={
                 <ChainTokenBadge

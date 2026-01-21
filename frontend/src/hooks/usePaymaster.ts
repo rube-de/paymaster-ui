@@ -432,22 +432,18 @@ export function usePaymaster(
 
   const getRoseEstimate = useCallback(
     async ({ amount }: StartTopUpParams) => {
-      setError('')
-      setRoseEstimate(null)
-
+      // Don't set isLoading - estimates are background calls that shouldn't block UI
+      // Don't clear estimate - keep showing previous value to avoid "—" flash
       if (!address) throw new Error('Wallet not connected')
 
-      setIsLoading(true)
       try {
         const estimate = await _getRoseEstimate(amount, ROFL_PAYMASTER_DESTINATION_CHAIN)
         setRoseEstimate(estimate)
         return estimate
       } catch (e) {
-        const msg = e instanceof Error ? e.message : 'Failed to fetch estimate'
-        setError(msg)
-        throw e
-      } finally {
-        setIsLoading(false)
+        // Silently fail - estimate is informational, user can still proceed
+        console.warn('Estimate fetch failed:', e)
+        return null
       }
     },
     [address, _getRoseEstimate]

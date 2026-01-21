@@ -62,12 +62,12 @@ export const WithBalance: Story = {
   },
 }
 
-export const WithError: Story = {
+export const WithInsufficientBalance: Story = {
   args: {
     value: '150',
     label: 'Amount',
     maxValue: parseUnits('100', 18),
-    error: 'Insufficient balance',
+    insufficientBalance: true,
   },
 }
 
