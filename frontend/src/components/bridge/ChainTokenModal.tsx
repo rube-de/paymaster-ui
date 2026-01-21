@@ -167,6 +167,7 @@ export function ChainTokenModal({
                     'w-full flex items-center gap-2 px-2 py-2 rounded-lg',
                     'text-left transition-colors',
                     'hover:bg-white/[0.06]',
+                    'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/30',
                     'disabled:opacity-50 disabled:pointer-events-none',
                     localChainId === chain.id && 'bg-white/[0.08]'
                   )}
@@ -210,6 +211,7 @@ export function ChainTokenModal({
                       'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg',
                       'text-left transition-colors',
                       'hover:bg-white/[0.06]',
+                      'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/30',
                       'disabled:opacity-50 disabled:pointer-events-none',
                       isSelected && 'bg-white/[0.08]'
                     )}

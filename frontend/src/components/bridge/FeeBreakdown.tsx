@@ -21,7 +21,7 @@ interface FeeBreakdownProps {
   /**
    * Display variant:
    * - 'expanded': Full breakdown with all details (default, backwards compatible)
-   * - 'summary': Compact single-line with expand trigger (~32px height)
+   * - 'summary': Compact single-line with expand trigger (44px min-height for touch targets)
    * - 'static': Simple static display, no interaction (for read-only values)
    */
   variant?: 'expanded' | 'summary' | 'static'

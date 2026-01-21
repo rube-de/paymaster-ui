@@ -63,6 +63,7 @@ export function ChainTokenBadge({
         'bg-white/[0.08] hover:bg-white/[0.12]',
         'border border-white/10 hover:border-white/25',
         'transition-colors',
+        'focus:outline-none focus:ring-2 focus:ring-white/30',
         'disabled:opacity-50 disabled:pointer-events-none',
         className
       )}
@@ -85,8 +86,8 @@ export function ChainTokenBadge({
 
       {/* Chevron */}
       <svg
-        width="14"
-        height="14"
+        width="12"
+        height="12"
         viewBox="0 0 12 12"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
