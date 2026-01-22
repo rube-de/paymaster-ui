@@ -157,37 +157,39 @@ export function ChainTokenModal({
                 Chain
               </span>
             </div>
-            <div className="space-y-0.5 px-2 pb-2">
+            <ul className="space-y-0.5 px-2 pb-2 list-none">
               {filteredChains.map(chain => (
-                <button
-                  key={chain.id}
-                  type="button"
-                  onClick={() => handleChainSelect(chain.id)}
-                  disabled={disabled}
-                  className={cn(
-                    'w-full flex items-center gap-2 px-2 py-2 rounded-lg',
-                    'text-left transition-colors',
-                    'hover:bg-white/[0.06]',
-                    'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/30',
-                    'disabled:opacity-50 disabled:pointer-events-none',
-                    localChainId === chain.id && 'bg-white/[0.08]'
-                  )}
-                >
-                  {chain.icon && <span className="shrink-0">{chain.icon}</span>}
-                  <span
+                <li key={chain.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleChainSelect(chain.id)}
+                    disabled={disabled}
+                    aria-pressed={localChainId === chain.id}
                     className={cn(
-                      'text-sm font-medium truncate',
-                      localChainId === chain.id ? 'text-white' : 'text-white/70'
+                      'w-full flex items-center gap-2 px-2 py-2 rounded-lg',
+                      'text-left transition-colors',
+                      'hover:bg-white/[0.06]',
+                      'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/30',
+                      'disabled:opacity-50 disabled:pointer-events-none',
+                      localChainId === chain.id && 'bg-white/[0.08]'
                     )}
                   >
-                    {chain.name}
-                  </span>
-                </button>
+                    {chain.icon && <span className="shrink-0">{chain.icon}</span>}
+                    <span
+                      className={cn(
+                        'text-sm font-medium truncate',
+                        localChainId === chain.id ? 'text-white' : 'text-white/70'
+                      )}
+                    >
+                      {chain.name}
+                    </span>
+                  </button>
+                </li>
               ))}
               {filteredChains.length === 0 && (
-                <p className="px-2 py-4 text-sm text-white/40 text-center">No chains found</p>
+                <li className="px-2 py-4 text-sm text-white/40 text-center">No chains found</li>
               )}
-            </div>
+            </ul>
           </div>
 
           {/* Tokens column */}
@@ -197,49 +199,53 @@ export function ChainTokenModal({
                 Token
               </span>
             </div>
-            <div className="space-y-0.5 px-2 pb-2">
+            <ul className="space-y-0.5 px-2 pb-2 list-none">
               {filteredTokens.map(token => {
                 const key = getTokenKey(token)
                 const isSelected = key === localTokenKey
 
                 return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => handleTokenClick(token)}
-                    disabled={disabled}
-                    className={cn(
-                      'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg',
-                      'text-left transition-colors',
-                      'hover:bg-white/[0.06]',
-                      'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/30',
-                      'disabled:opacity-50 disabled:pointer-events-none',
-                      isSelected && 'bg-white/[0.08]'
-                    )}
-                  >
-                    {token.icon && <span className="shrink-0">{token.icon}</span>}
-                    <div className="flex-1 min-w-0">
-                      <span
-                        className={cn(
-                          'block text-sm font-medium truncate',
-                          isSelected ? 'text-white' : 'text-white/80'
-                        )}
-                      >
-                        {token.symbol}
-                      </span>
-                      {token.name !== token.symbol && (
-                        <span className="block text-xs text-white/40 truncate">{token.name}</span>
+                  <li key={key}>
+                    <button
+                      type="button"
+                      onClick={() => handleTokenClick(token)}
+                      disabled={disabled}
+                      aria-pressed={isSelected}
+                      className={cn(
+                        'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg',
+                        'text-left transition-colors',
+                        'hover:bg-white/[0.06]',
+                        'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/30',
+                        'disabled:opacity-50 disabled:pointer-events-none',
+                        isSelected && 'bg-white/[0.08]'
                       )}
-                    </div>
-                    {token.balance && <span className="text-xs text-white/50 shrink-0">{token.balance}</span>}
-                    {isSelected && <CheckIcon className="shrink-0 text-white/70" />}
-                  </button>
+                    >
+                      {token.icon && <span className="shrink-0">{token.icon}</span>}
+                      <div className="flex-1 min-w-0">
+                        <span
+                          className={cn(
+                            'block text-sm font-medium truncate',
+                            isSelected ? 'text-white' : 'text-white/80'
+                          )}
+                        >
+                          {token.symbol}
+                        </span>
+                        {token.name !== token.symbol && (
+                          <span className="block text-xs text-white/40 truncate">{token.name}</span>
+                        )}
+                      </div>
+                      {token.balance && (
+                        <span className="text-xs text-white/50 shrink-0">{token.balance}</span>
+                      )}
+                      {isSelected && <CheckIcon className="shrink-0 text-white/70" />}
+                    </button>
+                  </li>
                 )
               })}
               {filteredTokens.length === 0 && (
-                <p className="px-2 py-4 text-sm text-white/40 text-center">No tokens found</p>
+                <li className="px-2 py-4 text-sm text-white/40 text-center">No tokens found</li>
               )}
-            </div>
+            </ul>
           </div>
         </div>
       </DialogContent>
