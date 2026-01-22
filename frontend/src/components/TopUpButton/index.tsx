@@ -148,6 +148,7 @@ export const TopUpButton: FC<Props> = ({
                   className="text-teal-300 underline text-sm mt-1"
                   aria-expanded={showFullError}
                   aria-controls="topup-error-details"
+                  aria-label={showFullError ? 'Hide error details' : 'Show full error message'}
                 >
                   {showFullError ? 'Show less' : 'Show more'}
                 </button>

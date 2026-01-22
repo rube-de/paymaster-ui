@@ -164,6 +164,7 @@ export function ChainTokenModal({
                     type="button"
                     onClick={() => handleChainSelect(chain.id)}
                     disabled={disabled}
+                    aria-pressed={localChainId === chain.id}
                     className={cn(
                       'w-full flex items-center gap-2 px-2 py-2 rounded-lg',
                       'text-left transition-colors',
@@ -182,7 +183,6 @@ export function ChainTokenModal({
                     >
                       {chain.name}
                     </span>
-                    {localChainId === chain.id && <span className="sr-only">, selected</span>}
                   </button>
                 </li>
               ))}
@@ -210,6 +210,7 @@ export function ChainTokenModal({
                       type="button"
                       onClick={() => handleTokenClick(token)}
                       disabled={disabled}
+                      aria-pressed={isSelected}
                       className={cn(
                         'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg',
                         'text-left transition-colors',
@@ -237,7 +238,6 @@ export function ChainTokenModal({
                         <span className="text-xs text-white/50 shrink-0">{token.balance}</span>
                       )}
                       {isSelected && <CheckIcon className="shrink-0 text-white/70" />}
-                      {isSelected && <span className="sr-only">, selected</span>}
                     </button>
                   </li>
                 )
