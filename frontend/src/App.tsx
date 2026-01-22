@@ -245,24 +245,19 @@ export function App() {
         if (address) {
           try {
             await switchToChain({ targetChainId: chainId, address })
-            // Reset paymaster only after successful chain switch
-            paymaster.reset()
           } catch (error) {
             console.warn('Failed to switch chain:', error)
             setSelectedSourceChainId(previousChainId)
             toast.error('Failed to switch network. Please switch manually in your wallet.')
-            return
+            return // Early return - no reset needed since we're reverting
           }
-        } else {
-          // No wallet connected, just reset paymaster for the new chain context
-          paymaster.reset()
         }
       }
 
-      // Update token selection and reset paymaster for new token context
+      // Update token selection and reset paymaster once for all changes
       setSelectedTokenKey(getTokenKey(token))
-      setAmount('') // Reset amount when changing selection
-      paymaster.reset() // Clear stale estimates when token changes
+      setAmount('')
+      paymaster.reset()
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Depend on specific method, not whole object
     [selectedSourceChainId, paymaster.reset, address]

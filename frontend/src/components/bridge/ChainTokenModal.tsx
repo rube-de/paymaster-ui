@@ -135,6 +135,7 @@ export function ChainTokenModal({
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search chains or tokens..."
+              aria-label="Search chains or tokens"
               disabled={disabled}
               className={cn(
                 'w-full bg-black/30 border border-white/10',
