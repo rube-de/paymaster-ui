@@ -123,6 +123,7 @@
     "codex *",
     "gemini *"
   ],
+  "outputStyle": "Explanatory",
   "permissions": {
     "allow": [
       "WebSearch",

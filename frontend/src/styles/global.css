@@ -63,14 +63,14 @@
 
 .dark {
   color-scheme: dark;
-  --background: hsl(240 10% 4%);
+  --background: hsl(240 10% 3%);
   --foreground: hsl(0 0% 98%);
   --card: hsl(240 6% 10%);
   --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 4%);
+  --popover: hsl(240 10% 3%);
   --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(180 100% 50.59%);
-  --primary-foreground: hsl(240 10% 4%);
+  --primary: hsl(180 100% 51%);
+  --primary-foreground: hsl(240 10% 3%);
   --secondary: hsl(240 4% 16%);
   --secondary-foreground: hsl(0 0% 98%);
   --muted: hsl(240 4% 16%);

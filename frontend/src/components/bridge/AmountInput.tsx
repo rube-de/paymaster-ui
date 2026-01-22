@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useId, ChangeEvent, ReactNode } from 'react'
 import { cn } from '../../lib/utils'
-import { formatUnits, parseUnits } from 'viem'
+import { formatUnits } from 'viem'
 
 interface AmountInputProps {
   value: string
@@ -10,13 +10,14 @@ interface AmountInputProps {
   placeholder?: string
   disabled?: boolean
   className?: string
-  error?: string
   label?: string
   trailing?: ReactNode
   onMaxClick?: () => void
   showMaxButton?: boolean
   balance?: bigint
   balanceLabel?: string
+  /** When true, styles the input text and balance number red */
+  insufficientBalance?: boolean
   /** Set true for native tokens (ETH, ROSE) to reserve gas when clicking MAX */
   isNativeToken?: boolean
   /**
@@ -43,13 +44,13 @@ export function AmountInput({
   placeholder = '0.00',
   disabled = false,
   className,
-  error,
   label,
   trailing,
   onMaxClick,
   showMaxButton = true,
   balance,
   balanceLabel = 'Balance',
+  insufficientBalance = false,
   isNativeToken = false,
   gasBuffer = DEFAULT_GAS_BUFFER,
 }: AmountInputProps) {
@@ -93,49 +94,40 @@ export function AmountInput({
     }
   }, [maxValue, decimals, onChange, onMaxClick, isNativeToken, gasBuffer])
 
-  const parsedValue = useMemo(() => {
-    if (!value || value === '.') return 0n
-    try {
-      return parseUnits(value, decimals)
-    } catch {
-      return 0n
-    }
-  }, [value, decimals])
-
-  const isOverMax = maxValue !== undefined && parsedValue > maxValue
+  const handlePercentClick = useCallback(
+    (percent: number) => {
+      if (maxValue !== undefined) {
+        const effectiveMax =
+          isNativeToken && gasBuffer > 0n ? (maxValue > gasBuffer ? maxValue - gasBuffer : 0n) : maxValue
+        const percentValue = (effectiveMax * BigInt(percent)) / 100n
+        const formatted = formatUnits(percentValue, decimals)
+        onChange(formatted)
+      }
+    },
+    [maxValue, decimals, onChange, isNativeToken, gasBuffer]
+  )
 
   const formattedBalance = useMemo(() => {
     if (balance === undefined) return null
     return formatUnits(balance, decimals)
   }, [balance, decimals])
 
-  const hasError = !!error || isOverMax
-
   return (
-    <div data-slot="amount-input" className={cn('space-y-2', className)}>
-      {(label || formattedBalance !== null) && (
-        <div className="flex items-center justify-between">
-          {label && (
-            <label htmlFor={inputId} className="text-sm font-medium text-white/70">
-              {label}
-            </label>
-          )}
-          {formattedBalance !== null && (
-            <span className="text-xs text-white/50">
-              {balanceLabel}: {formattedBalance}
-            </span>
-          )}
-        </div>
+    <div data-slot="amount-input" className={cn('space-y-1.5', className)}>
+      {/* Label row (if provided) */}
+      {label && (
+        <label htmlFor={inputId} className="text-sm font-medium text-white/70">
+          {label}
+        </label>
       )}
 
+      {/* Main input row: Amount input + Token selector */}
       <div
         className={cn(
-          'relative flex items-center',
-          'bg-black/20 border rounded-xl h-14 px-4',
+          'relative flex items-center gap-3',
+          'bg-black/20 border rounded-xl px-4 py-3',
           'transition-colors',
-          hasError
-            ? 'border-red-500/50 focus-within:border-red-500'
-            : 'border-white/10 focus-within:border-white/30',
+          'border-white/10 focus-within:border-white/30',
           disabled && 'opacity-50 pointer-events-none'
         )}
       >
@@ -150,41 +142,70 @@ export function AmountInput({
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
-          aria-invalid={hasError}
-          aria-describedby={hasError ? `${inputId}-error` : undefined}
+          aria-invalid={insufficientBalance}
           className={cn(
-            'flex-1 bg-transparent text-white text-lg font-medium',
-            'placeholder:text-white/50',
+            'flex-1 bg-transparent text-2xl font-medium',
+            'placeholder:text-white/40',
             'outline-none border-none',
-            'min-w-0'
+            'min-w-0',
+            insufficientBalance ? 'text-red-400' : 'text-white'
           )}
         />
 
-        <div className="flex items-center gap-2 shrink-0">
-          {showMaxButton && (maxValue !== undefined || onMaxClick) && (
-            <button
-              type="button"
-              onClick={handleMaxClick}
-              disabled={disabled}
-              className={cn(
-                'px-2 py-1 text-xs font-medium rounded-md',
-                'bg-white/10 text-white/70',
-                'hover:bg-white/15 hover:text-white',
-                'transition-colors',
-                'disabled:opacity-50 disabled:pointer-events-none'
-              )}
-            >
-              MAX
-            </button>
-          )}
-          {trailing}
-        </div>
+        {/* Token selector (trailing) */}
+        <div className="shrink-0">{trailing}</div>
       </div>
 
-      {hasError && (
-        <p id={`${inputId}-error`} className="text-xs text-red-400" role="alert">
-          {error || (isOverMax && 'Amount exceeds maximum')}
-        </p>
+      {/* Balance + Percentage buttons row (below input, like Bungee/Across) */}
+      {(formattedBalance !== null || showMaxButton) && (
+        <div className="flex items-center justify-between px-1">
+          {/* Left: Balance info */}
+          {formattedBalance !== null ? (
+            <span className="text-xs text-white/50">
+              {balanceLabel}:{' '}
+              <span className={insufficientBalance ? 'text-red-400' : undefined}>{formattedBalance}</span>
+            </span>
+          ) : (
+            <span />
+          )}
+
+          {/* Right: Percentage + MAX buttons */}
+          {showMaxButton && (maxValue !== undefined || onMaxClick) && (
+            <div className="flex items-center gap-1">
+              {[25, 50, 75].map(percent => (
+                <button
+                  key={percent}
+                  type="button"
+                  onClick={() => handlePercentClick(percent)}
+                  disabled={disabled}
+                  className={cn(
+                    'px-1.5 py-0.5 text-xs font-medium rounded',
+                    'text-white/40 hover:text-white/70',
+                    'hover:bg-white/10',
+                    'transition-colors',
+                    'disabled:opacity-50 disabled:pointer-events-none'
+                  )}
+                >
+                  {percent}%
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={handleMaxClick}
+                disabled={disabled}
+                className={cn(
+                  'px-1.5 py-0.5 text-xs font-medium rounded',
+                  'text-white/60 hover:text-white',
+                  'hover:bg-white/10',
+                  'transition-colors',
+                  'disabled:opacity-50 disabled:pointer-events-none'
+                )}
+              >
+                MAX
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

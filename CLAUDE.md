@@ -89,6 +89,11 @@ Flow (`usePaymaster` hook):
 
 Uses `gitlint` - keep all lines under **80 characters** (subject under 50).
 
+**IMPORTANT**: Use `--no-gpg-sign` flag for commits (GPG signing times out):
+```bash
+git commit --no-gpg-sign -m "message"
+```
+
 ## GitHub PR Comments
 
 Reply to PR review comments using the gh CLI:

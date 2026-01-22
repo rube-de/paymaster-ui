@@ -1,5 +1,6 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { cn } from '../../lib/utils'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 
 export interface FeeItem {
   label: string
@@ -13,23 +14,114 @@ interface FeeBreakdownProps {
   items: FeeItem[]
   className?: string
   title?: string
-  expanded?: boolean
   estimatedTime?: string
   slippage?: string
+  /**
+   * Display variant:
+   * - 'expanded': Full breakdown with all details (default, backwards compatible)
+   * - 'summary': Compact single-line with expand trigger (44px min-height for touch targets)
+   * - 'static': Simple static display, no interaction (for read-only values)
+   */
+  variant?: 'expanded' | 'summary' | 'static'
 }
 
 export function FeeBreakdown({
   items,
   className,
   title = 'Transaction Details',
-  expanded = true,
   estimatedTime,
   slippage,
+  variant = 'expanded',
 }: FeeBreakdownProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
   if (items.length === 0 && !estimatedTime && !slippage) {
     return null
   }
 
+  // Static variant: simple display, no interaction
+  if (variant === 'static') {
+    return (
+      <div
+        data-slot="fee-breakdown"
+        className={cn(
+          'flex items-center justify-between gap-4',
+          'px-4 py-2.5',
+          'rounded-xl border border-white/10 bg-black/15',
+          'text-sm text-white/50',
+          className
+        )}
+      >
+        {estimatedTime && (
+          <span className="flex items-center gap-1.5">
+            <ClockIcon />
+            {estimatedTime}
+          </span>
+        )}
+        {slippage && <span>{slippage} slippage</span>}
+      </div>
+    )
+  }
+
+  // Summary variant: compact single-line with expand
+  if (variant === 'summary') {
+    const summaryParts: string[] = []
+    if (estimatedTime) summaryParts.push(estimatedTime)
+    if (slippage) summaryParts.push(`${slippage} slippage`)
+    const summaryText = summaryParts.join(' • ') || 'Details'
+
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div
+          data-slot="fee-breakdown"
+          className={cn('rounded-xl border border-white/10', 'bg-black/15', 'overflow-hidden', className)}
+        >
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                'w-full flex items-center justify-between gap-2',
+                'px-4 py-2.5 min-h-[44px]',
+                'hover:bg-white/[0.02] transition-colors',
+                'text-left'
+              )}
+              aria-expanded={isOpen}
+            >
+              <span className="text-sm text-white/60">{summaryText}</span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={cn('text-white/40 transition-transform shrink-0', isOpen && 'rotate-180')}
+                aria-hidden="true"
+              >
+                <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent>
+            <div className="px-4 pb-3 pt-1 space-y-2 border-t border-white/5">
+              {items.map(item => (
+                <FeeRow key={item.label} {...item} />
+              ))}
+
+              {items.length > 0 && (estimatedTime || slippage) && (
+                <div className="h-px bg-white/5 my-1" aria-hidden="true" />
+              )}
+
+              {estimatedTime && <FeeRow label="Estimated time" value={estimatedTime} icon={<ClockIcon />} />}
+              {slippage && <FeeRow label="Max slippage" value={slippage} icon={<SlippageIcon />} />}
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    )
+  }
+
+  // Expanded variant: original behavior
   return (
     <div
       data-slot="fee-breakdown"
@@ -41,59 +133,52 @@ export function FeeBreakdown({
         </div>
       )}
 
-      {expanded && (
-        <div className="p-4 space-y-3">
-          {items.map(item => (
-            <FeeRow key={item.label} {...item} />
-          ))}
+      <div className="p-4 space-y-3">
+        {items.map(item => (
+          <FeeRow key={item.label} {...item} />
+        ))}
 
-          {(estimatedTime || slippage) && items.length > 0 && (
-            <div className="h-px bg-white/5 my-2" aria-hidden="true" />
-          )}
+        {(estimatedTime || slippage) && items.length > 0 && (
+          <div className="h-px bg-white/5 my-2" aria-hidden="true" />
+        )}
 
-          {estimatedTime && (
-            <FeeRow
-              label="Estimated time"
-              value={estimatedTime}
-              icon={
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 14 14"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white/50"
-                  aria-hidden="true"
-                >
-                  <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M7 4V7L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              }
-            />
-          )}
-
-          {slippage && (
-            <FeeRow
-              label="Max slippage"
-              value={slippage}
-              icon={
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 14 14"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white/50"
-                  aria-hidden="true"
-                >
-                  <path d="M7 1V13M1 7H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              }
-            />
-          )}
-        </div>
-      )}
+        {estimatedTime && <FeeRow label="Estimated time" value={estimatedTime} icon={<ClockIcon />} />}
+        {slippage && <FeeRow label="Max slippage" value={slippage} icon={<SlippageIcon />} />}
+      </div>
     </div>
+  )
+}
+
+function ClockIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="text-white/50"
+      aria-hidden="true"
+    >
+      <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M7 4V7L9 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function SlippageIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="text-white/50"
+      aria-hidden="true"
+    >
+      <path d="M7 1V13M1 7H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   )
 }
 

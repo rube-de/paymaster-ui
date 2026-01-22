@@ -41,7 +41,7 @@ const meta = {
     ),
   ],
   argTypes: {
-    expanded: { control: 'boolean' },
+    variant: { control: 'select', options: ['expanded', 'summary', 'static'] },
   },
 } satisfies Meta<typeof FeeBreakdown>
 
@@ -105,16 +105,33 @@ export const PartialLoading: Story = {
   },
 }
 
-export const Collapsed: Story = {
+export const SummaryVariant: Story = {
   args: {
     items: sampleItems,
-    title: 'Transaction Details',
-    expanded: false,
+    estimatedTime: '~2 minutes',
+    slippage: '0.5%',
+    variant: 'summary',
   },
   parameters: {
     docs: {
       description: {
-        story: 'Collapsed state shows only the title bar (controlled externally)',
+        story: 'Compact single-line summary with expandable details (click to expand)',
+      },
+    },
+  },
+}
+
+export const StaticVariant: Story = {
+  args: {
+    items: [],
+    estimatedTime: '~2 minutes',
+    slippage: '0.5%',
+    variant: 'static',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Simple read-only display with no interaction (for static info)',
       },
     },
   },
