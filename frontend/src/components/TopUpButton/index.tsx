@@ -138,12 +138,16 @@ export const TopUpButton: FC<Props> = ({
           {insufficientBalance && <p>Insufficient ${targetToken.symbol} balance</p>}
           {error && (
             <div>
-              <p>{showFullError || error.length <= 150 ? error : `${error.slice(0, 150)}...`}</p>
+              <p id="topup-error-details" aria-live="polite">
+                {showFullError || error.length <= 150 ? error : `${error.slice(0, 150)}...`}
+              </p>
               {error.length > 150 && (
                 <button
                   type="button"
                   onClick={() => setShowFullError(prev => !prev)}
                   className="text-teal-300 underline text-sm mt-1"
+                  aria-expanded={showFullError}
+                  aria-controls="topup-error-details"
                 >
                   {showFullError ? 'Show less' : 'Show more'}
                 </button>

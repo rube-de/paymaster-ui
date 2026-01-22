@@ -178,6 +178,7 @@ export function AmountInput({
                   type="button"
                   onClick={() => handlePercentClick(percent)}
                   disabled={disabled}
+                  aria-label={`Set amount to ${percent}% of balance`}
                   className={cn(
                     'px-1.5 py-0.5 text-xs font-medium rounded',
                     'text-white/40 hover:text-white/70',
@@ -193,6 +194,7 @@ export function AmountInput({
                 type="button"
                 onClick={handleMaxClick}
                 disabled={disabled}
+                aria-label="Set amount to maximum balance"
                 className={cn(
                   'px-1.5 py-0.5 text-xs font-medium rounded',
                   'text-white/60 hover:text-white',
