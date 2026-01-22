@@ -73,7 +73,7 @@ export function ChainTokenBadge({
         {/* Token icon (large, 32px) */}
         <span className="block [&>*]:size-8">{token.icon}</span>
         {/* Chain badge (small, bottom-right) */}
-        <span className="absolute -bottom-0.5 -right-0.5 block rounded-full bg-[#0d1f2d] ring-2 ring-[#0d1f2d]">
+        <span className="absolute -bottom-0.5 -right-0.5 block rounded-full bg-card ring-2 ring-card">
           {chainBadge}
         </span>
       </div>

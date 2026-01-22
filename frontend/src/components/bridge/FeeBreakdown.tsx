@@ -14,8 +14,6 @@ interface FeeBreakdownProps {
   items: FeeItem[]
   className?: string
   title?: string
-  /** @deprecated Use variant instead. Will be removed in future version. */
-  expanded?: boolean
   estimatedTime?: string
   slippage?: string
   /**
@@ -31,7 +29,6 @@ export function FeeBreakdown({
   items,
   className,
   title = 'Transaction Details',
-  expanded = true,
   estimatedTime,
   slippage,
   variant = 'expanded',
@@ -136,20 +133,18 @@ export function FeeBreakdown({
         </div>
       )}
 
-      {expanded && (
-        <div className="p-4 space-y-3">
-          {items.map(item => (
-            <FeeRow key={item.label} {...item} />
-          ))}
+      <div className="p-4 space-y-3">
+        {items.map(item => (
+          <FeeRow key={item.label} {...item} />
+        ))}
 
-          {(estimatedTime || slippage) && items.length > 0 && (
-            <div className="h-px bg-white/5 my-2" aria-hidden="true" />
-          )}
+        {(estimatedTime || slippage) && items.length > 0 && (
+          <div className="h-px bg-white/5 my-2" aria-hidden="true" />
+        )}
 
-          {estimatedTime && <FeeRow label="Estimated time" value={estimatedTime} icon={<ClockIcon />} />}
-          {slippage && <FeeRow label="Max slippage" value={slippage} icon={<SlippageIcon />} />}
-        </div>
-      )}
+        {estimatedTime && <FeeRow label="Estimated time" value={estimatedTime} icon={<ClockIcon />} />}
+        {slippage && <FeeRow label="Max slippage" value={slippage} icon={<SlippageIcon />} />}
+      </div>
     </div>
   )
 }
