@@ -21,6 +21,7 @@ FROM nginxinc/nginx-unprivileged:1.27-alpine
 
 # Copy nginx configuration first (better cache layering)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY security-headers.conf /etc/nginx/security-headers.conf
 
 # Copy built assets
 COPY --from=builder /app/dist /usr/share/nginx/html
