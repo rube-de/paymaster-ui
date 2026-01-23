@@ -16,6 +16,7 @@ import { ChainTokenBadge, ChainTokenModal } from './components/bridge'
 import { CustomConnectButton } from './CustomConnectButton'
 import { usePaymaster } from './hooks/usePaymaster'
 import { useDebounce } from './hooks/useDebounce'
+import { useDepositLimits } from './hooks/useDepositLimits'
 import { switchToChain } from './contracts/erc-20'
 import {
   ROFL_PAYMASTER_TOKEN_CONFIG,
@@ -162,6 +163,13 @@ export function App() {
     chainId: sapphire.id,
     query: { enabled: !!address, refetchInterval: 30_000 },
   })
+
+  // Deposit limits from PaymasterVault getTokenConfig
+  const depositLimits = useDepositLimits(
+    selectedToken?.address as `0x${string}` | undefined,
+    selectedSourceChainId,
+    selectedToken?.decimals ?? 6
+  )
 
   // Paymaster hook for cross-chain transfer
   const paymaster = usePaymaster(tokenConfig, selectedSourceChainId, [])
@@ -310,14 +318,48 @@ export function App() {
   // Validation
   const maxBalance = sourceBalance.data?.value ?? 0n
   const isInsufficientBalance = parsedAmount > maxBalance
+
+  // Deposit limit validation (only validate when limits are loaded and token is enabled)
+  const hasValidLimits = !depositLimits.isLoading && depositLimits.isEnabled
+  const isUnderMinimum =
+    hasValidLimits &&
+    depositLimits.minDeposit > 0n &&
+    parsedAmount > 0n &&
+    parsedAmount < depositLimits.minDeposit
+  const isOverMaximum =
+    hasValidLimits && depositLimits.maxDeposit > 0n && parsedAmount > depositLimits.maxDeposit
+  const isTokenDisabled = !depositLimits.isLoading && !depositLimits.isError && !depositLimits.isEnabled
+
+  // Effective max for the MAX button: min(balance, maxDeposit) if limits are valid
+  const effectiveMax = useMemo(() => {
+    if (!hasValidLimits || depositLimits.maxDeposit === 0n) return maxBalance
+    return maxBalance < depositLimits.maxDeposit ? maxBalance : depositLimits.maxDeposit
+  }, [hasValidLimits, depositLimits.maxDeposit, maxBalance])
+
   const canBridge =
-    parsedAmount > 0n && !isInsufficientBalance && !paymaster.isLoading && !paymaster.pendingTransaction
+    parsedAmount > 0n &&
+    !depositLimits.isLoading &&
+    !isInsufficientBalance &&
+    !isUnderMinimum &&
+    !isOverMaximum &&
+    !isTokenDisabled &&
+    !depositLimits.isError &&
+    !paymaster.isLoading &&
+    !paymaster.pendingTransaction
+
+  // Combined error state for input styling
+  const hasInputError = isInsufficientBalance || isUnderMinimum || isOverMaximum
 
   // Button state
   const getButtonText = () => {
     if (!isValidConnection) return 'Connect Wallet'
     if (paymaster.isLoading) return 'Processing...'
     if (!amount || parsedAmount === 0n) return 'Enter amount'
+    if (depositLimits.isLoading) return 'Checking limits...'
+    if (depositLimits.isError) return 'Unable to verify limits'
+    if (isTokenDisabled) return 'Token not supported'
+    if (isUnderMinimum) return `Below minimum (${depositLimits.formattedMin} ${selectedToken?.symbol ?? ''})`
+    if (isOverMaximum) return `Above maximum (${depositLimits.formattedMax} ${selectedToken?.symbol ?? ''})`
     if (isInsufficientBalance) return `Insufficient ${selectedToken?.symbol ?? 'Token'} Balance`
     return 'Bridge to Sapphire'
   }
@@ -372,11 +414,11 @@ export function App() {
               value={amount}
               onChange={setAmount}
               decimals={selectedToken?.decimals ?? 6}
-              maxValue={maxBalance}
+              maxValue={effectiveMax}
               balance={sourceBalance.data?.value}
               balanceLabel="Balance"
               disabled={!!paymaster.currentStep || !isValidConnection}
-              insufficientBalance={isInsufficientBalance}
+              insufficientBalance={hasInputError}
               placeholder="0.00"
               trailing={
                 <ChainTokenBadge

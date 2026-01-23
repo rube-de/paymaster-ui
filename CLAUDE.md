@@ -87,7 +87,9 @@ Flow (`usePaymaster` hook):
 
 ## Git Commit Messages
 
-Uses `gitlint` - keep all lines under **80 characters** (subject under 50).
+Uses `gitlint`:
+- **IMPORTANT: Subject line MUST be under 50 characters.** No exceptions.
+- All other lines must be under 80 characters.
 
 **IMPORTANT**: Use `--no-gpg-sign` flag for commits (GPG signing times out):
 ```bash

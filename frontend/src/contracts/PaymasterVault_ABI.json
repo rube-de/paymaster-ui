@@ -2,31 +2,348 @@
   {
     "inputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "AddressEmptyCode",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AmountAboveMaximum",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AmountBelowMinimum",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "AmountExceedsSafeLimit",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CircuitBreakerTriggered",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "ERC1967InvalidImplementation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ERC1967NonPayable",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EnforcedPause",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ExpectedPause",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FailedCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "available",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "required",
+        "type": "uint256"
+      }
+    ],
+    "name": "InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidDecimals",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidInitialization",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidMaxAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidMinAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidRecipient",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MinAmountExceedsMax",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInitializing",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UUPSUnauthorizedCallContext",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "slot",
+        "type": "bytes32"
+      }
+    ],
+    "name": "UUPSUnsupportedProxiableUUID",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UnsupportedToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "DepositsPaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "DepositsUnpaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint64",
+        "name": "version",
+        "type": "uint64"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "payer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "token",
         "type": "address"
       },
       {
+        "indexed": false,
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "paymentId",
+        "type": "bytes32"
       }
     ],
-    "name": "deposit",
-    "outputs": [
+    "name": "PaymentInitiated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "depositId",
+        "name": "minDepositAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxDepositAmount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "name": "TokenAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "minDepositAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "maxDepositAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "TokenConfigUpdated",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -77,19 +394,13 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "payer",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
         "type": "address"
       },
       {
@@ -99,13 +410,524 @@
         "type": "uint256"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      }
+    ],
+    "name": "TokenWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "Upgraded",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "UPGRADE_INTERFACE_VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "blockHeaderRequester",
+    "outputs": [
+      {
+        "internalType": "contract BlockHeaderRequester",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      }
+    ],
+    "name": "deposit",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "depositId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "depositsArePaused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "paused_",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "chainId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "vault",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "blockNumber",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "txIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "logIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "derivePaymentId",
+    "outputs": [
+      {
         "internalType": "bytes32",
-        "name": "paymentId",
+        "name": "",
         "type": "bytes32"
       }
     ],
-    "name": "PaymentInitiated",
-    "type": "event"
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "depositId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getDeposit",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "depositor",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "blockNumber",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "getTokenCircuitBreaker",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint128",
+            "name": "dailyLimit",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint128",
+            "name": "currentVolume",
+            "type": "uint128"
+          },
+          {
+            "internalType": "uint32",
+            "name": "lastResetDay",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bool",
+            "name": "enabled",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct RemoteTypes.CircuitBreaker",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "getTokenConfig",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "minAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "getTotalDeposited",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "totalDeposited",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_blockHeaderRequester",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "isTokenSupported",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "supported",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pauseDeposits",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setTokenCircuitBreakerEnabled",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "enabled",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint8",
+            "name": "decimals",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint96",
+            "name": "minAmount",
+            "type": "uint96"
+          },
+          {
+            "internalType": "uint96",
+            "name": "maxAmount",
+            "type": "uint96"
+          }
+        ],
+        "internalType": "struct RemoteTypes.AssetConfig",
+        "name": "cfg",
+        "type": "tuple"
+      }
+    ],
+    "name": "setTokenConfig",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint128",
+        "name": "newLimit",
+        "type": "uint128"
+      }
+    ],
+    "name": "setTokenDailyLimit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setTokenEnabled",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpauseDeposits",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "upgradeToAndCall",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]
