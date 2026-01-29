@@ -353,7 +353,6 @@ export function App() {
   // Button state
   const getButtonText = () => {
     if (!isValidConnection) return 'Connect Wallet'
-    if (paymaster.isLoading) return 'Processing...'
     if (!amount || parsedAmount === 0n) return 'Enter amount'
     if (depositLimits.isLoading) return 'Checking limits...'
     if (depositLimits.isError) return 'Unable to verify limits'
@@ -417,7 +416,7 @@ export function App() {
               maxValue={effectiveMax}
               balance={sourceBalance.data?.value}
               balanceLabel="Balance"
-              disabled={!!paymaster.currentStep || !isValidConnection}
+              disabled={paymaster.isLoading || !isValidConnection}
               insufficientBalance={hasInputError}
               placeholder="0.00"
               trailing={
@@ -428,7 +427,7 @@ export function App() {
                     icon: selectedToken?.icon ?? getTokenIcon('USDC'),
                   }}
                   onClick={() => setChainTokenModalOpen(true)}
-                  disabled={!!paymaster.currentStep}
+                  disabled={paymaster.isLoading}
                 />
               }
             />
@@ -463,21 +462,6 @@ export function App() {
               variant="static"
             />
 
-            {/* Progress Steps */}
-            {paymaster.currentStep && (
-              <div className="mt-4 p-4 rounded-xl bg-black/20 border border-white/10">
-                <div className="flex items-center gap-3">
-                  <LucideLoader className="size-5 animate-spin text-white/70" />
-                  <span className="text-sm text-white">{paymaster.currentStep.label}</span>
-                </div>
-                {paymaster.currentStep.expectedTimeInSeconds && (
-                  <p className="text-xs text-white/50 mt-2 ml-8">
-                    This may take ~{paymaster.currentStep.expectedTimeInSeconds}s
-                  </p>
-                )}
-              </div>
-            )}
-
             {/* Errors are shown via toast notifications */}
 
             {/* Pending Transaction Recovery */}
@@ -506,7 +490,14 @@ export function App() {
               )}
             >
               {paymaster.isLoading ? (
-                <LucideLoader className="size-5 animate-spin mx-auto" />
+                <span className="flex items-center justify-center gap-2">
+                  <LucideLoader className="size-5 animate-spin" />
+                  <span>
+                    {paymaster.currentStep?.label ?? 'Processing...'}
+                    {paymaster.currentStep?.expectedTimeInSeconds &&
+                      ` (~${paymaster.currentStep.expectedTimeInSeconds}s)`}
+                  </span>
+                </span>
               ) : (
                 getButtonText()
               )}
@@ -559,7 +550,7 @@ export function App() {
         selectedChainId={selectedSourceChainId}
         selectedTokenKey={selectedTokenKey}
         onSelect={handleChainTokenSelect}
-        disabled={!!paymaster.currentStep}
+        disabled={paymaster.isLoading}
       />
     </div>
   )
